@@ -26,8 +26,8 @@ public class StandaloneRunner implements AutoCloseable {
 		camelctx.addRoutes(new RouteBuilder() {
             @Override
             public void configure() {
-                fromF(model.getFromEndpoint().toCamelUri())
-                	.to(model.getToEndpoint().toCamelUri());
+                fromF(model.getFrom().toCamelUri())
+                	.to(model.getTo().toCamelUri());
             }
         });
 	}

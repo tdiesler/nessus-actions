@@ -1,40 +1,83 @@
 package io.nessus.actions.model;
 
+import java.beans.ConstructorProperties;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 public class Model {
 	
-	private final Endpoint source;
-	private final Endpoint dest;
+	private final String name;
+	private String runtime;
+	private Endpoint from;
+	private Endpoint to;
 	
-	public Model(Endpoint source, Endpoint dest) {
-		this.source = source;
-		this.dest = dest;
+	public static Model read(URL url) throws IOException {
+		return read(url.openStream());
 	}
 	
-	public Endpoint getFromEndpoint() {
-		return source;
+	public static Model read(InputStream input) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		return mapper.readValue(input, Model.class);
+	}
+	
+	@ConstructorProperties({"name"})
+	public Model(String name) {
+		this.name = name;
+	}
+	
+	public Model(String name, String runtime, Endpoint from, Endpoint to) {
+		this.name = name;
+		this.runtime = runtime;
+		this.from = from;
+		this.to = to;
 	}
 
-	public Endpoint getToEndpoint() {
-		return dest;
+	public String getName() {
+		return name;
+	}
+	
+	public String getRuntime() {
+		return runtime;
 	}
 
-	public static class Builder {
-		
-    	private Endpoint source;
-    	private Endpoint dest;
-    	
-		public Builder from(String comp, String uri) {
-    		this.source = new Endpoint(Component.fromString(comp), uri);
-    		return this;
-    	}
-    	
-		public Builder to(String comp, String uri) {
-    		this.dest = new Endpoint(Component.fromString(comp), uri);
-    		return this;
-    	}
-    	
-    	public Model build() {
-    		return new Model(source, dest);
-    	}
+	public void setRuntime(String runtime) {
+		this.runtime = runtime;
 	}
+
+	public Endpoint getFrom() {
+		return from;
+	}
+	
+	public void setFrom(Endpoint from) {
+		this.from = from;
+	}
+	
+	public Endpoint getTo() {
+		return to;
+	}
+	
+	public void setTo(Endpoint to) {
+		this.to = to;
+	}
+	
+	@Override
+	public String toString() {
+        try {
+	        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+	        mapper.setSerializationInclusion(Include.NON_NULL);
+	        mapper.setSerializationInclusion(Include.NON_EMPTY);
+	        ObjectWriter writer = mapper.writer().forType(Model.class);
+			return writer.writeValueAsString(this);
+		} catch (JsonProcessingException ex) {
+			throw CheckedExceptionWrapper.create(ex);
+		}
+	}
+
 }

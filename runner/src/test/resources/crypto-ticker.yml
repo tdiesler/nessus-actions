@@ -1,0 +1,15 @@
+name: Crypto Ticker
+
+runtime: standalone
+
+from:
+  name: camel/undertow@v1
+  with: http://127.0.0.1:8080/ticker
+  
+to:
+  name: camel/xchange@v1
+  with: binance
+  params:
+    service: marketdata
+    method: ticker
+

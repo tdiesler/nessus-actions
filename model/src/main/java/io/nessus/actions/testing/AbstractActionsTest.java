@@ -20,11 +20,21 @@
 package io.nessus.actions.testing;
 
 
+import java.io.IOException;
+import java.net.URL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.nessus.actions.model.Model;
 
 public abstract class AbstractActionsTest  {
 	
 	protected final Logger LOG = LoggerFactory.getLogger(getClass());
+
+	protected Model getModelFromResource(String resource) throws IOException {
+		URL input = getClass().getResource(resource);
+		return Model.read(input);
+	}
     
 }

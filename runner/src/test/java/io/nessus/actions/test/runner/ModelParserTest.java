@@ -20,38 +20,40 @@
 package io.nessus.actions.test.runner;
 
 
-import java.math.BigDecimal;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import io.nessus.actions.model.Model;
-import io.nessus.actions.runner.StandaloneRunner;
+import io.nessus.actions.model.ModelBuilder;
 import io.nessus.actions.testing.AbstractActionsTest;
-import io.nessus.actions.testing.HttpRequest;
-import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
-public class StandaloneRunnerTest extends AbstractActionsTest {
+public class ModelParserTest extends AbstractActionsTest {
     
     @Test
-    public void runStandalone() throws Exception {
+    public void parseModel() throws Exception {
     	
         Model model = getModelFromResource("/crypto-ticker.yml");
-        String httpUrl = model.getFrom().getWith();
-    	
-    	try (StandaloneRunner runner = new StandaloneRunner(model)) {
-    		
-    		runner.addTypeConverters(new TickerTypeConverters());
-    		
-        	runner.start();
-
-    		String pair = "BTC/USDT";
-    		HttpResponse res = HttpRequest.get(httpUrl + "?currencyPair=" + pair).getResponse();
-            Assert.assertEquals(200, res.getStatusCode());
-    		
-            BigDecimal closePrice = new BigDecimal(res.getBody());
-            LOG.info(String.format("%s: %.2f", pair, closePrice));
-    	}
+        LOG.info(model.toString());
     }
-    
+
+    @Test
+    public void writeModel() throws Exception {
+    	
+    	Model was = new ModelBuilder("Crypto Ticker")
+    			.runtime("standalone")
+    			.from("camel/undertow@v1")
+					.with("http://127.0.0.1:8080/ticker")
+					.build()
+    			.to("camel/xchange@v1")
+					.with("binance")
+					.param("service", "marketdata")
+					.param("method", "ticker")
+					.build()
+    			.build();
+    			
+        LOG.info(was.toString());
+        
+        Model exp = getModelFromResource("/crypto-ticker.yml");
+        Assert.assertEquals(exp.toString(), was.toString());
+    }
 }
