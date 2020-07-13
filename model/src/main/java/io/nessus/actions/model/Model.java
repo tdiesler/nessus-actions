@@ -17,6 +17,7 @@ public class Model {
 	private String runtime;
 	private Endpoint from;
 	private Endpoint to;
+	private Transform marshal;
 	
 	public static Model read(URL url) throws IOException {
 		return read(url.openStream());
@@ -32,11 +33,12 @@ public class Model {
 		this.name = name;
 	}
 	
-	public Model(String name, String runtime, Endpoint from, Endpoint to) {
+	public Model(String name, String runtime, Endpoint from, Endpoint to, Transform marshal) {
 		this.name = name;
 		this.runtime = runtime;
 		this.from = from;
 		this.to = to;
+		this.marshal = marshal;
 	}
 
 	public String getName() {
@@ -67,6 +69,14 @@ public class Model {
 		this.to = to;
 	}
 	
+	public Transform getMarshal() {
+		return marshal;
+	}
+
+	public void setMarshal(Transform marshal) {
+		this.marshal = marshal;
+	}
+
 	@Override
 	public String toString() {
         try {

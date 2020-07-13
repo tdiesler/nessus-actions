@@ -1,7 +1,5 @@
 package io.nessus.actions.model;
 
-import java.beans.ConstructorProperties;
-
 public class Component {
 	
 	private final String group;

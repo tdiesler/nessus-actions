@@ -12,4 +12,8 @@ to:
   params:
     service: marketdata
     method: ticker
+    
+marshal:
+   format: json
+   pretty: true
 

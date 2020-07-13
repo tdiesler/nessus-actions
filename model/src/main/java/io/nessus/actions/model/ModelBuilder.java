@@ -1,7 +1,5 @@
 package io.nessus.actions.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 public class ModelBuilder {
@@ -10,6 +8,7 @@ public class ModelBuilder {
 	private String runtime;
 	private Endpoint from;
 	private Endpoint to;
+	private Transform marshal;
 	
 	public ModelBuilder(String name) {
 		this.name = name;
@@ -32,8 +31,14 @@ public class ModelBuilder {
 		});
 	}
 
+	public ModelBuilder marshall(String format, boolean pretty) {
+		this.marshal = new Transform(format);
+		this.marshal.setPretty(pretty);
+		return this;
+	}
+	
 	public Model build() {
-		Model model = new Model(name, runtime, from, to);
+		Model model = new Model(name, runtime, from, to, marshal);
 		return model;
 	}
 
@@ -41,7 +46,7 @@ public class ModelBuilder {
     	
     	private final String name;
     	private final Consumer<Endpoint> consumer;
-    	private final Map<String, String> params = new LinkedHashMap<>();
+    	private final Parameters params = new Parameters();
     	private String with;
     	
 		public EndpointBuilder(String name, Consumer<Endpoint> consumer) {
@@ -63,5 +68,5 @@ public class ModelBuilder {
 			consumer.accept(new Endpoint(name, with, params));
 			return ModelBuilder.this;
 		}
-    } 
+    }
 }

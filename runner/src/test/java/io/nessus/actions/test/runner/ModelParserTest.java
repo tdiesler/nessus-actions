@@ -49,6 +49,7 @@ public class ModelParserTest extends AbstractActionsTest {
 					.param("service", "marketdata")
 					.param("method", "ticker")
 					.build()
+				.marshall("json", true)
     			.build();
     			
         LOG.info(was.toString());
