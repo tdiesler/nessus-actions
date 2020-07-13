@@ -1,4 +1,4 @@
-package io.nessus.actions.itest.wildfly;
+package io.nessus.actions.itest.wildfly.ticker.sub;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;

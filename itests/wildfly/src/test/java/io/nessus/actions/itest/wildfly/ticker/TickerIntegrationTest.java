@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.itest.wildfly;
+package io.nessus.actions.itest.wildfly.ticker;
 
 
 import java.math.BigDecimal;
@@ -27,8 +27,10 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.spi.TypeConverterRegistry;
+import org.jboss.arquillian.container.test.api.Deployer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
@@ -38,6 +40,7 @@ import org.wildfly.extension.camel.CamelAware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nessus.actions.itest.wildfly.ticker.sub.TickerTypeConverters;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.runner.StandaloneRunner;
 import io.nessus.actions.testing.AbstractActionsTest;
@@ -48,7 +51,10 @@ import io.nessus.actions.testing.HttpRequest.HttpResponse;
 @RunWith(Arquillian.class)
 public class TickerIntegrationTest extends AbstractActionsTest {
     
-    @Deployment
+	@ArquillianResource
+	Deployer deployer;
+	
+    @Deployment(name = "crypto-ticker")
     public static WebArchive createdeployment() {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, "crypto-ticker.war");
         archive.addClasses(TickerTypeConverters.class);

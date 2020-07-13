@@ -22,38 +22,48 @@
     <dependencies>
 
 		<dependency>
+			<groupId>org.jboss.spec.javax.servlet</groupId>
+			<artifactId>jboss-servlet-api_4.0_spec</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+        <!-- Test -->
+		<dependency>
 		    <groupId>io.nessus.actions</groupId>
 		    <artifactId>nessus-actions-runner</artifactId>
 		    <version>${project.version}</version>
 		</dependency>
-		
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-xchange</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-depchain</artifactId>
+            <scope>test</scope>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
             <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wildfly.arquillian</groupId>
-            <artifactId>wildfly-arquillian-container-managed</artifactId>
+            <artifactId>wildfly-arquillian-container-remote</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wildfly.arquillian</groupId>
             <artifactId>wildfly-arquillian-protocol-jmx</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wildfly.camel</groupId>
             <artifactId>wildfly-camel-common</artifactId>
+            <scope>test</scope>
         </dependency>
-        
-        <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -80,91 +90,114 @@
                 </includes>
             </testResource>
         </testResources>
-    	<plugins>
+		<plugins>
+			<plugin>
+				<groupId>org.jboss.galleon</groupId>
+				<artifactId>galleon-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>server-provisioning</id>
+						<goals>
+							<goal>provision</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<install-dir>${project.build.directory}/${jboss.server.name}</install-dir>
+							<offline>false</offline>
+							<resolve-locals>
+								<resolve-local>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-modules</artifactId>
+									<version>${version.wildfly.camel}</version>
+								</resolve-local>
+								<resolve-local>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-extrasA</artifactId>
+									<version>${version.wildfly.camel}</version>
+								</resolve-local>
+								<resolve-local>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-extrasB</artifactId>
+									<version>${version.wildfly.camel}</version>
+								</resolve-local>
+								<resolve-local>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-extrasC</artifactId>
+									<version>${version.wildfly.camel}</version>
+								</resolve-local>
+								<resolve-local>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-extrasD</artifactId>
+									<version>${version.wildfly.camel}</version>
+								</resolve-local>
+							</resolve-locals>
+							<feature-packs>
+								<feature-pack>
+									<groupId>org.wildfly.camel</groupId>
+									<artifactId>wildfly-camel-feature-pack</artifactId>
+									<version>${version.wildfly.camel}</version>
+									<inherit-configs>true</inherit-configs>
+								</feature-pack>
+							</feature-packs>
+							<plugin-options>
+								<jboss-maven-dist />
+								<jboss-fork-embedded />
+							</plugin-options>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>run-fuseconfig</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<executable>${java.home}/bin/java</executable>
+							<environmentVariables>
+								<JBOSS_HOME>${jboss.home}</JBOSS_HOME>
+							</environmentVariables>
+							<commandlineArgs>-jar ${jboss.home}/jboss-modules.jar -mp ${jboss.home}/modules org.wildfly.extras.config --configs camel --enable</commandlineArgs>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
-                <groupId>org.jboss.galleon</groupId>
-                <artifactId>galleon-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>server-provisioning</id>
-                        <goals>
-                            <goal>provision</goal>
-                        </goals>
-                        <phase>generate-test-resources</phase>
-                        <configuration>
-                            <install-dir>${project.build.directory}/${jboss.server.name}</install-dir>
-                            <offline>false</offline>
-                            <resolve-locals>
-                                <resolve-local>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-modules</artifactId>
-						<version>${version.wildfly.camel}</version>
-                                </resolve-local>
-                                <resolve-local>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-extrasA</artifactId>
-						<version>${version.wildfly.camel}</version>
-                                </resolve-local>
-                                <resolve-local>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-extrasB</artifactId>
-						<version>${version.wildfly.camel}</version>
-                                </resolve-local>
-                                <resolve-local>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-extrasC</artifactId>
-						<version>${version.wildfly.camel}</version>
-                                </resolve-local>
-                                <resolve-local>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-extrasD</artifactId>
-						<version>${version.wildfly.camel}</version>
-                                </resolve-local>
-                            </resolve-locals>
-                            <feature-packs>
-                                <feature-pack>
-                                    <groupId>org.wildfly.camel</groupId>
-                                    <artifactId>wildfly-camel-feature-pack</artifactId>
-                                    <version>${version.wildfly.camel}</version>
-                                    <inherit-configs>true</inherit-configs>
-                                </feature-pack>
-                            </feature-packs>
-                            <plugin-options>
-                                <jboss-maven-dist />
-                                <jboss-fork-embedded />
-                            </plugin-options>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>start-wildfly</id>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<jbossHome>${jboss.home}</jbossHome>
+						</configuration>
+					</execution>
+					<execution>
+						<id>shutdown-wildfly</id>
+						<goals>
+							<goal>shutdown</goal>
+						</goals>
+						<phase>post-integration-test</phase>
+					</execution>
+				</executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>run-fuseconfig</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${java.home}/bin/java</executable>
-                            <environmentVariables>
-                                <JBOSS_HOME>${jboss.home}</JBOSS_HOME>
-                            </environmentVariables>
-                            <commandlineArgs>-jar ${jboss.home}/jboss-modules.jar -mp ${jboss.home}/modules org.wildfly.extras.config --configs camel --enable</commandlineArgs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
-                </configuration>
-            </plugin>
-    	</plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<redirectTestOutputToFile>false</redirectTestOutputToFile>
+				</configuration>
+			</plugin>
+		</plugins>
     </build>
     
 </project>

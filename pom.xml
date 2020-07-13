@@ -21,14 +21,17 @@
     
     <properties>
         <version.apache.camel>3.4.0</version.apache.camel>
+		<version.wildfly.camel>12.0.0</version.wildfly.camel>
+		<version.wildfly>20.0.0.Final</version.wildfly>
+		
+        <!-- Other versions -->
         <version.jackson>2.11.0</version.jackson>
+        <version.javax.servlet>2.0.0.Final</version.javax.servlet>
         <version.jboss.arquillian.core>1.4.0.Final</version.jboss.arquillian.core>
         <version.jboss.shrinkwrap>1.2.2</version.jboss.shrinkwrap>
         <version.junit>4.13</version.junit>
         <version.slf4j>1.7.28</version.slf4j>
-		<version.wildfly>20.0.0.Final</version.wildfly>
         <version.wildfly.arquillian>2.2.0.Final</version.wildfly.arquillian>
-		<version.wildfly.camel>12.0.0</version.wildfly.camel>
 		        
         <!-- Plugin versions -->
         <version-exec-maven-plugin>1.6.0</version-exec-maven-plugin>
@@ -42,6 +45,7 @@
         <version-maven-surefire-plugin>2.19.1</version-maven-surefire-plugin>
         <version-smartics-maven-plugin>2.1.5</version-smartics-maven-plugin>
         <version-wildfly-galleon-plugin>4.2.6.Final</version-wildfly-galleon-plugin>
+        <version-wildfly-maven-plugin>2.0.0.Final</version-wildfly-maven-plugin>
     </properties>
     
     <modules>
@@ -86,6 +90,11 @@
                 <type>pom</type>
             </dependency>
             <dependency>
+                <groupId>org.jboss.spec.javax.servlet</groupId>
+                <artifactId>jboss-servlet-api_4.0_spec</artifactId>
+                <version>${version.javax.servlet}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${version.slf4j}</version>
@@ -97,20 +106,8 @@
             </dependency>
             <dependency>
                 <groupId>org.wildfly.arquillian</groupId>
-                <artifactId>wildfly-arquillian-container-managed</artifactId>
+                <artifactId>wildfly-arquillian-container-remote</artifactId>
                 <version>${version.wildfly.arquillian}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.jboss.sasl</groupId>
-                        <artifactId>jboss-sasl</artifactId>
-                    </exclusion>
-                    <!-- TODO remove this exclusion once this depends on Jakarta Inject -->
-                    <!-- superseded by jakarta.inject:jakarta.inject-api -->
-                    <exclusion>
-                        <groupId>javax.inject</groupId>
-                        <artifactId>javax.inject</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.wildfly.arquillian</groupId>
@@ -218,6 +215,14 @@
                     <groupId>org.wildfly.galleon-plugins</groupId>
                     <artifactId>wildfly-galleon-maven-plugin</artifactId>
                     <version>${version-wildfly-galleon-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.wildfly.plugins</groupId>
+                    <artifactId>wildfly-maven-plugin</artifactId>
+                    <version>${version-wildfly-maven-plugin}</version>
+                    <configuration>
+                        <version>${version.wildfly}</version>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

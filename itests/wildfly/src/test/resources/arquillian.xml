@@ -26,9 +26,9 @@
 
     <container qualifier="managed" default="true">
         <configuration>
-            <property name="jbossHome">${jboss.home}</property>
-            <property name="serverConfig">${server.config}</property>
-            <property name="allowConnectingToRunningServer">true</property>
+        	<!-- Supported property names: [managementAddress, password, managementPort, port, managementProtocol, host, authenticationConfig, username] -->
+            <property name="username"></property>
+            <property name="password"></property>
         </configuration>
     </container>
 
