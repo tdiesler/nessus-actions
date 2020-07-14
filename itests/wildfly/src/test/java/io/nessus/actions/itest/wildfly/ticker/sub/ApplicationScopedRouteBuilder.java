@@ -27,6 +27,5 @@ public class ApplicationScopedRouteBuilder extends RouteBuilder {
 		fromF("undertow:" + httpUrl)
 	    	.to("xchange:binance?service=marketdata&method=ticker")
 	    	.marshal().json(JsonLibrary.Jackson, true);
-		
 	}
 }

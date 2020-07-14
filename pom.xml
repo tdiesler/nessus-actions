@@ -43,6 +43,7 @@
         <version-maven-javadoc-plugin>3.0.1</version-maven-javadoc-plugin>
         <version-maven-release-plugin>2.5</version-maven-release-plugin>
         <version-maven-surefire-plugin>2.19.1</version-maven-surefire-plugin>
+        <version-maven-war-plugin>3.3.1</version-maven-war-plugin>
         <version-smartics-maven-plugin>2.1.5</version-smartics-maven-plugin>
         <version-wildfly-galleon-plugin>4.2.6.Final</version-wildfly-galleon-plugin>
         <version-wildfly-maven-plugin>2.0.0.Final</version-wildfly-maven-plugin>
@@ -52,6 +53,7 @@
         <module>model</module>
         <module>packs</module>
         <module>runner</module>
+        <module>portal</module>
         <module>itests</module>
     </modules>
 
@@ -201,6 +203,11 @@
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+                    <version>${version-maven-war-plugin}</version>
+				</plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>

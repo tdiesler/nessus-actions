@@ -51,6 +51,8 @@ public class TickerDeploymentTest extends AbstractActionsTest {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, "crypto-ticker-undertow.war");
     	archive.addClasses(ApplicationScopedRouteBuilder.class, TickerTypeConverters.class);
     	archive.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+        archive.addAsWebInfResource("ticker/jboss-deployment-structure.xml", "jboss-deployment-structure.xml");
+        archive.addAsResource("ticker/crypto-ticker.yml", "crypto-ticker.yml");
         return archive;
     }
     

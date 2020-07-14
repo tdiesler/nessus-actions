@@ -28,6 +28,11 @@ public class Model {
 		return mapper.readValue(input, Model.class);
 	}
 	
+	public static Model read(String content) throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		return mapper.readValue(content, Model.class);
+	}
+	
 	@ConstructorProperties({"name"})
 	public Model(String name) {
 		this.name = name;
