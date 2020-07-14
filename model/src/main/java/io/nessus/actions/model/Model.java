@@ -18,6 +18,7 @@ public class Model {
 	private Endpoint from;
 	private Endpoint to;
 	private Transform marshal;
+	public static final String CAMEL_ACTIONS_RESOURCE_NAME = "camel-actions.yaml";
 	
 	public static Model read(URL url) throws IOException {
 		return read(url.openStream());

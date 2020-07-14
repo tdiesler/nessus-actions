@@ -26,6 +26,16 @@
             <artifactId>camel-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wildfly.camel</groupId>
+            <artifactId>wildfly-camel-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
+		<dependency>
+			<groupId>jakarta.enterprise</groupId>
+			<artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <scope>provided</scope>
+		</dependency>
         
         <!-- Test -->
         <dependency>

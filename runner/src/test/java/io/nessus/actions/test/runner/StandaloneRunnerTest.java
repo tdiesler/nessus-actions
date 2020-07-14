@@ -33,6 +33,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.model.Model;
+import io.nessus.actions.model.converters.TickerTypeConverters;
 import io.nessus.actions.runner.StandaloneRunner;
 import io.nessus.actions.testing.AbstractActionsTest;
 import io.nessus.actions.testing.HttpRequest;

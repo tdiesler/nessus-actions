@@ -26,6 +26,7 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.nessus.actions.model.AssertState;
 import io.nessus.actions.model.Model;
 
 public abstract class AbstractActionsTest  {
@@ -33,8 +34,15 @@ public abstract class AbstractActionsTest  {
 	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	protected Model getModelFromResource(String resource) throws IOException {
+		
 		URL input = getClass().getResource(resource);
-		return Model.read(input);
+		if (input == null && !resource.startsWith("/")) 
+			input = getClass().getResource("/" + resource);
+		
+		AssertState.notNull(input, "Cannot find: " + resource);
+		
+		Model model = Model.read(input);
+		return model;
 	}
     
 }

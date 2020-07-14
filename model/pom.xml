@@ -30,6 +30,18 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         
+        <!-- Provided -->
+        <dependency>
+        	<!-- 
+        	[TODO] Remove when this is part of Camel
+			[CAMEL-15301] Provide various type converters for camel-xchange
+			https://issues.apache.org/jira/browse/CAMEL-15301 
+        	-->
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-xchange</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
