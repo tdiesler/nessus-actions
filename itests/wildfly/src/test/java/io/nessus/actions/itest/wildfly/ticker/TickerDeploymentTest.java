@@ -94,6 +94,5 @@ public class TickerDeploymentTest extends AbstractActionsTest {
 
 		res = HttpRequest.get(httpUrl).getResponse();
         Assert.assertEquals(404, res.getStatusCode());
-		
     }
 }
