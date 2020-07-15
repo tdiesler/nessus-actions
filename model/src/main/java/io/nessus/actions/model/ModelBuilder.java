@@ -1,11 +1,12 @@
 package io.nessus.actions.model;
 
 import java.util.function.Consumer;
+import io.nessus.actions.model.Model.Runtime;
 
 public class ModelBuilder {
 	
 	private final String name;
-	private String runtime;
+	private Runtime runtime;
 	private Endpoint from;
 	private Endpoint to;
 	private Transform marshal;
@@ -14,7 +15,7 @@ public class ModelBuilder {
 		this.name = name;
 	}
 
-	public ModelBuilder runtime(String runtime) {
+	public ModelBuilder runtime(Runtime runtime) {
 		this.runtime = runtime;
 		return this;
 	}

@@ -26,6 +26,7 @@ import org.junit.Test;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.ModelBuilder;
 import io.nessus.actions.testing.AbstractActionsTest;
+import io.nessus.actions.model.Model.Runtime;
 
 public class ModelParserTest extends AbstractActionsTest {
     
@@ -40,7 +41,7 @@ public class ModelParserTest extends AbstractActionsTest {
     public void writeModel() throws Exception {
     	
     	Model was = new ModelBuilder("Crypto Ticker")
-    			.runtime("standalone")
+    			.runtime(Runtime.standalone)
     			.from("camel/undertow@v1")
 					.with("http://127.0.0.1:8080/ticker")
 					.build()

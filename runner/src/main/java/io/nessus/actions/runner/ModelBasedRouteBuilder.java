@@ -7,12 +7,14 @@ import java.net.URL;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.camel.spi.TypeConverterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nessus.actions.model.AssertState;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.Transform;
+import io.nessus.actions.model.converters.TickerTypeConverters;
 
 /**
  *  A generic model based route builder
@@ -46,6 +48,11 @@ public abstract class ModelBasedRouteBuilder extends RouteBuilder {
 		
 		LOG.warn("Configure {} from {}", ModelBasedRouteBuilder.class.getName(), input);
 		Model model = Model.read(input);
+		
+		// [TODO] Remove when this is part of Camel
+		// [CAMEL-15301] Provide various type converters for camel-xchange
+		TypeConverterRegistry registry = getContext().getTypeConverterRegistry();
+		registry.addTypeConverters(new TickerTypeConverters());
 		
 		// Define the Camel route using the Model
 		

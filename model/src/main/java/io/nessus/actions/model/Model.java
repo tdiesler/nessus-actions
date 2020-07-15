@@ -13,8 +13,16 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class Model {
 	
+	public enum Runtime {
+		eap, wildfly, docker, standalone;
+
+		public boolean isWildFly() {
+			return this == eap || this == wildfly;
+		}
+	}
+	
 	private final String name;
-	private String runtime;
+	private Runtime runtime;
 	private Endpoint from;
 	private Endpoint to;
 	private Transform marshal;
@@ -39,7 +47,7 @@ public class Model {
 		this.name = name;
 	}
 	
-	public Model(String name, String runtime, Endpoint from, Endpoint to, Transform marshal) {
+	public Model(String name, Runtime runtime, Endpoint from, Endpoint to, Transform marshal) {
 		this.name = name;
 		this.runtime = runtime;
 		this.from = from;
@@ -51,11 +59,11 @@ public class Model {
 		return name;
 	}
 	
-	public String getRuntime() {
+	public Runtime getRuntime() {
 		return runtime;
 	}
 
-	public void setRuntime(String runtime) {
+	public void setRuntime(Runtime runtime) {
 		this.runtime = runtime;
 	}
 
