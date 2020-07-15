@@ -13,6 +13,17 @@
 
     <name>Nessus :: Actions :: Portal</name>
 
+    <!-- Properties -->
+    <properties>
+        <docker.image.name>nessusio/nessus-actions-portal</docker.image.name>
+        <docker.image.from>quay.io/wildfly/wildfly-centos7:20.0</docker.image.from>
+        <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
+        <docker.image.version>latest</docker.image.version>
+        <docker.skipPush>true</docker.skipPush>
+        <server.home>/opt/wildfly</server.home>
+    </properties>
+
+	<!-- Dependencies -->
     <dependencies>
         
         <!-- Compile -->
@@ -35,15 +46,74 @@
         </dependency>
     </dependencies>
 
+	<!-- 
+		docker run - -detach - -name portal -p 9090:8080 nessusio/nessus-actions-portal
+		
+		http://127.0.0.1:9090/nessus-actions-portal
+	-->
+	 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <autoPull>always</autoPull>
+                    <images>
+                        <image>
+                            <name>${docker.image.name}</name>
+                            <build>
+                                <maintainer>${docker.image.maintainer}</maintainer>
+                                <from>${docker.image.from}</from>
+                                <tags>
+                                    <tag>${docker.image.version}</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <assembly>
+                                    <descriptorRef>artifact</descriptorRef>
+                                	<targetDir>${server.home}/standalone/deployments</targetDir>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>remove-images</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>remove</goal>
+                        </goals>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>${docker.image.name}:${docker.image.version}</name>
+                                </image>
+                                <image>
+                                    <name>${docker.image.name}:${project.version}</name>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-docker-image</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                    <execution>
+                        <id>push-docker-image</id>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <skipPush>${docker.skipPush}</skipPush>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
