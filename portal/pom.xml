@@ -47,9 +47,9 @@
     </dependencies>
 
 	<!-- 
-		docker run - -detach - -name portal -p 9090:8080 nessusio/nessus-actions-portal
+		docker run - -detach - -name portal -p 8181:8080 nessusio/nessus-actions-portal
 		
-		http://127.0.0.1:9090/nessus-actions-portal
+		http://127.0.0.1:8181/nessus-actions-portal
 	-->
 	 
 	<build>

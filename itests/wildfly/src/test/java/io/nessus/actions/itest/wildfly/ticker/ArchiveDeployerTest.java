@@ -60,19 +60,12 @@ public class ArchiveDeployerTest extends AbstractActionsTest {
     @Test
     public void warDeployment() throws Exception {
 
-        ModelControllerClientConfiguration.Builder clientConfigBuilder = new ModelControllerClientConfiguration.Builder()
+		ModelControllerClientConfiguration.Builder clientConfigBuilder = new ModelControllerClientConfiguration.Builder()
+                .setHandler(getUsernamePasswordHandler())
                 .setProtocol("remote+http")
                 .setHostName("127.0.0.1")
                 .setPort(9990);
 
-        /* Check for username and password authentication
-        if(containerConfig.getUsername() != null) {
-            Authentication.username = containerConfig.getUsername();
-            Authentication.password = containerConfig.getPassword();
-            clientConfigBuilder.setHandler(getCallbackHandler());
-        }
-        */
-        
         ModelControllerClientConfiguration clientConfig = clientConfigBuilder.build();
         try (RemoteArchiveDeployer deployer = new RemoteArchiveDeployer(clientConfig)) {
         	

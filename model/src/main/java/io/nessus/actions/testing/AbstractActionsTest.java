@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.nessus.actions.model.AssertState;
 import io.nessus.actions.model.Model;
+import io.nessus.actions.model.UsernamePasswordHandler;
 
 public abstract class AbstractActionsTest  {
 	
@@ -44,5 +45,17 @@ public abstract class AbstractActionsTest  {
 		Model model = Model.read(input);
 		return model;
 	}
+
+	protected String getServerUsername() {
+		return System.getProperty("server.username");
+	}
+
+	protected char[] getServerPassword() {
+		String password = System.getProperty("server.password");
+		return password != null ? password.toCharArray() : null;
+	}
     
+	protected UsernamePasswordHandler getUsernamePasswordHandler() {
+		return new UsernamePasswordHandler(getServerUsername(), getServerPassword());
+	}
 }
