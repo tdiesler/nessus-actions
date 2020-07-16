@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import io.nessus.actions.model.step.ComponentGAV;
 import io.nessus.actions.model.step.ComponentStep;
@@ -48,6 +49,12 @@ public class FromStep implements ComponentStep<FromStep> {
 	@JsonGetter("params")
 	public Map<String, Object> getParametersMap() {
 		return params.toMap();
+	}
+
+	@JsonSetter("params")
+	public void setParameterMap(Map<String, Object> values) {
+		params.clear();
+		params.putAll(values);
 	}
 
 	@Override

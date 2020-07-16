@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import io.nessus.actions.model.utils.Parameters;
 
@@ -30,6 +31,12 @@ public interface ParameterStep<S extends Step> extends Step {
 		@JsonGetter("params")
 		public Map<String, Object> getParameterMap() {
 			return params.toMap();
+		}
+
+		@JsonSetter("params")
+		public void setParameterMap(Map<String, Object> values) {
+			params.clear();
+			params.putAll(values);
 		}
 
 		@JsonIgnore

@@ -42,7 +42,7 @@ public class StepDeserializer extends StdDeserializer<Step> {
         }
         AssertState.notNull(step, "Unsupported step: " + node);
         JsonNode pnode = node.at(String.format("/%s/params", first));
-        if (!pnode.isEmpty()) {
+        if (!pnode.isMissingNode()) {
         	ParameterStep<?> pstep = (ParameterStep<?>) step;
         	pnode.fieldNames().forEachRemaining(key -> {
         		String value = pnode.get(key).asText();

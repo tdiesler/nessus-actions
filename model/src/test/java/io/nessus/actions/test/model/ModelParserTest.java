@@ -36,7 +36,8 @@ public class ModelParserTest extends AbstractActionsTest {
     public void writeModel() throws Exception {
     	
 		Model expModel = new Model("Crypto Ticker", TargetRuntime.eap)
-				.withStep(new FromStep("camel/undertow@v1", "http://0.0.0.0:8080/ticker"))
+				.withStep(new FromStep("camel/undertow@v1", "http://0.0.0.0:8080/ticker")
+					.withParams("{currencyPair=BTC/USDT}"))
 				.withStep(new ToStep("camel/xchange@v1", "binance")
 					.withParams("{service=marketdata, method=ticker}"))
 				.withStep(new MarshalStep("json", true));

@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.itest.wildfly.ticker.sub.ApplicationScopedRouteBuilder;
@@ -67,8 +68,7 @@ public class TickerDeploymentTest extends AbstractActionsTest {
     @Test
     public void testWithNessusActions() throws Exception {
 
-        String pair = "BTC/USDT";
-        String httpUrl = "http://127.0.0.1:8080/ticker?currencyPair=" + pair;
+        String httpUrl = "http://127.0.0.1:8080/ticker";
         
 		HttpResponse res = HttpRequest.get(httpUrl).getResponse();
         Assert.assertEquals(404, res.getStatusCode());
@@ -82,7 +82,10 @@ public class TickerDeploymentTest extends AbstractActionsTest {
             LOG.info(res.getBody());
             
             ObjectMapper mapper = new ObjectMapper();
-            BigDecimal closePrice = mapper.readTree(res.getBody()).at("/last").decimalValue();
+            JsonNode resTree = mapper.readTree(res.getBody());
+            
+			String pair = resTree.at("/currencyPair").asText();
+			BigDecimal closePrice = resTree.at("/last").decimalValue();
             LOG.info(String.format("%s: %.2f", pair, closePrice));
             
         } finally {

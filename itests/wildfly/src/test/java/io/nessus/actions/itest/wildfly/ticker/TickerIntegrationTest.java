@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.wildfly.extension.camel.CamelAware;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.model.Model;
@@ -74,21 +75,23 @@ public class TickerIntegrationTest extends AbstractActionsTest {
                 @Override
                 public void configure() {
 					fromF("undertow:" + httpUrl)
-                    	.to("xchange:binance?service=marketdata&method=ticker")
+                    	.to("xchange:binance?service=marketdata&method=ticker&currencyPair=BTC/USDT")
                     	.marshal().json(JsonLibrary.Jackson, true);
                 }
             });
 
     		camelctx.start();
     		
-    		String pair = "BTC/USDT";
-    		HttpResponse res = HttpRequest.get(httpUrl + "?currencyPair=" + pair).getResponse();
+    		HttpResponse res = HttpRequest.get(httpUrl).getResponse();
             Assert.assertEquals(200, res.getStatusCode());
     		
             LOG.info(res.getBody());
             
             ObjectMapper mapper = new ObjectMapper();
-            BigDecimal closePrice = mapper.readTree(res.getBody()).at("/last").decimalValue();
+            JsonNode resTree = mapper.readTree(res.getBody());
+            
+			String pair = resTree.at("/currencyPair").asText();
+			BigDecimal closePrice = resTree.at("/last").decimalValue();
             LOG.info(String.format("%s: %.2f", pair, closePrice));
         }
     }

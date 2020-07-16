@@ -72,7 +72,10 @@ public class PortalServlet extends HttpServlet {
 
 	private void handleModelContentSubmit(HttpServletRequest req) throws IOException {
 		
-		String content = req.getParameter("content").replace("\t", "   ");
+		String content = req.getParameter("content");
+		AssertState.notNull(content, "Cannot obtain value for parameter: content");
+		
+		content = content.replace("\t", "   ");
 		LOG.warn("YAML Content ------------ \n{}", content);
 		
 		Model model = Model.read(content);

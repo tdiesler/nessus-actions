@@ -1,0 +1,35 @@
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<script src="http://rawgithub.com/ajaxorg/ace-builds/master/src/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://rawgithub.com/ajaxorg/ace-builds/master/src/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+</head>
+	<body>
+  		<div id="editor" style="height: 500px; width: 800px"></div>
+		<form>
+			<textarea id="contentId" name="content">foo</textarea>
+			<input type="button" value="Submit" onClick="submitModel()">
+		</form>
+		<script>
+			function submitModel() {
+    			document.getElementById("contentId").value = editor.session.getValue();
+			}
+		    
+		    var editor = ace.edit("editor");
+		    var langTools = ace.require("ace/ext/language_tools");
+		
+			editor.setTheme("ace/theme/eclipse");
+			editor.session.setMode("ace/mode/yaml");
+		    editor.setOptions({
+		    	enableBasicAutocompletion: false
+		    });
+					
+			var branch = "https://raw.githubusercontent.com/tdiesler/nessus-actions/master"
+			let promise = fetch(branch + "/runner/src/test/resources/crypto-ticker.yml")
+				.then(response => { return response.text() })
+				.then(data => { editor.session.setValue(data) });
+				
+		</script>
+	</body>
+</html>
