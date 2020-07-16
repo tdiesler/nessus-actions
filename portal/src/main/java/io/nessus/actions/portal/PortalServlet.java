@@ -26,11 +26,11 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.model.AssertState;
-import io.nessus.actions.model.CheckedExceptionWrapper;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.Model.Runtime;
-import io.nessus.actions.model.UsernamePasswordHandler;
+import io.nessus.actions.model.Model.TargetRuntime;
+import io.nessus.actions.model.utils.AssertState;
+import io.nessus.actions.model.utils.CheckedExceptionWrapper;
+import io.nessus.actions.model.utils.UsernamePasswordHandler;
 import io.nessus.actions.runner.RemoteArchiveDeployer;
 
 @SuppressWarnings("serial")
@@ -86,7 +86,7 @@ public class PortalServlet extends HttpServlet {
 		Model model = (Model) session.getAttribute(Model.class.getName());
 		AssertState.notNull(model, "Cannot obtain model from session");
 		
-		Runtime rt = model.getRuntime();
+		TargetRuntime rt = model.getRuntime();
 		AssertState.isTrue(rt.isWildFly(), "Invalid runtime: " + rt);
 		
 		LOG.warn("YAML Content ------------ \n{}", model.toString());

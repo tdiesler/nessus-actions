@@ -26,9 +26,9 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.model.AssertState;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.UsernamePasswordHandler;
+import io.nessus.actions.model.utils.AssertState;
+import io.nessus.actions.model.utils.UsernamePasswordHandler;
 
 public abstract class AbstractActionsTest  {
 	

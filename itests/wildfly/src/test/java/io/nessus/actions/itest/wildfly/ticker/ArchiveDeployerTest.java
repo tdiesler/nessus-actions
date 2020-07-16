@@ -35,8 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.itest.wildfly.ticker.sub.ApplicationScopedRouteBuilder;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.converters.TickerTypeConverters;
-import io.nessus.actions.runner.ModelBasedRouteBuilder;
 import io.nessus.actions.runner.RemoteArchiveDeployer;
 import io.nessus.actions.testing.AbstractActionsTest;
 import io.nessus.actions.testing.HttpRequest;
@@ -48,9 +46,8 @@ public class ArchiveDeployerTest extends AbstractActionsTest {
 	
     public static WebArchive createDeployment() {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, DEPLOYMENT_NAME);
-    	archive.addPackage(Model.class.getPackage());
-    	archive.addPackage(ModelBasedRouteBuilder.class.getPackage());
-    	archive.addClasses(ApplicationScopedRouteBuilder.class, TickerTypeConverters.class);
+    	archive.addPackages(true, Model.class.getPackage());
+    	archive.addClasses(ApplicationScopedRouteBuilder.class);
     	archive.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
         archive.addAsWebInfResource("ticker/jboss-deployment-structure.xml", "jboss-deployment-structure.xml");
         archive.addAsResource("ticker/crypto-ticker.yml", CAMEL_ACTIONS_RESOURCE_NAME);

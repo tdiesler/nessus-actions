@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.model;
+package io.nessus.actions.model.utils;
 
 /**
  * Legal argument assertions

@@ -1,7 +1,8 @@
-package io.nessus.actions.runner;
+package io.nessus.actions.model.utils;
 
 import static io.nessus.actions.model.Model.CAMEL_ACTIONS_RESOURCE_NAME;
 
+import java.io.IOException;
 import java.net.URL;
 
 import org.apache.camel.builder.RouteBuilder;
@@ -11,10 +12,12 @@ import org.apache.camel.spi.TypeConverterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.model.AssertState;
+import io.nessus.actions.model.MarshalStep;
+import io.nessus.actions.model.MarshalStep.MarshalStepContent;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.Transform;
-import io.nessus.actions.model.converters.TickerTypeConverters;
+import io.nessus.actions.model.ToStep;
+import io.nessus.actions.model.UnmarshalStep;
+import io.nessus.actions.model.UnmarshalStep.UnmarshalStepContent;
 
 /**
  *  A generic model based route builder
@@ -35,6 +38,12 @@ public abstract class ModelBasedRouteBuilder extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
+		Model model = loadModel();
+		
+		configureWithModel(model);
+	}
+
+	protected Model loadModel() throws IOException {
 		// Find the Camel Actions definition resource
 		
 		String resource = CAMEL_ACTIONS_RESOURCE_NAME;
@@ -48,6 +57,10 @@ public abstract class ModelBasedRouteBuilder extends RouteBuilder {
 		
 		LOG.warn("Configure {} from {}", ModelBasedRouteBuilder.class.getName(), input);
 		Model model = Model.read(input);
+		return model;
+	}
+
+	protected void configureWithModel(Model model) {
 		
 		// [TODO] Remove when this is part of Camel
 		// [CAMEL-15301] Provide various type converters for camel-xchange
@@ -56,16 +69,29 @@ public abstract class ModelBasedRouteBuilder extends RouteBuilder {
 		
 		// Define the Camel route using the Model
 		
-        RouteDefinition rdef = fromF(model.getFrom().toCamelUri())
-            	.to(model.getTo().toCamelUri());
-            
-        Transform marshal = model.getMarshal();
-		if (marshal != null) {
-        	String format = marshal.getFormat();
-        	if ("json".equals(format)) {
-        		Boolean pretty = marshal.isPretty();
-                rdef.marshal().json(JsonLibrary.Jackson, pretty);
+        RouteDefinition rdef = fromF(model.getFrom().toCamelUri());
+        model.getSteps().forEach(step -> {
+        	if (step instanceof ToStep) {
+        		ToStep aux = (ToStep) step;
+        		rdef.to(aux.toCamelUri());
         	}
-        }
+        	else if (step instanceof MarshalStep) {
+        		MarshalStep aux = (MarshalStep) step;
+        		MarshalStepContent content = aux.getContent();
+            	String format = content.getFormat();
+            	if ("json".equals(format)) {
+            		Boolean pretty = content.isPretty();
+                    rdef.marshal().json(JsonLibrary.Jackson, pretty);
+            	}
+        	}
+        	else if (step instanceof UnmarshalStep) {
+        		UnmarshalStep aux = (UnmarshalStep) step;
+            	UnmarshalStepContent content = aux.getContent();
+            	String format = content.getFormat();
+            	if ("json".equals(format)) {
+                    rdef.unmarshal().json(JsonLibrary.Jackson);
+            	}
+        	}
+        });
 	}
 }

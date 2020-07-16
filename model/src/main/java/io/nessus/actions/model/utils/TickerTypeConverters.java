@@ -1,4 +1,4 @@
-package io.nessus.actions.model.converters;
+package io.nessus.actions.model.utils;
 
 import org.apache.camel.Converter;
 import org.apache.camel.TypeConverters;

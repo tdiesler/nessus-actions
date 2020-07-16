@@ -4,7 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.wildfly.extension.camel.CamelAware;
 
-import io.nessus.actions.runner.ModelBasedRouteBuilder;
+import io.nessus.actions.model.utils.ModelBasedRouteBuilder;
 
 @CamelAware
 @ApplicationScoped

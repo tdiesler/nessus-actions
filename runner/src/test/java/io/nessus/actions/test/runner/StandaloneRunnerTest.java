@@ -33,7 +33,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.converters.TickerTypeConverters;
+import io.nessus.actions.model.utils.TickerTypeConverters;
 import io.nessus.actions.runner.StandaloneRunner;
 import io.nessus.actions.testing.AbstractActionsTest;
 import io.nessus.actions.testing.HttpRequest;
@@ -81,8 +81,6 @@ public class StandaloneRunnerTest extends AbstractActionsTest {
         String httpUrl = model.getFrom().getWith();
     	
     	try (StandaloneRunner runner = new StandaloneRunner(model)) {
-    		
-    		runner.addTypeConverters(new TickerTypeConverters());
     		
         	runner.start();
 

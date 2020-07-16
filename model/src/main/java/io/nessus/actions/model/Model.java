@@ -4,16 +4,30 @@ import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import io.nessus.actions.model.step.Step;
+import io.nessus.actions.model.step.StepDeserializer;
+import io.nessus.actions.model.utils.AssertState;
+import io.nessus.actions.model.utils.CheckedExceptionWrapper;
+
+@JsonPropertyOrder({"name", "runtime", "from" }) 
 public class Model {
 	
-	public enum Runtime {
+	public static final String CAMEL_ACTIONS_RESOURCE_NAME = "camel-actions.yaml";
+	
+	public enum TargetRuntime {
 		eap, wildfly, docker, standalone;
 
 		public boolean isWildFly() {
@@ -22,75 +36,71 @@ public class Model {
 	}
 	
 	private final String name;
-	private Runtime runtime;
-	private Endpoint from;
-	private Endpoint to;
-	private Transform marshal;
-	public static final String CAMEL_ACTIONS_RESOURCE_NAME = "camel-actions.yaml";
+	private final TargetRuntime runtime;
+	private final List<Step> steps = new ArrayList<>();
 	
+	private FromStep fromStep;
+	
+	@ConstructorProperties({"name", "runtime"})
+	public Model(String name, TargetRuntime runtime) {
+		this.name = name;
+		this.runtime = runtime;
+	}
+
 	public static Model read(URL url) throws IOException {
 		return read(url.openStream());
 	}
 	
 	public static Model read(InputStream input) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        ObjectMapper mapper = createObjectMapper();    		
 		return mapper.readValue(input, Model.class);
 	}
 	
 	public static Model read(String content) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		return mapper.readValue(content, Model.class);
+        ObjectMapper mapper = createObjectMapper();    		
+    	return mapper.readValue(content, Model.class);
 	}
-	
-	@ConstructorProperties({"name"})
-	public Model(String name) {
-		this.name = name;
-	}
-	
-	public Model(String name, Runtime runtime, Endpoint from, Endpoint to, Transform marshal) {
-		this.name = name;
-		this.runtime = runtime;
-		this.from = from;
-		this.to = to;
-		this.marshal = marshal;
+
+	public Model withStep(Step step) {
+		if (fromStep == null) {
+			AssertState.isTrue(step instanceof FromStep, "Invalid first step: " + step);
+			fromStep = (FromStep) step;
+		} else {
+			steps.add(step);
+		}
+		return this;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
-	public Runtime getRuntime() {
+
+	public TargetRuntime getRuntime() {
 		return runtime;
 	}
 
-	public void setRuntime(Runtime runtime) {
-		this.runtime = runtime;
+	@JsonGetter("from")
+	public FromStep getFrom() {
+		return fromStep;
 	}
 
-	public Endpoint getFrom() {
-		return from;
-	}
-	
-	public void setFrom(Endpoint from) {
-		this.from = from;
-	}
-	
-	public Endpoint getTo() {
-		return to;
-	}
-	
-	public void setTo(Endpoint to) {
-		this.to = to;
-	}
-	
-	public Transform getMarshal() {
-		return marshal;
+	@JsonSetter("from")
+	void setFrom(FromStep from) {
+		this.fromStep = from;
 	}
 
-	public void setMarshal(Transform marshal) {
-		this.marshal = marshal;
+	public List<Step> getSteps() {
+		return steps;
 	}
 
+	private static ObjectMapper createObjectMapper() {
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        SimpleModule module = new SimpleModule();
+    	module.addDeserializer(Step.class, new StepDeserializer(null));
+    	mapper.registerModule(module);
+		return mapper;
+	}
+	
 	@Override
 	public String toString() {
         try {
@@ -103,5 +113,4 @@ public class Model {
 			throw CheckedExceptionWrapper.create(ex);
 		}
 	}
-
 }

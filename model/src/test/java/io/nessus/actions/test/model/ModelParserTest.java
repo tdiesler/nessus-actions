@@ -17,45 +17,37 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.test.runner;
+package io.nessus.actions.test.model;
 
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.nessus.actions.model.FromStep;
+import io.nessus.actions.model.MarshalStep;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.ModelBuilder;
+import io.nessus.actions.model.ToStep;
+import io.nessus.actions.model.Model.TargetRuntime;
 import io.nessus.actions.testing.AbstractActionsTest;
-import io.nessus.actions.model.Model.Runtime;
 
 public class ModelParserTest extends AbstractActionsTest {
     
     @Test
-    public void parseModel() throws Exception {
-    	
-        Model model = getModelFromResource("/crypto-ticker.yml");
-        LOG.info(model.toString());
-    }
-
-    @Test
     public void writeModel() throws Exception {
     	
-    	Model was = new ModelBuilder("Crypto Ticker")
-    			.runtime(Runtime.standalone)
-    			.from("camel/undertow@v1")
-					.with("http://127.0.0.1:8080/ticker")
-					.build()
-    			.to("camel/xchange@v1")
-					.with("binance")
-					.param("service", "marketdata")
-					.param("method", "ticker")
-					.build()
-				.marshall("json", true)
-    			.build();
+		Model expModel = new Model("Crypto Ticker", TargetRuntime.eap)
+				.withStep(new FromStep("camel/undertow@v1", "http://0.0.0.0:8080/ticker"))
+				.withStep(new ToStep("camel/xchange@v1", "binance")
+					.withParams("{service=marketdata, method=ticker}"))
+				.withStep(new MarshalStep("json", true));
     			
-        LOG.info(was.toString());
-        
-        Model exp = getModelFromResource("/crypto-ticker.yml");
-        Assert.assertEquals(exp.toString(), was.toString());
+        String expTxt = expModel.toString();
+		LOG.warn(expTxt);
+		
+		Model wasModel = Model.read(expTxt);
+		String wasTxt = wasModel.toString();
+		LOG.warn(wasTxt);
+		
+		Assert.assertEquals(expTxt, wasTxt);
     }
 }

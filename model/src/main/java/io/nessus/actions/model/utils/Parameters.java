@@ -1,4 +1,4 @@
-package io.nessus.actions.model;
+package io.nessus.actions.model.utils;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;

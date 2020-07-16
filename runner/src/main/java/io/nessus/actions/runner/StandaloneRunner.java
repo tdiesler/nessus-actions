@@ -1,16 +1,15 @@
 package io.nessus.actions.runner;
 
+import java.io.IOException;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.TypeConverters;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.spi.TypeConverterRegistry;
 
-import io.nessus.actions.model.CheckedExceptionWrapper;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.Transform;
+import io.nessus.actions.model.utils.CheckedExceptionWrapper;
+import io.nessus.actions.model.utils.ModelBasedRouteBuilder;
 
 public class StandaloneRunner implements AutoCloseable {
 
@@ -26,22 +25,12 @@ public class StandaloneRunner implements AutoCloseable {
 
 	public void create(Model model) throws Exception {
 		camelctx = new DefaultCamelContext();
-		camelctx.addRoutes(new RouteBuilder() {
-            @Override
-            public void configure() {
-                RouteDefinition rdef = fromF(model.getFrom().toCamelUri())
-                	.to(model.getTo().toCamelUri());
-                
-                Transform marshal = model.getMarshal();
-				if (marshal != null) {
-                	String format = marshal.getFormat();
-                	if ("json".equals(format)) {
-                		Boolean pretty = marshal.isPretty();
-                        rdef.marshal().json(JsonLibrary.Jackson, pretty);
-                	}
-                }
-            }
-        });
+    	camelctx.addRoutes(new ModelBasedRouteBuilder() {
+			@Override
+			protected Model loadModel() throws IOException {
+				return model;
+			}
+    	});
 	}
 
 	public CamelContext getCamelContext() {

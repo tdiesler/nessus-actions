@@ -1,19 +1,21 @@
 name: Crypto Ticker
 
-runtime: standalone
+runtime: eap
 
 from:
-  name: camel/undertow@v1
-  with: http://127.0.0.1:8080/ticker
-  
-to:
-  name: camel/xchange@v1
-  with: binance
-  params:
-    service: marketdata
-    method: ticker
+  comp: camel/undertow@v1
+  with: http://0.0.0.0:8080/ticker
 
-marshal:
-   format: json
-   pretty: true
+steps:
+
+- to:
+    comp: camel/xchange@v1
+    with: binance
+    params:
+      service: marketdata
+      method: ticker
+
+- marshal:
+    format: json
+    pretty: true
 

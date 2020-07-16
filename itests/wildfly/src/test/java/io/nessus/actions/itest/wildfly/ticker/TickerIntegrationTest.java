@@ -41,7 +41,7 @@ import org.wildfly.extension.camel.CamelAware;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.converters.TickerTypeConverters;
+import io.nessus.actions.model.utils.TickerTypeConverters;
 import io.nessus.actions.testing.AbstractActionsTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
@@ -53,9 +53,8 @@ public class TickerIntegrationTest extends AbstractActionsTest {
     @Deployment
     public static WebArchive createdeployment() {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, "crypto-ticker.war");
-        archive.addClasses(TickerTypeConverters.class);
-        archive.addPackage(HttpRequest.class.getPackage());
-        archive.addPackage(Model.class.getPackage());
+        archive.addPackage(AbstractActionsTest.class.getPackage());
+        archive.addPackages(true, Model.class.getPackage());
         archive.addAsWebInfResource("ticker/jboss-deployment-structure.xml", "jboss-deployment-structure.xml");
         archive.addAsResource("ticker/crypto-ticker.yml", CAMEL_ACTIONS_RESOURCE_NAME);
         return archive;

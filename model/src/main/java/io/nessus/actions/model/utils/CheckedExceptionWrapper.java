@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.model;
+package io.nessus.actions.model.utils;
 
 @SuppressWarnings("serial")
 public class CheckedExceptionWrapper extends RuntimeException {
