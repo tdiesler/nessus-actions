@@ -5,7 +5,7 @@
     <parent>
 	    <groupId>io.nessus.actions</groupId>
 	    <artifactId>nessus-actions-packs</artifactId>
-        <version>1.0.0.Alpha1</version>
+        <version>1.0.1.Alpha1-SNAPSHOT</version>
     </parent>
     
     <artifactId>nessus-actions-packs-core</artifactId>
