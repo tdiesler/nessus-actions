@@ -23,7 +23,6 @@ package io.nessus.actions.testing;
 import java.io.IOException;
 import java.net.URL;
 
-import org.jboss.resteasy.test.TestPortProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +33,6 @@ public abstract class AbstractTest  {
 	
 	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
-	protected String generateURL(String path) {
-		return TestPortProvider.generateURL(path);
-	}
-	
 	protected Model getModelFromResource(String resource) throws IOException {
 		
 		URL input = getClass().getResource(resource);

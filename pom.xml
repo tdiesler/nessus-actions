@@ -102,6 +102,11 @@
 			</dependency>
 			<dependency>
 			    <groupId>org.jboss.resteasy</groupId>
+			    <artifactId>resteasy-jackson2-provider</artifactId>
+			    <version>${version.jboss.resteasy}</version>
+			</dependency>
+			<dependency>
+			    <groupId>org.jboss.resteasy</groupId>
 			    <artifactId>resteasy-undertow</artifactId>
 			    <version>${version.jboss.resteasy}</version>
 			</dependency>

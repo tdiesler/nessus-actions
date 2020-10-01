@@ -19,27 +19,28 @@
  */
 package io.nessus.actions.test.camel;
 
-import static io.nessus.actions.portal.resources.AbstractResource.asText;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 
 import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
+import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
-import io.nessus.actions.portal.resources.ApiRoot;
+import io.nessus.actions.portal.resources.PortalApi;
 import io.nessus.actions.testing.AbstractTest;
-import io.nessus.actions.testing.HttpRequest;
-import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
-public class ApiTest extends AbstractTest {
+abstract class AbstractApiTest extends AbstractTest {
 
 	private static UndertowJaxrsServer server;
 
+	protected Client client;
+	
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		server = new UndertowJaxrsServer().start();
-		server.deployOldStyle(ApiRoot.class);
+		server.deployOldStyle(PortalApi.class);
 	}
 
 	@AfterClass
@@ -47,11 +48,14 @@ public class ApiTest extends AbstractTest {
 		server.stop();
 	}
 
-	@Test
-	public void testStatus() throws Exception {
-		
-		HttpResponse res = HttpRequest.get(generateURL("/api/status")).getResponse();
-		Assert.assertEquals(200, res.getStatusCode());
-		Assert.assertEquals("online", asText(res.getBody(), "status"));
+	@Before
+	public void before() throws Exception {
+		client = ClientBuilder.newClient();
+	}
+
+	@After
+	public void after() throws Exception {
+		if (client != null)
+			client.close();
 	}
 }
