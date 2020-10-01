@@ -6,7 +6,7 @@
 
     <groupId>io.nessus.actions</groupId>
     <artifactId>nessus-actions</artifactId>
-    <version>1.0.1.Alpha1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <description>Nessus Actions </description>
@@ -29,6 +29,7 @@
         <version.jakarta.enterprise>2.0.2</version.jakarta.enterprise>
         <version.javax.servlet>2.0.0.Final</version.javax.servlet>
         <version.jboss.arquillian.core>1.4.0.Final</version.jboss.arquillian.core>
+        <version.jboss.resteasy>4.5.8.Final</version.jboss.resteasy>
         <version.jboss.shrinkwrap>1.2.2</version.jboss.shrinkwrap>
         <version.junit>4.13</version.junit>
         <version.slf4j>1.7.28</version.slf4j>
@@ -52,8 +53,7 @@
     </properties>
     
     <modules>
-        <module>model</module>
-        <module>packs</module>
+        <module>camel</module>
         <module>runner</module>
         <module>portal</module>
         <module>itests</module>
@@ -99,6 +99,11 @@
 				<groupId>jakarta.enterprise</groupId>
 				<artifactId>jakarta.enterprise.cdi-api</artifactId>
                 <version>${version.jakarta.enterprise}</version>
+			</dependency>
+			<dependency>
+			    <groupId>org.jboss.resteasy</groupId>
+			    <artifactId>resteasy-undertow</artifactId>
+			    <version>${version.jboss.resteasy}</version>
 			</dependency>
             <dependency>
                 <groupId>org.jboss.spec.javax.servlet</groupId>

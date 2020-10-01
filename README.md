@@ -14,6 +14,48 @@ First, you'd want to build this project with ...
 mvn clean install
 ```
 
+Then, you spin up a [Kewcloak](https://www.keycloak.org/getting-started/getting-started-docker) instance
+
+```
+KEYCLOAK_USER=admin
+KEYCLOAK_PASSWORD=admin
+
+docker run --detach \
+	--name keycloak \
+	-p 8080:8080 \
+	-e KEYCLOAK_USER=$KEYCLOAK_USER \
+	-e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
+	quay.io/keycloak/keycloak 
+```
+
+and verify that you can login to the admin console
+
+```
+http://yourhost:8080/auth/admin
+```
+
+Then, obtain an initial access token
+
+```
+curl -X POST http://yourhost:8080/auth/realms/master/protocol/openid-connect/token \
+	-H "Content-Type: application/x-www-form-urlencoded" \
+	-d "client_id=admin-cli" \
+	-d "username=$KEYCLOAK_USER" \
+	-d "password=$KEYCLOAK_PASSWORD" \
+	-d "grant_type=password"
+
+ACCESS_TOKEN="eyJhbGciOi..."
+```
+
+Then import the realm definition
+
+```
+curl -X POST http://localhost:8080/auth/admin/realms \
+	-H "Content-Type: application/json" \
+	-H "Authorization: Bearer $ACCESS_TOKEN" \
+	-d "@docs/realm-export.json"
+```
+
 Then, you spin up a wildfly-camel instance
 
 ```
@@ -30,8 +72,8 @@ and verify that you can login to the management interface
 
 ```
 http://yourhost:9990/console/index.html
-``` 
- 
+```
+
 Then, you spin up a new version of the [RedHat Fuse](https://www.redhat.com/en/technologies/jboss-middleware/fuse) product page
 
 ```
@@ -46,24 +88,5 @@ and connect to it
 ```
 http://yourhost:8181/nessus-actions-portal
 ```
-
-When you successfully completed the 'Try It' demo, you should be able to access the endpoint defined by the Camel route at
-
-```
-http://yourhost:8080/ticker
-```
-
-### What happens under the hood?
-
-The 'Try It' portal generates a Camel deployment (i.e. a webapp) that contains a special route builder, which understands the YAML based
-route definition. This webapp is then deployed to EAP via the management interface.
-
-### What else could happen?
-
-Here is a random collections of ideas that might be followed up from this
-
-* Context sensitive YAML completion like we have with GitHub Actions
-* Support for differnt target runtimes like Docker, OpenShift, etc.
-* Perhaps even a standalone (i.e. your YAMl route in an executable jar) 
 
 Enjoy!

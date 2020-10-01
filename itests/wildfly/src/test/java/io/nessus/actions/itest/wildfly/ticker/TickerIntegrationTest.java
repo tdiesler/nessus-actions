@@ -43,18 +43,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.utils.TickerTypeConverters;
-import io.nessus.actions.testing.AbstractActionsTest;
+import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
 @CamelAware
 @RunWith(Arquillian.class)
-public class TickerIntegrationTest extends AbstractActionsTest {
+public class TickerIntegrationTest extends AbstractTest {
     
     @Deployment
     public static WebArchive createdeployment() {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, "crypto-ticker.war");
-        archive.addPackage(AbstractActionsTest.class.getPackage());
+        archive.addPackage(AbstractTest.class.getPackage());
         archive.addPackages(true, Model.class.getPackage());
         archive.addAsWebInfResource("ticker/jboss-deployment-structure.xml", "jboss-deployment-structure.xml");
         archive.addAsResource("ticker/crypto-ticker.yml", CAMEL_ACTIONS_RESOURCE_NAME);

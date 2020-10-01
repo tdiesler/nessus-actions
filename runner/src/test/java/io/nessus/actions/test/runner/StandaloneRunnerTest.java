@@ -36,11 +36,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.utils.TickerTypeConverters;
 import io.nessus.actions.runner.StandaloneRunner;
-import io.nessus.actions.testing.AbstractActionsTest;
+import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
-public class StandaloneRunnerTest extends AbstractActionsTest {
+public class StandaloneRunnerTest extends AbstractTest {
     
     @Test
     public void testWithPlainCamel() throws Exception {

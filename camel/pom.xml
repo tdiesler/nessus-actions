@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+	    <groupId>io.nessus.actions</groupId>
+	    <artifactId>nessus-actions</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>nessus-actions-camel</artifactId>
+
+    <name>Nessus :: Actions :: Camel</name>
+
+    <dependencies>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-core</artifactId>
+		</dependency>
+        <dependency>
+		    <groupId>org.jboss.resteasy</groupId>
+		    <artifactId>resteasy-undertow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        
+        <!-- Provided -->
+        <dependency>
+        	<!-- 
+        	[TODO] Remove when this is part of Camel
+			[CAMEL-15301] Provide various type converters for camel-xchange
+			https://issues.apache.org/jira/browse/CAMEL-15301 
+        	-->
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-xchange</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+</project>

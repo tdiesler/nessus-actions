@@ -36,12 +36,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.itest.wildfly.ticker.sub.ApplicationScopedRouteBuilder;
 import io.nessus.actions.model.Model;
+import io.nessus.actions.model.utils.UsernamePasswordHandler;
 import io.nessus.actions.runner.RemoteArchiveDeployer;
-import io.nessus.actions.testing.AbstractActionsTest;
+import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
-public class ArchiveDeployerTest extends AbstractActionsTest {
+public class ArchiveDeployerTest extends AbstractTest {
         
 	static final String DEPLOYMENT_NAME = "crypto-ticker.war";
 	
@@ -59,7 +60,7 @@ public class ArchiveDeployerTest extends AbstractActionsTest {
     public void warDeployment() throws Exception {
 
 		ModelControllerClientConfiguration.Builder clientConfigBuilder = new ModelControllerClientConfiguration.Builder()
-                .setHandler(getUsernamePasswordHandler())
+                .setHandler(new UsernamePasswordHandler(getServerUsername(), getServerPassword()))
                 .setProtocol("remote+http")
                 .setHostName("127.0.0.1")
                 .setPort(9990);

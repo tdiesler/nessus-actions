@@ -5,7 +5,7 @@
     <parent>
 	    <groupId>io.nessus.actions</groupId>
 	    <artifactId>nessus-actions</artifactId>
-        <version>1.0.1.Alpha1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     
     <artifactId>nessus-actions-runner</artifactId>
@@ -16,7 +16,7 @@
         
         <dependency>
 		    <groupId>io.nessus.actions</groupId>
-		    <artifactId>nessus-actions-model</artifactId>
+		    <artifactId>nessus-actions-camel</artifactId>
 		    <version>${project.version}</version>
         </dependency>
         

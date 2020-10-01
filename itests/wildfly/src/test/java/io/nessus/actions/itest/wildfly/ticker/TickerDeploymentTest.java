@@ -41,13 +41,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.itest.wildfly.ticker.sub.ApplicationScopedRouteBuilder;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.testing.AbstractActionsTest;
+import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
 
 @RunAsClient
 @RunWith(Arquillian.class)
-public class TickerDeploymentTest extends AbstractActionsTest {
+public class TickerDeploymentTest extends AbstractTest {
     
 	static final String DEPLOYMENT_NAME = "crypto-ticker.war";
 	
