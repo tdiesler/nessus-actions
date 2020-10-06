@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import io.nessus.actions.model.MarshalStep;
 import io.nessus.actions.model.ToStep;
 import io.nessus.actions.model.UnmarshalStep;
-import io.nessus.actions.model.utils.AssertState;
+import io.nessus.common.AssertState;
 
 @SuppressWarnings("serial") 
 public class StepDeserializer extends StdDeserializer<Step> { 

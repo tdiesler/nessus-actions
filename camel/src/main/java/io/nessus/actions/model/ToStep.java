@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.nessus.actions.model.step.AbstractContentStep;
 import io.nessus.actions.model.step.ComponentStep;
 import io.nessus.actions.model.step.ComponentStep.ComponentStepContent;
-import io.nessus.actions.model.utils.Parameters;
+import io.nessus.common.Parameters;
 
 public class ToStep extends AbstractContentStep<ToStep, ComponentStepContent> implements ComponentStep<ToStep> {
 

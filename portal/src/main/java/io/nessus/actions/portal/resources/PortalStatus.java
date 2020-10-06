@@ -12,6 +12,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Path("/api/status")
 public class PortalStatus extends AbstractResource {
 	
+	public PortalStatus() {
+		super(PortalApi.getInstance());
+	}
+
 	@GET
 	public Response get() {
 		StatusResponse entity = new StatusResponse("online");

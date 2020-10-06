@@ -1,14 +1,19 @@
 package io.nessus.actions.portal.resources;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 
-abstract class AbstractResource {
+import io.nessus.actions.portal.PortalConfig;
+import io.nessus.common.ConfigSupport;
+
+abstract class AbstractResource extends ConfigSupport<PortalConfig> {
 	
-	protected final Logger LOG = LoggerFactory.getLogger(getClass());
+	protected PortalApi api;
 	
+	AbstractResource(PortalApi api) {
+		super(api.getConfig());
+		this.api = api;
+	}
+
 	static class MessageResponse {
 
 		final String msg;

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.nessus.actions.model.MarshalStep.MarshalStepContent;
 import io.nessus.actions.model.step.AbstractContentStep;
 import io.nessus.actions.model.step.ParameterStep.ParameterStepContent;
-import io.nessus.actions.model.utils.Parameters;
+import io.nessus.common.Parameters;
 
 public class MarshalStep extends AbstractContentStep<MarshalStep, MarshalStepContent> {
 	

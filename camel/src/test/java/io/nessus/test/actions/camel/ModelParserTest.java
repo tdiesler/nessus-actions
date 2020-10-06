@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.test.camel;
+package io.nessus.test.actions.camel;
 
 
 import org.junit.Assert;
@@ -26,9 +26,9 @@ import org.junit.Test;
 import io.nessus.actions.model.FromStep;
 import io.nessus.actions.model.MarshalStep;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.ToStep;
 import io.nessus.actions.model.Model.TargetRuntime;
-import io.nessus.actions.testing.AbstractTest;
+import io.nessus.actions.model.ToStep;
+import io.nessus.common.testing.AbstractTest;
 
 public class ModelParserTest extends AbstractTest {
     
@@ -43,11 +43,11 @@ public class ModelParserTest extends AbstractTest {
 				.withStep(new MarshalStep("json", true));
     			
         String expTxt = expModel.toString();
-		LOG.info(expTxt);
+		logInfo(expTxt);
 		
 		Model wasModel = Model.read(expTxt);
 		String wasTxt = wasModel.toString();
-		LOG.info(wasTxt);
+		logInfo(wasTxt);
 		
 		Assert.assertEquals(expTxt, wasTxt);
     }

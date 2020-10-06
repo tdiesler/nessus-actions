@@ -17,10 +17,12 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.test.runner;
+package io.nessus.test.actions.runner;
 
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -36,9 +38,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.utils.TickerTypeConverters;
 import io.nessus.actions.runner.StandaloneRunner;
-import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
+import io.nessus.common.AssertState;
+import io.nessus.common.testing.AbstractTest;
 
 public class StandaloneRunnerTest extends AbstractTest {
     
@@ -66,14 +69,14 @@ public class StandaloneRunnerTest extends AbstractTest {
     		HttpResponse res = HttpRequest.get(httpUrl).getResponse();
             Assert.assertEquals(200, res.getStatusCode());
     		
-            LOG.info(res.getBody());
+            logInfo(res.getBody());
             
             ObjectMapper mapper = new ObjectMapper();
             JsonNode resTree = mapper.readTree(res.getBody());
             
 			String pair = resTree.at("/currencyPair").asText();
 			BigDecimal closePrice = resTree.at("/last").decimalValue();
-            LOG.info(String.format("%s: %.2f", pair, closePrice));
+            logInfo(String.format("%s: %.2f", pair, closePrice));
         }
     }
     
@@ -90,15 +93,26 @@ public class StandaloneRunnerTest extends AbstractTest {
     		HttpResponse res = HttpRequest.get(httpUrl).getResponse();
             Assert.assertEquals(200, res.getStatusCode());
     		
-            LOG.info(res.getBody());
+            logInfo(res.getBody());
             
             ObjectMapper mapper = new ObjectMapper();
             JsonNode resTree = mapper.readTree(res.getBody());
 
 			String pair = resTree.at("/currencyPair").asText();
             BigDecimal closePrice = resTree.at("/last").decimalValue();
-            LOG.info(String.format("%s: %.2f", pair, closePrice));
+            logInfo(String.format("%s: %.2f", pair, closePrice));
     	}
     }
     
+	private Model getModelFromResource(String resource) throws IOException {
+		
+		URL input = getClass().getResource(resource);
+		if (input == null && !resource.startsWith("/")) 
+			input = getClass().getResource("/" + resource);
+		
+		AssertState.notNull(input, "Cannot find: " + resource);
+		
+		Model model = Model.read(input);
+		return model;
+	}
 }

@@ -1,4 +1,4 @@
-package io.nessus.actions.itest.wildfly.ticker.sub;
+package io.nessus.itest.actions.wildfly.ticker;
 
 import javax.enterprise.context.ApplicationScoped;
 

@@ -23,6 +23,6 @@ public class PortalMain {
 		server.deployOldStyle(PortalApi.class);
         server.start();
         
-        LOG.info("Portal api url: http://{}:{}/portal/api", hostname, port);
+        LOG.info("Portal API: http://{}:{}/portal/api", hostname, port);
 	}
 }

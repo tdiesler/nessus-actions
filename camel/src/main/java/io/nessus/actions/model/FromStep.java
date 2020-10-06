@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import io.nessus.actions.model.step.ComponentGAV;
 import io.nessus.actions.model.step.ComponentStep;
-import io.nessus.actions.model.utils.Parameters;
+import io.nessus.common.Parameters;
 
 public class FromStep implements ComponentStep<FromStep> {
 

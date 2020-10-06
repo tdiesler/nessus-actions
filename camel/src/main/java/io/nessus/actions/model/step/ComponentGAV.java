@@ -1,6 +1,6 @@
 package io.nessus.actions.model.step;
 
-import io.nessus.actions.model.utils.AssertState;
+import io.nessus.common.AssertState;
 
 public class ComponentGAV {
 	

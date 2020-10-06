@@ -8,8 +8,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.TypeConverterRegistry;
 
 import io.nessus.actions.model.Model;
-import io.nessus.actions.model.utils.CheckedExceptionWrapper;
 import io.nessus.actions.model.utils.ModelBasedRouteBuilder;
+import io.nessus.common.CheckedExceptionWrapper;
 
 public class StandaloneRunner implements AutoCloseable {
 

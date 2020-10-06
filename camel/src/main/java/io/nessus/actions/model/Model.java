@@ -19,8 +19,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.nessus.actions.model.step.Step;
 import io.nessus.actions.model.step.StepDeserializer;
-import io.nessus.actions.model.utils.AssertState;
-import io.nessus.actions.model.utils.CheckedExceptionWrapper;
+import io.nessus.common.AssertState;
+import io.nessus.common.CheckedExceptionWrapper;
 
 @JsonPropertyOrder({"name", "runtime", "from" }) 
 public class Model {

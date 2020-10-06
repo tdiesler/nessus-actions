@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import io.nessus.actions.model.utils.Parameters;
+import io.nessus.common.Parameters;
 
 public interface ParameterStep<S extends Step> extends Step {
 	

@@ -18,6 +18,7 @@ import io.nessus.actions.model.Model;
 import io.nessus.actions.model.ToStep;
 import io.nessus.actions.model.UnmarshalStep;
 import io.nessus.actions.model.UnmarshalStep.UnmarshalStepContent;
+import io.nessus.common.AssertState;
 
 /**
  *  A generic model based route builder

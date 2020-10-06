@@ -17,7 +17,7 @@
  * limitations under the License.
  * #L%
  */
-package io.nessus.actions.itest.wildfly.ticker;
+package io.nessus.itest.actions.wildfly.ticker;
 
 
 import static io.nessus.actions.model.Model.CAMEL_ACTIONS_RESOURCE_NAME;
@@ -39,11 +39,11 @@ import org.junit.runner.RunWith;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.itest.wildfly.ticker.sub.ApplicationScopedRouteBuilder;
 import io.nessus.actions.model.Model;
-import io.nessus.actions.testing.AbstractTest;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
+import io.nessus.common.BasicConfig;
+import io.nessus.common.testing.AbstractTest;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -58,6 +58,7 @@ public class TickerDeploymentTest extends AbstractTest {
     public static WebArchive createdeployment() {
     	WebArchive archive = ShrinkWrap.create(WebArchive.class, DEPLOYMENT_NAME);
     	archive.addPackages(true, Model.class.getPackage());
+    	archive.addPackages(true, BasicConfig.class.getPackage());
     	archive.addClasses(ApplicationScopedRouteBuilder.class);
     	archive.addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
         archive.addAsWebInfResource("ticker/jboss-deployment-structure.xml", "jboss-deployment-structure.xml");
@@ -79,14 +80,14 @@ public class TickerDeploymentTest extends AbstractTest {
     		res = HttpRequest.get(httpUrl).getResponse();
             Assert.assertEquals(200, res.getStatusCode());
     		
-            LOG.info(res.getBody());
+            logInfo(res.getBody());
             
             ObjectMapper mapper = new ObjectMapper();
             JsonNode resTree = mapper.readTree(res.getBody());
             
 			String pair = resTree.at("/currencyPair").asText();
 			BigDecimal closePrice = resTree.at("/last").decimalValue();
-            LOG.info(String.format("%s: %.2f", pair, closePrice));
+            logInfo(String.format("%s: %.2f", pair, closePrice));
             
         } finally {
 			deployer.undeploy(DEPLOYMENT_NAME);
