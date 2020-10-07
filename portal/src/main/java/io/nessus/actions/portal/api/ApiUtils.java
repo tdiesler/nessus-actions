@@ -1,7 +1,10 @@
 package io.nessus.actions.portal.api;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -22,6 +25,15 @@ public final class ApiUtils {
 	
 	// Hide ctor
 	private ApiUtils() {}
+	
+	public static Response withClient(Function<Client, Response> function) {
+		Client client = ClientBuilder.newClient();
+		try {
+			return function.apply(client);
+		} finally {
+			client.close();
+		}
+	}
 	
 	public static JsonNode readJsonNode(Response res) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();

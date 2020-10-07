@@ -1,0 +1,19 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;width:50%;">
+
+    <h1>User Login</h1>
+    
+    <table>
+    <form method="post" action="login/act">
+    <tr><td>Username</td><td><input name="username" type="text" value="$user.username"></td></tr>
+    <tr><td>Password</td><td><input name="password" type="password" value="$user.password"></td></tr>
+    <tr><td>&nbsp;</td><td><input type="submit" value="login"></td></tr>
+    </form>
+    </table>
+    
+    <p/>
+    <a href="register">Register</a>
+</div>
+
+#parse( "template/footer.vm" )

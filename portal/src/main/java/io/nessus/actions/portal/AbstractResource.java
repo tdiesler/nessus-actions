@@ -6,8 +6,8 @@ public abstract class AbstractResource extends ConfigSupport<PortalConfig> {
 	
 	protected final PortalApi api;
 	
-	protected AbstractResource(PortalApi api) {
-		super(api.getConfig());
-		this.api = api;
+	protected AbstractResource() {
+		super(PortalApi.getInstance().getConfig());
+		this.api = PortalApi.getInstance();
 	}
 }

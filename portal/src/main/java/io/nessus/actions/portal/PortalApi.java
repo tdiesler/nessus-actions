@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.nessus.actions.portal.api.ApiService;
+import io.nessus.actions.portal.api.ApiUserLogin;
 import io.nessus.actions.portal.api.ApiUserRegister;
 import io.nessus.actions.portal.api.ApiUserStatus;
 import io.nessus.common.service.Service;
@@ -26,11 +27,12 @@ public class PortalApi extends Application {
 	
 	public PortalApi() {
 		this(PortalConfig.createConfig());
-		config.addService(new ApiService(config));
 	}
 	
 	public PortalApi(PortalConfig config) {
 		this.config = config;
+		config.addService(new ApiService(config));
+		config.addService(new SessionManagerService(config));
 		INSTANCE = this;
 	}
 	
@@ -45,6 +47,7 @@ public class PortalApi extends Application {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<>();
 		classes.add(ApiUserStatus.class);
+		classes.add(ApiUserLogin.class);
 		classes.add(ApiUserRegister.class);
 		return Collections.unmodifiableSet(classes);
 	}

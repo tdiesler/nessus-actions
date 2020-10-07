@@ -21,10 +21,10 @@ package io.nessus.test.actions.portal;
 
 import static io.nessus.actions.portal.api.ApiUtils.getStatus;
 import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
+import static io.nessus.actions.portal.api.ApiUtils.withClient;
 
 import java.net.URL;
 
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -36,8 +36,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.portal.api.ApiService;
-import io.nessus.actions.portal.api.ApiUserRegister.User;
 import io.nessus.actions.portal.api.ApiUserStatus.StatusResponse;
+import io.nessus.actions.portal.api.User;
 
 public class PortalApiTest extends AbstractPortalTest {
 
@@ -61,9 +61,9 @@ public class PortalApiTest extends AbstractPortalTest {
 		User user = mapper.readValue(resUrl, User.class);
 		Assert.assertEquals("myuser@example.com", user.getEmail());
 		
-		Response res = ClientBuilder.newClient()
+		Response res = withClient(client -> client
 			.target(portalUrl("/api/users"))
-			.request().post(Entity.json(user));
+			.request().post(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
 		
@@ -79,9 +79,9 @@ public class PortalApiTest extends AbstractPortalTest {
 	@Test
 	public void testUserStatus() throws Exception {
 		
-		Response res = ClientBuilder.newClient()
+		Response res = withClient(client -> client
 			.target(portalUrl("/api/status"))
-			.request().get();
+			.request().get());
 		
 		Assert.assertEquals(Status.OK, getStatus(res));
 		

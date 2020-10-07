@@ -1,0 +1,14 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;width:50%;">
+
+    <h1>User Status</h1>
+    
+    $status.username
+    
+    <p/>
+    <a href="logout">Logout</a>
+    
+</div>
+
+#parse( "template/footer.vm" )

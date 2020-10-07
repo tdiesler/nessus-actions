@@ -9,15 +9,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.nessus.actions.portal.PortalApi;
-
 @Path("/status")
 public class ApiUserStatus extends AbstractApiResource {
 	
-	public ApiUserStatus() {
-		super(PortalApi.getInstance());
-	}
-
 	@GET
 	public Response get() {
 		StatusResponse entity = new StatusResponse("online");

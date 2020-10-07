@@ -1,13 +1,16 @@
 package io.nessus.actions.portal.api;
 
 import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
+import static io.nessus.actions.portal.api.ApiUtils.keycloakRealmUrl;
 import static io.nessus.actions.portal.api.ApiUtils.keycloakUrl;
+import static io.nessus.actions.portal.api.ApiUtils.withClient;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -20,9 +23,8 @@ import io.nessus.actions.portal.PortalConfig;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
-import io.nessus.common.service.AbstractBasicService;
 
-public class ApiService extends AbstractBasicService<PortalConfig> {
+public class ApiService extends AbstractPortalService {
 
 	public ApiService(PortalConfig config) {
 		super(config);
@@ -53,9 +55,9 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 			data.add("password", masterPassword);
 			data.add("grant_type", "password");
 			
-			Response res = ClientBuilder.newClient()
+			Response res = withClient(client -> client
 					.target(keycloakUrl() + "/realms/master/protocol/openid-connect/token")
-					.request().post(Entity.form(data));
+					.request().post(Entity.form(data)));
 			
 			if (!hasStatus(res, Status.OK))
 				return null;
@@ -80,9 +82,9 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 		data.add("refresh_token", refreshToken);
 		data.add("grant_type", "refresh_token");
 		
-		Response res = ClientBuilder.newClient()
+		Response res = withClient(client -> client
 				.target(keycloakUrl("/realms/" + realmId + "/protocol/openid-connect/token"))
-				.request().post(Entity.form(data));
+				.request().post(Entity.form(data)));
 		
 		if (!hasStatus(res, Status.OK))
 			return null;
@@ -99,9 +101,9 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 
 		String accessToken = getMasterAccessToken();
 		
-		Response res = ClientBuilder.newClient()
+		Response res = ApiUtils.withClient(client -> client
 				.target(keycloakUrl(String.format("/admin/realms/%s/clients?clientId=%s", realmId, clientId)))
-				.request().header("Authorization", "Bearer " + accessToken).get();
+				.request().header("Authorization", "Bearer " + accessToken).get());
 		
 		JsonNode node = readJsonNode(res);
 		AssertState.isTrue(node.isArray(), "Not an array node: " + node);
@@ -109,9 +111,9 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 
 		// GET the client secret
 		
-		res = ClientBuilder.newClient()
+		res = withClient(client -> client
 				.target(keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)))
-				.request().header("Authorization", "Bearer " + accessToken).get();
+				.request().header("Authorization", "Bearer " + accessToken).get());
 		
 		if (!hasStatus(res, Status.OK))
 			return null;
@@ -125,9 +127,9 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 			
 			// POST to update the client secret
 			
-			res = ClientBuilder.newClient()
+			res = withClient(client -> client
 					.target(keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)))
-					.request().header("Authorization", "Bearer " + accessToken).post(null);
+					.request().header("Authorization", "Bearer " + accessToken).post(null));
 			
 			if (!hasStatus(res, Status.OK))
 				return null;
@@ -139,6 +141,41 @@ public class ApiService extends AbstractBasicService<PortalConfig> {
 		return clientSecret;
 	}
 
+	public Response userLogin(String username, String password) {
+		
+		// Get the user's access/refresh token
+		
+		String realmId = config.getRealmId();
+		String clientId = config.getClientId();
+		String clientSecret = getClientSecret(realmId, clientId);
+		
+		MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
+		data.add("client_id", clientId);
+		data.add("client_secret", clientSecret);
+		data.add("username", username);
+		data.add("password", password);
+		data.add("grant_type", "password");
+		
+		Response res = withClient(client -> client
+				.target(keycloakRealmUrl(realmId, "/protocol/openid-connect/token"))
+				.request().post(Entity.form(data)));
+		
+		if (!hasStatus(res, Status.OK)) {
+			int status = res.getStatus();
+			String reason = res.getStatusInfo().getReasonPhrase();
+			return Response.status(status, reason).build();
+		}
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String> resmap = ((Map<String, String>) res.readEntity(LinkedHashMap.class)).entrySet().stream()
+			.filter(en -> en.getKey().equals("refresh_token"))
+			.collect(Collectors.toMap(en -> en.getKey(), en -> en.getValue()));
+		
+		resmap.put("username", username);
+
+		return Response.ok(resmap, MediaType.APPLICATION_JSON).build();
+	}
+	
 	private JsonNode readJsonNode(Response res) {
 		try {
 			return ApiUtils.readJsonNode(res);
