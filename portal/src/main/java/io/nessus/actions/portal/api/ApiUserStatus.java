@@ -1,4 +1,4 @@
-package io.nessus.actions.portal.resources;
+package io.nessus.actions.portal.api;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Path("/api/status")
-public class PortalStatus extends AbstractResource {
+import io.nessus.actions.portal.PortalApi;
+
+@Path("/status")
+public class ApiUserStatus extends AbstractApiResource {
 	
-	public PortalStatus() {
+	public ApiUserStatus() {
 		super(PortalApi.getInstance());
 	}
 

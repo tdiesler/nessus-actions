@@ -19,8 +19,8 @@
  */
 package io.nessus.test.actions.portal;
 
-import static io.nessus.actions.portal.ApiUtils.getStatus;
-import static io.nessus.actions.portal.ApiUtils.portalUrl;
+import static io.nessus.actions.portal.api.ApiUtils.getStatus;
+import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
 
 import java.net.URL;
 
@@ -35,9 +35,9 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.resources.ApiService;
-import io.nessus.actions.portal.resources.PortalStatus.StatusResponse;
-import io.nessus.actions.portal.resources.UserRegister.User;
+import io.nessus.actions.portal.api.ApiService;
+import io.nessus.actions.portal.api.ApiUserRegister.User;
+import io.nessus.actions.portal.api.ApiUserStatus.StatusResponse;
 
 public class PortalApiTest extends AbstractPortalTest {
 

@@ -1,0 +1,16 @@
+
+   </div>
+   <div id="footer">
+    <footer class="footer">
+        <span><b>Version</b>: $implVersion</span> 
+        #if ( $implBuild != "" )
+           <span>[$implBuild]</span> 
+        #end
+        <br>
+        <span>Copyright &copy; 2020 Nessus</span>
+    </footer>
+   </div>
+</div>
+
+</body>
+</html>

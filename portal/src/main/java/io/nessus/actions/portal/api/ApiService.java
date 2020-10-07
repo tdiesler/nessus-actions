@@ -1,7 +1,7 @@
-package io.nessus.actions.portal.resources;
+package io.nessus.actions.portal.api;
 
-import static io.nessus.actions.portal.ApiUtils.hasStatus;
-import static io.nessus.actions.portal.ApiUtils.keycloakUrl;
+import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
+import static io.nessus.actions.portal.api.ApiUtils.keycloakUrl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import io.nessus.actions.portal.ApiUtils;
 import io.nessus.actions.portal.PortalConfig;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;

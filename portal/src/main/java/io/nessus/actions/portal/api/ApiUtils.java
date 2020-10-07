@@ -1,4 +1,4 @@
-package io.nessus.actions.portal;
+package io.nessus.actions.portal.api;
 
 import java.util.Arrays;
 
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.resources.PortalApi;
+import io.nessus.actions.portal.PortalApi;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 

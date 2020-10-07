@@ -1,0 +1,5 @@
+#parse( "template/header.vm" )
+
+$errmsg
+
+#parse( "template/footer.vm" )

@@ -1,0 +1,16 @@
+
+# The Portal binding url 
+portalUrl: http://localhost:8280/portal
+  
+# The Keycloak API endpoint 
+keycloakUrl: http://localhost:8180/auth
+  
+# Realm this service belongs to 
+keycloakRealm: myrealm
+  
+# Client for this service 
+keycloakClient: myclient
+
+# Credentials for the master realm
+keycloakUser: admin
+keycloakPassword: admin

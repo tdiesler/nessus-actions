@@ -1,8 +1,8 @@
-package io.nessus.actions.portal.resources;
+package io.nessus.actions.portal.api;
 
-import static io.nessus.actions.portal.ApiUtils.hasStatus;
-import static io.nessus.actions.portal.ApiUtils.keycloakRealmUrl;
-import static io.nessus.actions.portal.ApiUtils.keycloakUrl;
+import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
+import static io.nessus.actions.portal.api.ApiUtils.keycloakRealmUrl;
+import static io.nessus.actions.portal.api.ApiUtils.keycloakUrl;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.nessus.actions.portal.PortalApi;
 import io.nessus.actions.portal.PortalConfig;
 
 /**
@@ -38,13 +39,13 @@ import io.nessus.actions.portal.PortalConfig;
  * 3) Create the user session (cookie)
  *  
  */
-@Path("/api/users")
-public class UserRegister extends AbstractResource {
+@Path("/users")
+public class ApiUserRegister extends AbstractApiResource {
 	
 	@Context
 	private HttpServletRequest servletRequest;
 	
-	public UserRegister() {
+	public ApiUserRegister() {
 		super(PortalApi.getInstance());
 	}
 
@@ -116,10 +117,11 @@ public class UserRegister extends AbstractResource {
 		final String password;
 		
 		@JsonCreator
-		User(@JsonProperty("username") String username, 
+		public User(
 			@JsonProperty("firstName") String firstName, 
 			@JsonProperty("lastName") String lastName, 
 			@JsonProperty("email") String email, 
+			@JsonProperty("username") String username, 
 			@JsonProperty("password") String password) {
 			this.username = username;
 			this.firstName = firstName;

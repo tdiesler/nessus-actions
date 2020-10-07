@@ -1,7 +1,7 @@
 {
-  "username":	"myuser", 
   "firstName":	"My",
   "lastName":	"User", 
   "email":	"myuser@example.com",
+  "username":   "myuser", 
   "password": "mypass"
 }

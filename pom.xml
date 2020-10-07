@@ -21,6 +21,7 @@
     
     <properties>
         <version.apache.camel>3.4.0</version.apache.camel>
+        <version.apache.velocity>1.7</version.apache.velocity>
         <version.fasterxml.jackson>2.11.0</version.fasterxml.jackson>
         <version.jakarta.enterprise>2.0.2</version.jakarta.enterprise>
         <version.javax.servlet>2.0.0.Final</version.javax.servlet>
@@ -28,7 +29,7 @@
         <version.jboss.resteasy>4.5.8.Final</version.jboss.resteasy>
         <version.jboss.shrinkwrap>1.2.2</version.jboss.shrinkwrap>
         <version.junit>4.13</version.junit>
-        <version.nessus.common>1.0.0</version.nessus.common>
+        <version.nessus.common>1.0.1</version.nessus.common>
         <version.nessus.h2>1.0.0</version.nessus.h2>
         <version.slf4j>1.7.28</version.slf4j>
         <version.wildfly.arquillian>2.2.0.Final</version.wildfly.arquillian>
@@ -36,27 +37,23 @@
         <version.wildfly>20.0.0.Final</version.wildfly>
 		        
         <!-- Plugin versions -->
+        <version-buildnumber-maven-plugin>1.4</version-buildnumber-maven-plugin>
         <version-docker-maven-plugin>0.20.1</version-docker-maven-plugin>
-        <version-exec-maven-plugin>1.6.0</version-exec-maven-plugin>
-        <version-galleon-maven-plugin>4.2.5.Final</version-galleon-maven-plugin>
-        <version-maven-antrun-plugin>1.8</version-maven-antrun-plugin>
         <version-maven-assembly-plugin>3.1.0</version-maven-assembly-plugin>
         <version-maven-compiler-plugin>3.1</version-maven-compiler-plugin>
         <version-maven-jar-plugin>2.6</version-maven-jar-plugin>
         <version-maven-javadoc-plugin>3.0.1</version-maven-javadoc-plugin>
         <version-maven-release-plugin>2.5</version-maven-release-plugin>
         <version-maven-surefire-plugin>2.19.1</version-maven-surefire-plugin>
-        <version-maven-war-plugin>3.3.1</version-maven-war-plugin>
-        <version-smartics-maven-plugin>2.1.5</version-smartics-maven-plugin>
-        <version-wildfly-galleon-plugin>4.2.6.Final</version-wildfly-galleon-plugin>
-        <version-wildfly-maven-plugin>2.0.0.Final</version-wildfly-maven-plugin>
     </properties>
     
     <modules>
         <module>camel</module>
         <module>runner</module>
         <module>portal</module>
+        <!--
         <module>itests</module>
+        -->
     </modules>
 
     <dependencyManagement>
@@ -110,6 +107,11 @@
 				<artifactId>jakarta.enterprise.cdi-api</artifactId>
                 <version>${version.jakarta.enterprise}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${version.apache.velocity}</version>
+            </dependency>
 			<dependency>
 			    <groupId>org.jboss.resteasy</groupId>
 			    <artifactId>resteasy-jackson2-provider</artifactId>
@@ -174,20 +176,10 @@
         <!-- Plugin Management -->
         <pluginManagement>
             <plugins>
-            	<plugin>
-                    <groupId>de.smartics.maven.plugin</groupId>
-                    <artifactId>smartics-jboss-modules-maven-plugin</artifactId>
-                    <version>${version-smartics-maven-plugin}</version>
-                </plugin>
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>${version-docker-maven-plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${version-maven-antrun-plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -237,32 +229,12 @@
                         <failIfNoTests>false</failIfNoTests>
                     </configuration>
                 </plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-                    <version>${version-maven-war-plugin}</version>
-				</plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${version-exec-maven-plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jboss.galleon</groupId>
-                    <artifactId>galleon-maven-plugin</artifactId>
-                    <version>${version-galleon-maven-plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.wildfly.galleon-plugins</groupId>
-                    <artifactId>wildfly-galleon-maven-plugin</artifactId>
-                    <version>${version-wildfly-galleon-plugin}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>${version-wildfly-maven-plugin}</version>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>${version-buildnumber-maven-plugin}</version>
                     <configuration>
-                        <version>${version.wildfly}</version>
+                       <shortRevisionLength>6</shortRevisionLength>
                     </configuration>
                 </plugin>
             </plugins>

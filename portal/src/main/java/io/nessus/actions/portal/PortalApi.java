@@ -1,4 +1,4 @@
-package io.nessus.actions.portal.resources;
+package io.nessus.actions.portal;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,10 +10,12 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.portal.PortalConfig;
+import io.nessus.actions.portal.api.ApiService;
+import io.nessus.actions.portal.api.ApiUserRegister;
+import io.nessus.actions.portal.api.ApiUserStatus;
 import io.nessus.common.service.Service;
 
-@ApplicationPath("/portal")
+@ApplicationPath("/portal/api")
 public class PortalApi extends Application {
 	
 	static final Logger LOG = LoggerFactory.getLogger(PortalApi.class);
@@ -23,9 +25,8 @@ public class PortalApi extends Application {
 	private PortalConfig config;
 	
 	public PortalApi() {
-		config = PortalConfig.createConfig();
+		this(PortalConfig.createConfig());
 		config.addService(new ApiService(config));
-		INSTANCE = this;
 	}
 	
 	public PortalApi(PortalConfig config) {
@@ -34,14 +35,17 @@ public class PortalApi extends Application {
 	}
 	
 	public static PortalApi getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new PortalApi();
+		}
 		return INSTANCE;
 	}
 	
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<>();
-		classes.add(PortalStatus.class);
-		classes.add(UserRegister.class);
+		classes.add(ApiUserStatus.class);
+		classes.add(ApiUserRegister.class);
 		return Collections.unmodifiableSet(classes);
 	}
 
@@ -50,10 +54,10 @@ public class PortalApi extends Application {
 	}
 
 	public ApiService getApiService() {
-		return getConfig().getService(ApiService.class);
+		return config.getService(ApiService.class);
 	}
 	
 	public <T extends Service> T getService(Class<T> type) {
-		return getConfig().getService(type);
+		return config.getService(type);
 	}
 }

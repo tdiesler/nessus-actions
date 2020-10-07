@@ -19,9 +19,8 @@
  */
 package io.nessus.test.actions.portal;
 
-import static io.nessus.actions.portal.ApiUtils.hasStatus;
+import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 
-import java.net.URL;
 import java.util.Arrays;
 
 import javax.ws.rs.core.Response;
@@ -32,11 +31,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
+import io.nessus.actions.portal.PortalApi;
 import io.nessus.actions.portal.PortalConfig;
-import io.nessus.actions.portal.resources.ApiService;
-import io.nessus.actions.portal.resources.PortalApi;
+import io.nessus.actions.portal.PortalMain;
 import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
 
@@ -44,38 +42,30 @@ abstract class AbstractPortalTest extends AbstractTest {
 
 	private static UndertowJaxrsServer server;
 
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		
-		PortalConfig config = PortalConfig.createConfig();
-		URL url = new URL(config.getPortalUrl());
-		
-		server = new UndertowJaxrsServer()
-				.setHostname(url.getHost())
-				.setPort(url.getPort())
-				.start();
-		
-		server.deployOldStyle(PortalApi.class);
-	}
-
 	@AfterClass
 	public static void afterClass() throws Exception {
-		server.stop();
+		if (server != null) {
+			server.stop();
+			server = null;
+		}
 	}
 
 	@Before
 	public void before() throws Exception {
+		if (server == null) {
+			PortalMain main = new PortalMain(getConfig());
+			server = main.startPortalServer();
+		}
 	}
 
 	@After
 	public void after() throws Exception {
+		// do nothing
 	}
 
 	@Override
 	protected Config createConfig() {
-		PortalConfig config = PortalConfig.createConfig();
-		config.addService(new ApiService(config));
-		return config;
+		return PortalApi.getInstance().getConfig();
 	}
 
 	@Override

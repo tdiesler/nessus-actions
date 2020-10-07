@@ -9,13 +9,13 @@
     </parent>
     
     <artifactId>nessus-actions-portal</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>Nessus :: Actions :: Portal</name>
 
     <!-- Properties -->
     <properties>
-        <docker.image.name>nessusio/nessus-actions-portal</docker.image.name>
+        <docker.image.name>nessusio/nessus-tryit-portal</docker.image.name>
         <docker.image.from>quay.io/wildfly/wildfly-centos7:20.0</docker.image.from>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
     </properties>
@@ -32,6 +32,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
         </dependency>
 		<dependency>
 		    <groupId>org.jboss.resteasy</groupId>
@@ -63,15 +67,63 @@
         http://localhost:8180/auth/admin
 	   
 		docker run -detach \
-		    -name portal \
-		    -p 8181:8080 \
-		    nessusio/nessus-actions-portal
+		    -name tryit \
+		    -p 8280:8280 \
+		    nessusio/nessus-tryit
 		
-		http://127.0.0.1:8181/nessus-actions-portal
+		http://127.0.0.1:8280/nessus-tryit
 	-->
 	 
 	<build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>io.nessus.actions.portal.PortalMain</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Implementation-Build>${buildNumber}</Implementation-Build>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+               <executions>
+                    <execution>
+                        <id>proj</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>scripts/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -100,21 +152,18 @@
 								  </http>
 								  <time>120000</time>
 								</wait>
+								<skip>${skipRunKC}</skip>
                             </run>
                         </image>
                         <image>
                             <name>${docker.image.name}</name>
                             <build>
                                 <maintainer>${docker.image.maintainer}</maintainer>
-                                <from>${docker.image.from}</from>
+                                <dockerFile>${project.build.directory}/${project.artifactId}/context/Dockerfile</dockerFile>
                                 <tags>
                                     <tag>${docker.image.version}</tag>
                                     <tag>${project.version}</tag>
                                 </tags>
-                                <assembly>
-                                    <descriptorRef>artifact</descriptorRef>
-                                    <targetDir>/opt/wildfly/standalone/deployments</targetDir>
-                                </assembly>
                             </build>
                         </image>
                     </images>

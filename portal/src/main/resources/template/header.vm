@@ -1,0 +1,13 @@
+<html>
+
+<head>
+<link rel="stylesheet" href="/portal/static/css/demo.css">
+</head>
+
+<body>
+<div id="container">
+   <div id="header">
+    <a href="/portal/web"><img alt="logo" width="144" height="144" src="/portal/static/img/logo.png"></a>
+   </div>
+   <div id="body">
+

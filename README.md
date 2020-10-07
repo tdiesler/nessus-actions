@@ -12,6 +12,7 @@ First, you'd want to spin up a [Kewcloak](https://www.keycloak.org/getting-start
 ```
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
+KEYCLOAK_URL=http://yourhost:8180/auth
 
 docker rm -f keycloak
 docker run --detach \
@@ -35,10 +36,18 @@ http://localhost:8180/auth/admin
 Then, you spin up a the Fuse TryIt Portal
 
 ```
+docker rm -f portal
 docker run --detach \
     --name portal \
-    -p 8280:8080 \
-    nessusio/nessus-actions-portal
+    -p 8280:8280 \
+    -e KEYCLOAK_URL=$KEYCLOAK_URL \
+    -e KEYCLOAK_USER=$KEYCLOAK_USER \
+    -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
+    nessusio/nessus-tryit-portal
+
+docker logs -f portal
+
+docker exec portal tail -fn 1000 tryit/debug.log
 ```
 
 and connect to it
