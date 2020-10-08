@@ -1,18 +1,19 @@
-## WildFly Camel
+## Nessus Actions
 
 [![Default Build](https://github.com/tdiesler/nessus-actions/workflows/Default%20Build/badge.svg)](https://github.com/tdiesler/nessus-actions/actions)
 [![License](https://img.shields.io/:license-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 Explore [Apache Camel](http://camel.apache.org/) based actions inspired by [GitHub Actions](https://docs.github.com/en/actions). 
 
-### Setting up TLS(SSL)
+### Running Keycloak
 
-First, you'd want to spin up a [Kewcloak](https://www.keycloak.org/getting-started/getting-started-docker) instance
+First, you'd want to spin up a [Keycloak](https://www.keycloak.org/getting-started/getting-started-docker) instance
 
 ```
+KEYCLOAK_URL=http://95.179.187.140:8180/auth
+
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
-KEYCLOAK_URL=http://yourhost:8180/auth
 
 docker rm -f keycloak
 docker run --detach \
@@ -33,7 +34,9 @@ and verify that you can login to the admin console
 http://localhost:8180/auth/admin
 ```
 
-Then, you spin up a the Fuse TryIt Portal
+### Running the Fuse TryIt Portal
+
+Then, you spin up a the portal like this ...
 
 ```
 docker rm -f portal
