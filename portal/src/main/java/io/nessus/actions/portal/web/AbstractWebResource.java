@@ -1,5 +1,7 @@
 package io.nessus.actions.portal.web;
 
+import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -13,6 +15,8 @@ import java.util.function.BiConsumer;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -22,7 +26,8 @@ import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import io.nessus.actions.portal.AbstractResource;
 import io.nessus.actions.portal.PortalMain;
-import io.nessus.actions.portal.SessionManagerService;
+import io.nessus.actions.portal.api.PortalApi;
+import io.nessus.actions.portal.service.SessionManagerService;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
@@ -79,66 +84,56 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
         
         // Dynamic content
         
-        String tmplPath = null;
         VelocityContext context = new VelocityContext();
         context.put("implVersion", PortalMain.getImplVersion());
         context.put("implBuild", PortalMain.getImplBuild());
 
+        String tmplPath = null;
+        
         try {
 
             if (reqPath.endsWith("/act")) {
             	
-            	tmplPath = handleActionRequest(exchange, context);
+            	handleActionRequest(exchange, context);
             	
-            } else {
-            	
-            	tmplPath = handlePageRequest(exchange, context);
+            	int status = exchange.getStatusCode();
+            	AssertState.isEqual(StatusCodes.FOUND, status, "Expected redirect after: " + reqPath);
+            	return;
             }
 
+        	tmplPath = handlePageRequest(exchange, context);
+        	
         } catch (Exception ex) {
 
-            logError("Error", ex);
+            logError(ex);
             tmplPath = errorPage(context, ex, null);
         }
 
-        if (tmplPath == null) {
-        	
-        	// No error in case of redirect
-        	
-        	int status = exchange.getStatusCode();
-			if (status != StatusCodes.FOUND) {
-	        	logError("No template for: {}", reqPath);
-        	}
-			
-        	return;
-        }
-        
         // Read template and pass through velocity
         
-        exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/html");
-
-        ClassLoader loader = getClass().getClassLoader();
+    	AssertState.notNull(tmplPath, "No template for: " + reqPath);
+    	
+        ClassLoader loader = PortalApi.class.getClassLoader();
 		InputStream input = loader.getResourceAsStream(tmplPath);
 		AssertState.notNull(input, "Null resource: " + tmplPath);
 		
-		ByteBuffer content;
+        exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/html");
+		
 		try (InputStreamReader reader = new InputStreamReader(input)) {
 
             StringWriter strwr = new StringWriter();
             Velocity.evaluate(context, strwr, tmplPath, reader);
 
-            content = ByteBuffer.wrap(strwr.toString().getBytes());
+            ByteBuffer content = ByteBuffer.wrap(strwr.toString().getBytes());
+            exchange.getResponseSender().send(content);
         }
-
-        exchange.getResponseSender().send(content);
 	}
 
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 		return null;
 	}
 
-	protected String handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
-		return null;
+	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 	}
 
 	protected MultivaluedMap<String, String> getRequestParameters(HttpServerExchange exchange) {
@@ -193,6 +188,14 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
 		httpHandler.handleRequest(exchange);
 	}
 
+	protected void assertStatus(Response res, Status... exp) {
+		if (!hasStatus(res, exp)) {
+			int status = res.getStatus();
+			String reason = res.getStatusInfo().getReasonPhrase();
+			throw new IllegalStateException(String.format("[%d %s]", status, reason));
+		}
+	}
+	
 	protected String errorPage(VelocityContext context, Throwable th, String errmsg) {
 
 		if (errmsg == null)
@@ -225,9 +228,15 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
         new RedirectHandler("/portal/web" + path).handleRequest(exchange);
     }
 
-	protected Session getSession(HttpServerExchange exchange, boolean create) {
+	protected Session createSession(HttpServerExchange exchange) {
 		SessionManagerService sessions = config.getService(SessionManagerService.class);
-		Session session = sessions.getSession(exchange, create);
+		Session session = sessions.createSession(exchange);
+		return session;
+	}
+	
+	protected Session getSession(HttpServerExchange exchange) {
+		SessionManagerService sessions = config.getService(SessionManagerService.class);
+		Session session = sessions.getSession(exchange);
 		return session;
 	}
 	

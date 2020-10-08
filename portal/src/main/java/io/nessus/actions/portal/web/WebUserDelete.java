@@ -8,37 +8,28 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.velocity.VelocityContext;
 
 import io.nessus.actions.portal.api.type.KeycloakTokens;
-import io.nessus.actions.portal.api.type.UserInfo;
 import io.nessus.actions.portal.service.ApiService;
 import io.undertow.server.HttpServerExchange;
 
-public class WebUserStatus extends AbstractWebResource  {
+public class WebUserDelete extends AbstractWebResource  {
 	
-    @Override
-	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
-
+	@Override
+	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
+		
     	KeycloakTokens tokens = getAttribute(getSession(exchange), KeycloakTokens.class);
     	if (tokens != null) {
     		
     		ApiService apisrv = api.getApiService();
     		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
     		
-    		Response res = withClient(portalUrl("/api/user/status"), 
+    		Response res = withClient(portalUrl("/api/user"), 
     				target -> target.request()
     					.header("Authorization", "Bearer " + accessToken)
-    					.get());
+    					.delete());
     		
-    		assertStatus(res, Status.OK);
-    		
-    		UserInfo userInfo = res.readEntity(UserInfo.class);
-        	context.put("user", userInfo);
-        	
-            return "template/user-status.vm";
-            
-    	} else {
-    		
-    		WebUserLogin userLogin = new WebUserLogin();
-			return userLogin.handlePageRequest(exchange, context);
+    		assertStatus(res, Status.NO_CONTENT);
     	}
+    	
+    	redirectToLogin(exchange);
 	}
 }

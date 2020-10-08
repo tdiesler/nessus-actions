@@ -1,12 +1,8 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
-import static io.nessus.actions.portal.api.ApiUtils.withClient;
 
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -18,7 +14,11 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.api.User;
+import io.nessus.actions.portal.api.type.KeycloakTokens;
+import io.nessus.actions.portal.api.type.KeycloakUserInfo;
+import io.nessus.actions.portal.api.type.User;
+import io.nessus.actions.portal.api.type.UserInfo;
+import io.nessus.actions.portal.service.ApiService;
 import io.nessus.common.AssertArg;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
@@ -38,7 +38,7 @@ public class WebUserRegister extends AbstractWebResource  {
 	}
 
 	@Override
-	protected String handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
+	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 
 		MultivaluedMap<String, String> qparams = getRequestParameters(exchange);
 		
@@ -49,35 +49,36 @@ public class WebUserRegister extends AbstractWebResource  {
         String password = qparams.getFirst("password");
         String retype = qparams.getFirst("retype");
         
+        User user = new User(firstName, lastName, email, username, password);
         AssertArg.isEqual(password, retype, "Password does not match");
         
-		Response res = withClient(client -> {
-	        User user = new User(firstName, lastName, email, username, password);
-			return client.target(portalUrl("/api/users"))
-					.request(MediaType.APPLICATION_JSON)
-					.post(Entity.json(user));
-		});
+		Response res = withClient(portalUrl("/api/users"), 
+				target -> target.request(MediaType.APPLICATION_JSON)
+				.post(Entity.json(user)));
 		
-		if (!hasStatus(res, Status.CREATED)) {
-			int status = res.getStatus();
-			String reason = res.getStatusInfo().getReasonPhrase();
-			String errmsg = String.format("%s %s", status, reason);
-	        return errorPage(context, null, errmsg);
-		}
+		assertStatus(res, Status.CREATED);
 		
-		@SuppressWarnings("unchecked")
-		Map<String, String> resmap = res.readEntity(LinkedHashMap.class);
-		String refreshToken = resmap.get("refresh_token");
+		KeycloakTokens tokens = res.readEntity(KeycloakTokens.class);
+		String accessToken = tokens.accessToken;
 		
-    	UserSession userSession = new UserSession(username, refreshToken);
-    	UserStatus userStatus = new UserStatus(username);
-    	
-    	Session session = getSession(exchange, true);
-		setAttribute(session, userSession);
-		setAttribute(session, userStatus);
-    	context.put("status", userStatus);
-        
-        return "template/user-status.vm";
-    }
+		// Get the user info using the access token 
+		
+		ApiService apisrv = api.getApiService();
+		res = apisrv.getUserInfo(accessToken);
+		
+		assertStatus(res, Status.OK);
 
+		// Store both, then tokens and the user info in the session
+		
+		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
+    	UserInfo userinfo = new UserInfo(kcinfo);
+    	
+    	Session session = createSession(exchange);
+		setAttribute(session, tokens);
+		setAttribute(session, userinfo);
+		
+    	context.put("user", userinfo);
+        
+    	redirectTo(exchange, "/status");
+    }
 }

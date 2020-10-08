@@ -1,36 +1,40 @@
 package io.nessus.actions.portal.api;
 
+import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.nessus.actions.portal.api.type.UserInfo;
+import io.nessus.actions.portal.api.type.KeycloakUserInfo;
+import io.nessus.actions.portal.service.ApiService;
 
-@Path("/status")
+@Path("/user/status")
 public class ApiUserStatus extends AbstractApiResource {
 	
 	@GET
 	public Response get() {
-		StatusResponse entity = new StatusResponse("online");
-		Response res = Response.ok(entity, MediaType.APPLICATION_JSON).build();
-		return res;
-	}
-	
-	public static class StatusResponse {
-
-		final String status;
-
-		@JsonCreator
-		StatusResponse(@JsonProperty("status") String status) {
-			this.status = status;
+		
+		// Verify user authorization
+		
+		String accessToken = getAccessToken();
+		if (accessToken == null) {
+			return Response.status(Status.UNAUTHORIZED).build();
 		}
-
-		@JsonGetter
-		public String getStatus() {
-			return status;
+		
+		ApiService apisrv = api.getApiService();
+		Response res = apisrv.getUserInfo(accessToken);
+		
+		if (!hasStatus(res, Status.OK)) {
+			return res;
 		}
+		
+		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
+		UserInfo userInfo = new UserInfo(kcinfo);
+		
+		return Response.ok(userInfo, MediaType.APPLICATION_JSON).build();
 	}
 }

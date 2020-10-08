@@ -1,10 +1,8 @@
 package io.nessus.actions.portal.api;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.Map;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -15,9 +13,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.PortalApi;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
+import io.nessus.common.CheckedExceptionWrapper;
 
 public final class ApiUtils {
 	
@@ -26,21 +24,29 @@ public final class ApiUtils {
 	// Hide ctor
 	private ApiUtils() {}
 	
-	public static Response withClient(Function<Client, Response> function) {
-		Client client = ClientBuilder.newClient();
+	public static JsonNode readJsonNode(Response res) {
 		try {
-			return function.apply(client);
-		} finally {
-			client.close();
+			ObjectMapper mapper = new ObjectMapper();
+			String content = res.readEntity(String.class);
+			return mapper.readTree(content);
+		} catch (JsonProcessingException ex) {
+			throw CheckedExceptionWrapper.create(ex);
 		}
 	}
 	
-	public static JsonNode readJsonNode(Response res) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		String content = res.readEntity(String.class);
-		return mapper.readTree(content);
+	public static String errorMessageJson(String errmsg) {
+		return String.format("{\"errorMessage\": \"%s\"}", errmsg);
 	}
-	
+
+	public static String safeJson(Map<String, ? extends Object> map) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(map);
+		} catch (JsonProcessingException ex) {
+			throw CheckedExceptionWrapper.create(ex);
+		}
+	}
+
 	public static Status getStatus(Response res) {
 		return Status.fromStatusCode(res.getStatus());
 	}
@@ -48,18 +54,17 @@ public final class ApiUtils {
 	public static boolean hasStatus(Response res, Status... exp) {
 		AssertArg.notNull(exp, "Null expected");
 		
-		if (Arrays.asList(exp).contains(getStatus(res))) 
-			return true;
+		res.bufferEntity();
 		
-		String errorText;
-		try {
-			JsonNode node = readJsonNode(res);
-			JsonNode errNode = node.findValue("error_description");
-			if (errNode == null) errNode = node.findValue("errorMessage");
-			errorText = errNode != null ? errNode.asText() : null;
-		} catch (JsonProcessingException ex) {
-			errorText = null;
+		if (Arrays.asList(exp).contains(getStatus(res))) { 
+			return true;
 		}
+		
+		JsonNode node = readJsonNode(res);
+		JsonNode errNode = node.findValue("error_description");
+		if (errNode == null) errNode = node.findValue("errorMessage");
+		String errorText = errNode != null ? errNode.asText() : null;
+
 		int status = res.getStatus();
 		String reason = res.getStatusInfo().getReasonPhrase();
 		if (errorText != null) {
@@ -96,6 +101,15 @@ public final class ApiUtils {
 	
 	public static String keycloakRealmUrl(String realm, String path) {
 		String url = keycloakUrl() + "/realms/" + realm + path;
+		return url;
+	}
+	
+	public static String keycloakRealmTokenUrl(String realm) {
+		return keycloakRealmTokenUrl(realm, "");
+	}
+	
+	public static String keycloakRealmTokenUrl(String realm, String path) {
+		String url = keycloakUrl() + "/realms/" + realm + "/protocol/openid-connect/token" + path;
 		return url;
 	}
 }

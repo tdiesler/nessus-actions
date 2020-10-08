@@ -18,6 +18,7 @@
         <docker.image.name>nessusio/nessus-tryit-portal</docker.image.name>
         <docker.image.from>quay.io/wildfly/wildfly-centos7:20.0</docker.image.from>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
+        <skipKeycloak>false</skipKeycloak>
     </properties>
 
 	<!-- Dependencies -->
@@ -133,6 +134,7 @@
                         <image>
                             <name>quay.io/keycloak/keycloak</name>
                             <run>
+                                <skip>${skipKeycloak}</skip>
 								<ports>
 								    <port>8180:8080</port>
 								</ports>
@@ -152,7 +154,6 @@
 								  </http>
 								  <time>120000</time>
 								</wait>
-								<skip>${skipRunKC}</skip>
                             </run>
                         </image>
                         <image>

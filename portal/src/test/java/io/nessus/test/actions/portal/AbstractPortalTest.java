@@ -22,7 +22,9 @@ package io.nessus.test.actions.portal;
 import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -32,9 +34,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.nessus.actions.portal.PortalApi;
 import io.nessus.actions.portal.PortalConfig;
 import io.nessus.actions.portal.PortalMain;
+import io.nessus.actions.portal.api.PortalApi;
+import io.nessus.actions.portal.service.ApiService;
 import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
 
@@ -73,11 +76,16 @@ abstract class AbstractPortalTest extends AbstractTest {
 		return (PortalConfig) super.getConfig();
 	}
 
+	protected Response withClient(String uri, Function<WebTarget, Response> function) {
+		ApiService apisrv = getService(ApiService.class);
+		return apisrv.withClient(uri, function);
+	}
+
 	protected void assertStatus(Response res, Status... exp) {
 		if (!hasStatus(res, exp)) {
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
-			Assert.fail(String.format("[%d %s] not in expected %s", status, reason, Arrays.asList(exp)));
+			Assert.fail(String.format("[%d %s] not in %s", status, reason, Arrays.asList(exp)));
 		}
 	}
 }

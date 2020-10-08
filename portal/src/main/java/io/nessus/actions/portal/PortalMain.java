@@ -5,9 +5,11 @@ import java.net.URL;
 
 import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
 
-import io.nessus.actions.portal.api.ApiService;
+import io.nessus.actions.portal.api.PortalApi;
+import io.nessus.actions.portal.service.ApiService;
 import io.nessus.actions.portal.web.WebHome;
 import io.nessus.actions.portal.web.WebRoot;
+import io.nessus.actions.portal.web.WebUserDelete;
 import io.nessus.actions.portal.web.WebUserLogin;
 import io.nessus.actions.portal.web.WebUserLogout;
 import io.nessus.actions.portal.web.WebUserRegister;
@@ -70,6 +72,7 @@ public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
 		server.deployOldStyle(PortalApi.class);
 		server.addPrefixPath("/portal", new WebRoot());
 		server.addPrefixPath("/portal/web/home", new WebHome());
+		server.addPrefixPath("/portal/web/delete", new WebUserDelete());
 		server.addPrefixPath("/portal/web/login", new WebUserLogin());
 		server.addPrefixPath("/portal/web/logout", new WebUserLogout());
 		server.addPrefixPath("/portal/web/register", new WebUserRegister());

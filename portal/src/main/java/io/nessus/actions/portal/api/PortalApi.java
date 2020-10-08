@@ -1,4 +1,4 @@
-package io.nessus.actions.portal;
+package io.nessus.actions.portal.api;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,10 +10,9 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.portal.api.ApiService;
-import io.nessus.actions.portal.api.ApiUserLogin;
-import io.nessus.actions.portal.api.ApiUserRegister;
-import io.nessus.actions.portal.api.ApiUserStatus;
+import io.nessus.actions.portal.PortalConfig;
+import io.nessus.actions.portal.service.ApiService;
+import io.nessus.actions.portal.service.SessionManagerService;
 import io.nessus.common.service.Service;
 
 @ApplicationPath("/portal/api")
@@ -46,9 +45,10 @@ public class PortalApi extends Application {
 	@Override
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<>();
-		classes.add(ApiUserStatus.class);
-		classes.add(ApiUserLogin.class);
+		classes.add(ApiUserDelete.class);
 		classes.add(ApiUserRegister.class);
+		classes.add(ApiUserStatus.class);
+		classes.add(ApiUserToken.class);
 		return Collections.unmodifiableSet(classes);
 	}
 

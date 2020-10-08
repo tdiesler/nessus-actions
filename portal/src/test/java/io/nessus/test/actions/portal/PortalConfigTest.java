@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import io.nessus.actions.portal.PortalApi;
 import io.nessus.actions.portal.PortalConfig;
-import io.nessus.actions.portal.api.ApiService;
+import io.nessus.actions.portal.api.PortalApi;
+import io.nessus.actions.portal.service.ApiService;
 
 public class PortalConfigTest extends AbstractPortalTest {
 

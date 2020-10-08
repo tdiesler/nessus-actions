@@ -1,12 +1,8 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
-import static io.nessus.actions.portal.api.ApiUtils.withClient;
 
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -18,7 +14,11 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.api.User;
+import io.nessus.actions.portal.api.type.KeycloakTokens;
+import io.nessus.actions.portal.api.type.KeycloakUserInfo;
+import io.nessus.actions.portal.api.type.User;
+import io.nessus.actions.portal.api.type.UserInfo;
+import io.nessus.actions.portal.service.ApiService;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
@@ -37,38 +37,39 @@ public class WebUserLogin extends AbstractWebResource  {
 	}
 
 	@Override
-	protected String handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
+	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 
+		// Get the user tokens
+		
 		MultivaluedMap<String, String> qparams = getRequestParameters(exchange);
 		
-		Response res = withClient(client -> {
-			return client.target(portalUrl("/api/login"))
-				.request(MediaType.APPLICATION_FORM_URLENCODED)
-				.post(Entity.form(qparams));
-		});
+		Response res = withClient(portalUrl("/api/user/token"), 
+				target -> target.request(MediaType.APPLICATION_FORM_URLENCODED)
+				.post(Entity.form(qparams)));
 		
-		if (!hasStatus(res, Status.OK)) {
-			int status = res.getStatus();
-			String reason = res.getStatusInfo().getReasonPhrase();
-			String errmsg = String.format("%s %s", status, reason);
-	        return errorPage(context, null, errmsg);
-		}
+		assertStatus(res, Status.OK);
 		
-		@SuppressWarnings("unchecked")
-		Map<String, String> resmap = res.readEntity(LinkedHashMap.class);
-		String refreshToken = resmap.get("refresh_token");
-		String username = resmap.get("username");
+		KeycloakTokens tokens = res.readEntity(KeycloakTokens.class);
+		String accessToken = tokens.accessToken;
 		
-    	UserSession userSession = new UserSession(username, refreshToken);
-    	UserStatus userStatus = new UserStatus(username);
+		// Get the user info using the access token 
+		
+		ApiService apisrv = api.getApiService();
+		res = apisrv.getUserInfo(accessToken);
+		
+		assertStatus(res, Status.OK);
+
+		// Store both, then tokens and the user info in the session
+		
+		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
+    	UserInfo userinfo = new UserInfo(kcinfo);
     	
-    	Session session = getSession(exchange, true);
-		setAttribute(session, userSession);
-		setAttribute(session, userStatus);
-    	context.put("status", userStatus);
+    	Session session = createSession(exchange);
+		setAttribute(session, tokens);
+		setAttribute(session, userinfo);
+		
+    	context.put("user", userinfo);
         
     	redirectTo(exchange, "/status");
-    	
-        return null;
 	}
 }

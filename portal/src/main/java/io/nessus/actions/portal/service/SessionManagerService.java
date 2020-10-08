@@ -1,8 +1,8 @@
-package io.nessus.actions.portal;
+package io.nessus.actions.portal.service;
 
 import static io.undertow.server.session.SessionCookieConfig.DEFAULT_SESSION_ID;
 
-import io.nessus.actions.portal.api.AbstractPortalService;
+import io.nessus.actions.portal.PortalConfig;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.server.session.InMemorySessionManager;
@@ -10,7 +10,7 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
 
-public class SessionManagerService extends AbstractPortalService {
+public class SessionManagerService extends AbstractService {
 
 	private final SessionManager sessionManager;
 	
@@ -19,15 +19,14 @@ public class SessionManagerService extends AbstractPortalService {
 		sessionManager = new InMemorySessionManager("portal");
 	}
 	
-	public Session getSession(HttpServerExchange exchange, boolean create) {
-		Session session = null;
+	public Session createSession(HttpServerExchange exchange) {
+		Session session = sessionManager.createSession(exchange, new SessionCookieConfig());    		
+		return session;
+	}
+
+	public Session getSession(HttpServerExchange exchange) {
 		Cookie cookie = exchange.getRequestCookies().get(DEFAULT_SESSION_ID);
-		if (cookie != null) {
-			session = sessionManager.getSession(cookie.getValue());
-		}
-    	if (session == null && create) {
-    		session = sessionManager.createSession(exchange, new SessionCookieConfig());    		
-    	}
+		Session session = cookie != null ? sessionManager.getSession(cookie.getValue()) : null;
 		return session;
 	}
 

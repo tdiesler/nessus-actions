@@ -2,7 +2,6 @@ package io.nessus.actions.portal.api;
 
 import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 import static io.nessus.actions.portal.api.ApiUtils.keycloakUrl;
-import static io.nessus.actions.portal.api.ApiUtils.withClient;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -12,6 +11,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import io.nessus.actions.portal.PortalConfig;
+import io.nessus.actions.portal.api.type.User;
+import io.nessus.actions.portal.api.type.KeycloakUserRegister;
+import io.nessus.actions.portal.service.ApiService;
 
 /**
  * User self registration requires the a master access token.
@@ -41,22 +43,23 @@ public class ApiUserRegister extends AbstractApiResource {
 		
 		// Create the user record
 		
-		Response regres = withClient(client -> client
-				.target(keycloakUrl("/admin/realms/" + realmId + "/users"))
-				.request(MediaType.APPLICATION_JSON)
+		Response res = withClient(keycloakUrl("/admin/realms/" + realmId + "/users"),
+				target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
-				.post(Entity.json(new KeycloakUser(user))));
+				.post(Entity.json(new KeycloakUserRegister(user))));
 		
-		if (!hasStatus(regres, Status.CREATED)) {
-			int status = regres.getStatus();
-			String reason = regres.getStatusInfo().getReasonPhrase();
-			return Response.status(status, reason).build();
+		if (!hasStatus(res, Status.CREATED)) {
+			return res;
 		}
 		
 		// Do the user login
 		
-		Response tokres = apisrv.userLogin(user.getUsername(), user.getPassword());
+		res = apisrv.getUserTokens(user.getUsername(), user.getPassword());
+
+		if (!hasStatus(res, Status.OK)) {
+			return res;
+		}
 		
-		return Response.fromResponse(tokres).status(Status.CREATED).build();
+		return Response.fromResponse(res).status(Status.CREATED).build();
 	}
 }

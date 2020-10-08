@@ -4,10 +4,14 @@
 
     <h1>User Status</h1>
     
-    $status.username
+    <table>
+    <tr><td>Name</td><td class="gray">$user.name</td></tr>
+    <tr><td>Email</td><td class="gray">$user.email</td></tr>
+    <tr><td>Status</td><td class="gray">$user.status</td></tr>
+    </table>
     
     <p/>
-    <a href="logout">Logout</a>
+    <a href="logout/act">Logout</a>&nbsp;<a href="delete/act">Delete</a>
     
 </div>
 
