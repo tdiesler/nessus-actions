@@ -43,8 +43,8 @@ public class PortalConfigTest extends AbstractPortalTest {
 		
 		logInfo(yaml);
 
-		Assert.assertEquals("http://localhost:8280/portal", config.getPortalUrl());
-		Assert.assertEquals("http://localhost:8180/auth", config.getKeycloakUrl());
+		Assert.assertEquals("http://127.0.0.1:8280/portal", config.getPortalUrl());
+		Assert.assertEquals("http://127.0.0.1:8180/auth", config.getKeycloakUrl());
 		Assert.assertEquals("myrealm", config.getRealmId());
 		Assert.assertEquals("myclient", config.getClientId());
 	}

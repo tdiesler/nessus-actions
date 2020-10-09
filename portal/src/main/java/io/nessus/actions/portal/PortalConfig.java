@@ -45,7 +45,11 @@ public class PortalConfig extends BasicConfig {
 	@Override
 	public void prepare(Map<String, String> mapping) {
 		
-		mapping.put("portalUrl", "PORTAL_URL");
+		mapping.put("portalHost", "PORTAL_HOST");
+		mapping.put("portalPort", "PORTAL_PORT");
+		mapping.put("portalTLSPort", "PORTAL_TLS_PORT");
+		mapping.put("portalTLSCrt", "PORTAL_TLS_CRT");
+		mapping.put("portalTLSKey", "PORTAL_TLS_KEY");
 		mapping.put("keycloakUrl", "KEYCLOAK_URL");
 		mapping.put("keycloakUser", "KEYCLOAK_USER");
 		mapping.put("keycloakPassword", "KEYCLOAK_PASSWORD");
@@ -55,8 +59,36 @@ public class PortalConfig extends BasicConfig {
 		super.prepare(mapping);
 	}
 
+	public String getPortalHost() {
+		return getParameter("portalHost", String.class);
+	}
+
+	public Integer getPortalPort() {
+		return getParameter("portalPort", Integer.class);
+	}
+
 	public String getPortalUrl() {
-		return getParameter("portalUrl", String.class);
+		String host = getPortalHost();
+		int port = getPortalPort();
+		return String.format("http://%s:%d/portal", host, port);
+	}
+
+	public Integer getPortalTLSPort() {
+		return getParameter("portalTLSPort", Integer.class);
+	}
+
+	public String getPortalTLSUrl() {
+		String host = getPortalHost();
+		Integer port = getPortalTLSPort();
+		return String.format("https://%s:%d/portal", host, port);
+	}
+
+	public String getPortalTLSCrt() {
+		return getParameter("portalTLSCrt", String.class);
+	}
+
+	public String getPortalTLSKey() {
+		return getParameter("portalTLSKey", String.class);
 	}
 
 	public String getKeycloakUrl() {

@@ -14,14 +14,9 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.api.type.KeycloakTokens;
-import io.nessus.actions.portal.api.type.KeycloakUserInfo;
 import io.nessus.actions.portal.api.type.User;
-import io.nessus.actions.portal.api.type.UserInfo;
-import io.nessus.actions.portal.service.ApiService;
 import io.nessus.common.AssertArg;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.session.Session;
 
 public class WebUserRegister extends AbstractWebResource  {
 	
@@ -58,27 +53,6 @@ public class WebUserRegister extends AbstractWebResource  {
 		
 		assertStatus(res, Status.CREATED);
 		
-		KeycloakTokens tokens = res.readEntity(KeycloakTokens.class);
-		String accessToken = tokens.accessToken;
-		
-		// Get the user info using the access token 
-		
-		ApiService apisrv = api.getApiService();
-		res = apisrv.getUserInfo(accessToken);
-		
-		assertStatus(res, Status.OK);
-
-		// Store both, then tokens and the user info in the session
-		
-		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
-    	UserInfo userinfo = new UserInfo(kcinfo);
-    	
-    	Session session = createSession(exchange);
-		setAttribute(session, tokens);
-		setAttribute(session, userinfo);
-		
-    	context.put("user", userinfo);
-        
-    	redirectTo(exchange, "/status");
+    	redirectToLogin(exchange);
     }
 }

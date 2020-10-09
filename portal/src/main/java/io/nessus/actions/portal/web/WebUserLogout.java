@@ -11,7 +11,7 @@ public class WebUserLogout extends AbstractWebResource  {
 	@Override
 	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 		
-    	Session session = getSession(exchange);
+    	Session session = getSession(exchange, false);
     	if (session != null) {
         	UserInfo status = getAttribute(session, UserInfo.class);
         	logInfo("Logout: {}", status != null ? status.getUsername() : null);

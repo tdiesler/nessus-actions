@@ -48,18 +48,8 @@ public class ApiUserRegister extends AbstractApiResource {
 				.header("Authorization", "Bearer " + accessToken)
 				.post(Entity.json(new KeycloakUserRegister(user))));
 		
-		if (!hasStatus(res, Status.CREATED)) {
-			return res;
-		}
+		hasStatus(res, Status.CREATED);
 		
-		// Do the user login
-		
-		res = apisrv.getUserTokens(user.getUsername(), user.getPassword());
-
-		if (!hasStatus(res, Status.OK)) {
-			return res;
-		}
-		
-		return Response.fromResponse(res).status(Status.CREATED).build();
+		return res;
 	}
 }

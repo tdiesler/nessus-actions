@@ -21,6 +21,7 @@ package io.nessus.test.actions.portal;
 
 import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -36,6 +37,7 @@ import org.junit.Before;
 
 import io.nessus.actions.portal.PortalConfig;
 import io.nessus.actions.portal.PortalMain;
+import io.nessus.actions.portal.PortalMain.JaxrsServer;
 import io.nessus.actions.portal.api.PortalApi;
 import io.nessus.actions.portal.service.ApiService;
 import io.nessus.common.Config;
@@ -45,19 +47,21 @@ abstract class AbstractPortalTest extends AbstractTest {
 
 	private static UndertowJaxrsServer server;
 
+	@Before
+	public void before() throws Exception {
+		if (server == null) {
+			server = createJaxrsServer();
+			if (server != null) {
+				server.start();
+			}
+		}
+	}
+
 	@AfterClass
 	public static void afterClass() throws Exception {
 		if (server != null) {
 			server.stop();
 			server = null;
-		}
-	}
-
-	@Before
-	public void before() throws Exception {
-		if (server == null) {
-			PortalMain main = new PortalMain(getConfig());
-			server = main.startPortalServer();
 		}
 	}
 
@@ -74,6 +78,11 @@ abstract class AbstractPortalTest extends AbstractTest {
 	@Override
 	public PortalConfig getConfig() {
 		return (PortalConfig) super.getConfig();
+	}
+
+	protected JaxrsServer createJaxrsServer() throws IOException, Exception {
+		PortalMain main = new PortalMain(getConfig());
+		return main.createJaxrsServer();
 	}
 
 	protected Response withClient(String uri, Function<WebTarget, Response> function) {

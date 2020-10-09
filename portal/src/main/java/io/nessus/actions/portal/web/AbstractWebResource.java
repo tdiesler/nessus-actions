@@ -228,15 +228,9 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
         new RedirectHandler("/portal/web" + path).handleRequest(exchange);
     }
 
-	protected Session createSession(HttpServerExchange exchange) {
+	protected Session getSession(HttpServerExchange exchange, boolean create) {
 		SessionManagerService sessions = config.getService(SessionManagerService.class);
-		Session session = sessions.createSession(exchange);
-		return session;
-	}
-	
-	protected Session getSession(HttpServerExchange exchange) {
-		SessionManagerService sessions = config.getService(SessionManagerService.class);
-		Session session = sessions.getSession(exchange);
+		Session session = sessions.getSession(exchange, create);
 		return session;
 	}
 	

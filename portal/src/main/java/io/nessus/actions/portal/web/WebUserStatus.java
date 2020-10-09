@@ -11,13 +11,16 @@ import io.nessus.actions.portal.api.type.KeycloakTokens;
 import io.nessus.actions.portal.api.type.UserInfo;
 import io.nessus.actions.portal.service.ApiService;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.session.Session;
 
 public class WebUserStatus extends AbstractWebResource  {
 	
     @Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
 
-    	KeycloakTokens tokens = getAttribute(getSession(exchange), KeycloakTokens.class);
+    	Session session = getSession(exchange, false);
+		KeycloakTokens tokens = getAttribute(session, KeycloakTokens.class);
+		
     	if (tokens != null) {
     		
     		ApiService apisrv = api.getApiService();

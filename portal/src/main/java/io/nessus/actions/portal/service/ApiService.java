@@ -7,7 +7,6 @@ import static io.nessus.actions.portal.api.ApiUtils.keycloakRealmUrl;
 import static io.nessus.actions.portal.api.ApiUtils.keycloakUrl;
 import static io.nessus.actions.portal.api.ApiUtils.readJsonNode;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import io.nessus.actions.portal.PortalConfig;
 import io.nessus.actions.portal.api.type.KeycloakTokenInfo;
-import io.nessus.actions.portal.utils.DateUtils;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 
@@ -37,17 +35,25 @@ public class ApiService extends AbstractService {
 		super(config);
 	}
 
-	public Response withClient(String uri, Function<WebTarget, Response> function) {
-		Client client = ClientBuilder.newClient();
-		Date tsBefore = new Date();
+	public Response withClient(String uri, Function<WebTarget, Response> invoker) {
+		
+		Client client = ClientBuilder.newBuilder().build();
 		try {
+			
+			long before = System.currentTimeMillis();
+			
 			WebTarget target = client.target(uri);
-			Response res = function.apply(target);
+			Response res = invoker.apply(target);
+			
+			long now = System.currentTimeMillis();
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
-			logInfo("{} => [{} {}] in {}ms", uri, status, reason, DateUtils.elapsedTime(tsBefore));
+			logInfo("{} => [{} {}] in {}ms", uri, status, reason, now - before);
+			
 			return res;
+			
 		} finally {
+			
 			client.close();
 		}
 	}

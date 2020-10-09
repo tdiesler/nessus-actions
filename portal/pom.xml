@@ -16,7 +16,6 @@
     <!-- Properties -->
     <properties>
         <docker.image.name>nessusio/nessus-tryit-portal</docker.image.name>
-        <docker.image.from>quay.io/wildfly/wildfly-centos7:20.0</docker.image.from>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <skipKeycloak>false</skipKeycloak>
     </properties>

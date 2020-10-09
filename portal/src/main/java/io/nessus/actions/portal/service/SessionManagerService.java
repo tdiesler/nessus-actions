@@ -19,14 +19,12 @@ public class SessionManagerService extends AbstractService {
 		sessionManager = new InMemorySessionManager("portal");
 	}
 	
-	public Session createSession(HttpServerExchange exchange) {
-		Session session = sessionManager.createSession(exchange, new SessionCookieConfig());    		
-		return session;
-	}
-
-	public Session getSession(HttpServerExchange exchange) {
+	public Session getSession(HttpServerExchange exchange, boolean create) {
 		Cookie cookie = exchange.getRequestCookies().get(DEFAULT_SESSION_ID);
 		Session session = cookie != null ? sessionManager.getSession(cookie.getValue()) : null;
+		if (session == null && create) {
+			session = sessionManager.createSession(exchange, new SessionCookieConfig());
+		}
 		return session;
 	}
 

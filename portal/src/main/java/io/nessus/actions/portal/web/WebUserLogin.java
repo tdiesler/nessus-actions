@@ -64,7 +64,7 @@ public class WebUserLogin extends AbstractWebResource  {
 		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
     	UserInfo userinfo = new UserInfo(kcinfo);
     	
-    	Session session = createSession(exchange);
+    	Session session = getSession(exchange, true);
 		setAttribute(session, tokens);
 		setAttribute(session, userinfo);
 		

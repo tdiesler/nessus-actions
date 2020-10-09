@@ -1,9 +1,19 @@
 
-# The Portal binding url 
-portalUrl: http://localhost:8280/portal
+# The Portal HTTP binding
+portalHost: 127.0.0.1
+portalPort: 8280
   
+# The Portal HTTPS port
+portalTLSPort: 9443
+
+# Certificate used for TLS
+portalTLSCrt: /etc/x509/https/tls.crt
+
+# Private key used for TLS
+portalTLSKey: /etc/x509/https/tls.key
+
 # The Keycloak API endpoint 
-keycloakUrl: http://localhost:8180/auth
+keycloakUrl: http://127.0.0.1:8180/auth
   
 # Realm this service belongs to 
 keycloakRealm: myrealm

@@ -34,9 +34,9 @@ and verify that you can login to the admin console
 http://localhost:8180/auth/admin
 ```
 
-### Running the Fuse TryIt Portal
+### Running TryIt
 
-Then, you spin up a the portal like this ...
+Then, you can spin up a the TryIt portal like this ...
 
 ```
 docker rm -f portal

@@ -7,25 +7,26 @@
 ### Generate a self-signed cert using keytool
 
 ```
-ALIAS=keycloak
+ALIAS=tryit
+KEYSTORE=keycloak
 HOSTNAME=yourhost
-SAN_IP=95.179.187.140
+YOURIP=95.179.187.140
 
-keytool -genkey -alias $ALIAS -keyalg RSA -keystore keycloak.jks -storepass changeit -validity 360 \
-    -dname "CN=Thomas Diesler,OU=Fuse,O=RedHat,L=Munich,ST=Bavaria,C=DE" -ext "SAN:c=DNS:$HOSTNAME,IP:$SAN_IP"
+keytool -genkey -alias $ALIAS -keyalg RSA -keystore $KEYSTORE.jks -storepass changeit -validity 360 \
+    -dname "CN=Thomas Diesler,OU=Fuse,O=RedHat,L=Munich,ST=Bavaria,C=DE" \
+    -ext "SAN:c=DNS:$HOSTNAME,IP:$YOURIP"
 
-keytool -importkeystore -srckeystore keycloak.jks -destkeystore keycloak.jks -deststoretype PKCS12
+keytool -importkeystore -srckeystore $KEYSTORE.jks -destkeystore $KEYSTORE.p12 -deststoretype pkcs12
 ```
 
 ### Export the cert and key
 
 ```
-mkdir tls
-openssl pkcs12 -in keycloak.jks -nokeys -out tls/tls.crt
+openssl pkcs12 -in $KEYSTORE.p12 -nokeys -out tls.crt
 
-openssl pkcs12 -in keycloak.jks -nocerts -nodes -out tls/tls.key
+openssl pkcs12 -in $KEYSTORE.p12 -nocerts -nodes -out tls.key
 
-openssl pkcs12 -in keycloak.jks -passin pass:changeit -out tls/keycloak.pem
+openssl pkcs12 -in $KEYSTORE.p12 -out tls.pem
 ```
 
 ### Generate the ignition file
@@ -47,26 +48,21 @@ keytool -list -alias $ALIAS -keystore $JAVA_HOME/jre/lib/security/cacerts
 sudo keytool -delete -alias $ALIAS -keystore $JAVA_HOME/jre/lib/security/cacerts
 ```
 
-### Run the keycloak image
+### Running Keycloak
     
 Before we actually do this, lets copy the cert to a volume
 
 ```
 docker rm -f kcinit
 docker volume rm kctls
-docker volume rm kcrlm
 
-docker run --name kcinit -v kctls:/etc/x509/https -v kcrlm:/var/tmp centos
-docker cp keycloak/myrealm.json kcinit:/var/tmp
+docker run --name kcinit -v kctls:/etc/x509/https centos
+docker cp keycloak/myrealm.json kcinit:/etc/x509/https/myrealm.json
 docker cp tls/. kcinit:/etc/x509/https
+docker rm kcinit
 
 docker run --rm -v kctls:/etc/x509/https:ro centos ls -l /etc/x509/https
-docker run --rm -v kcrlm:/var/tmp:ro centos ls -l /var/tmp
-
-docker rm kcinit
 ```
-
-with TLS ...
 
 ```
 KEYCLOAK_USER='admin'
@@ -76,13 +72,42 @@ docker rm -f keycloak
 docker run --detach \
     --name keycloak \
     -p 8443:8443 \
-    -v kcrlm:/var/tmp:ro \
+    -p 8180:8080 \
     -v kctls:/etc/x509/https:ro \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
-    -e KEYCLOAK_IMPORT=/var/tmp/myrealm.json \
+    -e KEYCLOAK_IMPORT=/etc/x509/https/myrealm.json \
     --restart=always \
     quay.io/keycloak/keycloak 
 
 docker logs -f keycloak
+```
+
+### Running TryIt
+
+Then, you can spin up a the TryIt portal like this ...
+
+```
+KEYCLOAK_URL="http://$YOURIP:8180/auth"
+
+docker rm -f portal
+docker run --detach \
+    --name portal \
+    -p 9443:9443 \
+    -p 8280:8280 \
+    -v kctls:/etc/x509/https:ro \
+    -e KEYCLOAK_URL=$KEYCLOAK_URL \
+    -e KEYCLOAK_USER=$KEYCLOAK_USER \
+    -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
+    nessusio/nessus-tryit-portal
+
+docker logs -f portal
+
+docker exec portal tail -fn 1000 tryit/debug.log
+```
+
+and connect to it
+
+```
+http://localhost:8280/portal
 ```
