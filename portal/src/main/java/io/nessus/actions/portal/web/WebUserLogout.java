@@ -2,7 +2,7 @@ package io.nessus.actions.portal.web;
 
 import org.apache.velocity.VelocityContext;
 
-import io.nessus.actions.portal.api.type.UserInfo;
+import io.nessus.actions.jaxrs.type.UserInfo;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 

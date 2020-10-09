@@ -1,6 +1,6 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
 
 import java.net.URL;
 
@@ -14,11 +14,11 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.api.type.KeycloakTokens;
-import io.nessus.actions.portal.api.type.KeycloakUserInfo;
-import io.nessus.actions.portal.api.type.User;
-import io.nessus.actions.portal.api.type.UserInfo;
-import io.nessus.actions.portal.service.ApiService;
+import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.type.KeycloakTokens;
+import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
+import io.nessus.actions.jaxrs.type.User;
+import io.nessus.actions.jaxrs.type.UserInfo;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 

@@ -1,6 +1,6 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
 
 import java.net.URL;
 
@@ -14,7 +14,7 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.portal.api.type.User;
+import io.nessus.actions.jaxrs.type.User;
 import io.nessus.common.AssertArg;
 import io.undertow.server.HttpServerExchange;
 

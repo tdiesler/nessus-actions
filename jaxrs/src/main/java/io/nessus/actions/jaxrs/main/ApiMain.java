@@ -1,4 +1,4 @@
-package io.nessus.actions.portal;
+package io.nessus.actions.jaxrs.main;
 
 import java.io.IOException;
 import java.net.URL;
@@ -8,30 +8,23 @@ import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 
 import io.nessus.actions.jaxrs.ApiConfig;
+import io.nessus.actions.jaxrs.ApiRoot;
 import io.nessus.actions.jaxrs.JaxrsServer;
-import io.nessus.actions.jaxrs.main.ApiOptions;
 import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
-import io.nessus.actions.portal.web.WebHome;
-import io.nessus.actions.portal.web.WebRoot;
-import io.nessus.actions.portal.web.WebUserDelete;
-import io.nessus.actions.portal.web.WebUserLogin;
-import io.nessus.actions.portal.web.WebUserLogout;
-import io.nessus.actions.portal.web.WebUserRegister;
-import io.nessus.actions.portal.web.WebUserStatus;
 import io.nessus.common.main.AbstractMain;
 
-public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
+public class ApiMain extends AbstractMain<ApiConfig, ApiOptions> {
 
     public static void main(String... args) throws Exception {
 
     	ApiConfig config = ApiConfig.createConfig();
     	
-    	new PortalMain(config)
+    	new ApiMain(config)
     		.start(args);
     }
 
-    public PortalMain(ApiConfig config) throws IOException {
+    public ApiMain(ApiConfig config) throws IOException {
         super(config);
         config.addService(new ApiService(config));
     }
@@ -52,6 +45,8 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
         logInfo("***************************************************");
         logInfo();
         
+        JaxrsServer server = createJaxrsServer();
+        server.start();
     }
 
 	public JaxrsServer createJaxrsServer() throws Exception {
@@ -85,13 +80,7 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 			server.setHttpsPort(tlsPort, sslContext);
 		}
 		
-		server.addPrefixPath("/portal", new WebRoot());
-		server.addPrefixPath("/portal/web/home", new WebHome());
-		server.addPrefixPath("/portal/web/delete", new WebUserDelete());
-		server.addPrefixPath("/portal/web/login", new WebUserLogin());
-		server.addPrefixPath("/portal/web/logout", new WebUserLogout());
-		server.addPrefixPath("/portal/web/register", new WebUserRegister());
-		server.addPrefixPath("/portal/web/status", new WebUserStatus());
+		server.deployApplication(ApiRoot.class);
 		
 		return server;
 	}
@@ -100,9 +89,6 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 		Integer tlsPort = config.getPortalTLSPort();
 		String tlsCert = config.getPortalTLSCrt();
 		String tlsKey = config.getPortalTLSKey();
-		logInfo("TLS Port: {}", tlsPort);
-		logInfo("TLS Crt: {}", tlsCert);
-		logInfo("TLS Key: {}", tlsKey);
 		if (tlsPort == null || tlsCert == null || tlsKey == null) {
 			return false;
 		}
@@ -114,6 +100,9 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 			logError("Cannot find TLS Key: {}", tlsKey);
 			return false;
 		}
+		logInfo("TLS Port: {}", tlsPort);
+		logInfo("TLS Crt: {}", tlsCert);
+		logInfo("TLS Key: {}", tlsKey);
 		logInfo("TLS Enabled");
 		return true;
 	}

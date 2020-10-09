@@ -1,7 +1,5 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.hasStatus;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -24,10 +22,10 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
-import io.nessus.actions.portal.AbstractResource;
+import io.nessus.actions.jaxrs.AbstractResource;
+import io.nessus.actions.jaxrs.ApiUtils;
+import io.nessus.actions.jaxrs.service.SessionManagerService;
 import io.nessus.actions.portal.PortalMain;
-import io.nessus.actions.portal.api.PortalApi;
-import io.nessus.actions.portal.service.SessionManagerService;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
@@ -113,7 +111,7 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
         
     	AssertState.notNull(tmplPath, "No template for: " + reqPath);
     	
-        ClassLoader loader = PortalApi.class.getClassLoader();
+        ClassLoader loader = PortalMain.class.getClassLoader();
 		InputStream input = loader.getResourceAsStream(tmplPath);
 		AssertState.notNull(input, "Null resource: " + tmplPath);
 		
@@ -189,7 +187,7 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
 	}
 
 	protected void assertStatus(Response res, Status... exp) {
-		if (!hasStatus(res, exp)) {
+		if (!ApiUtils.hasStatus(res, exp)) {
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
 			throw new IllegalStateException(String.format("[%d %s]", status, reason));

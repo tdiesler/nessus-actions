@@ -1,14 +1,14 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.portal.api.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
-import io.nessus.actions.portal.api.type.KeycloakTokens;
-import io.nessus.actions.portal.service.ApiService;
+import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 

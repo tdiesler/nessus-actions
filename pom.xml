@@ -51,10 +51,8 @@
     <modules>
         <module>camel</module>
         <module>runner</module>
+        <module>jaxrs</module>
         <module>portal</module>
-        <!--
-        <module>itests</module>
-        -->
     </modules>
 
     <dependencyManagement>
