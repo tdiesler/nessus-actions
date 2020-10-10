@@ -1,0 +1,46 @@
+#
+# https://github.com/coreos/fcct/blob/master/docs/configuration-v1_1.md
+#
+variant: fcos
+version: 1.1.0
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - "ssh-rsa AAAAB3N... yourname@redhat.com"
+      groups: [ sudo, docker ]
+storage:
+  files:
+    - path: /var/home/core/myrealm.json
+      contents:
+        source: https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/myrealm.json
+      mode: 0644
+      user:
+        name: core
+      group:
+        name: core
+    - path: /var/home/core/tls.crt
+      contents:
+        local: tls/tls.crt
+      mode: 0644
+      user:
+        name: core
+      group:
+        name: core
+    - path: /var/home/core/tls.key
+      contents:
+        local: tls/tls.key
+      mode: 0644
+      user:
+        name: core
+      group:
+        name: core
+    - path: /var/home/core/tls.pem
+      contents:
+        local: tls/tls.pem
+      mode: 0644
+      user:
+        name: core
+      group:
+        name: core
+      

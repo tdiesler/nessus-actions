@@ -1,7 +1,7 @@
 FROM openjdk:8
 
-COPY bin /tryit-api/bin
-COPY lib /tryit-api/lib
-COPY config /tryit-api/config
+COPY bin /tryapi/bin
+COPY lib /tryapi/lib
+COPY config /tryapi/config
 
-ENTRYPOINT ["/tryit-api/bin/run.sh"]
+ENTRYPOINT ["/tryapi/bin/run.sh"]
