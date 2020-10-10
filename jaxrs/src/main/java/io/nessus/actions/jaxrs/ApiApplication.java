@@ -14,29 +14,29 @@ import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.actions.jaxrs.service.SessionManagerService;
 import io.nessus.common.service.Service;
 
-@ApplicationPath("/tryit/api")
-public class ApiRoot extends Application {
+@ApplicationPath("/jaxrs/api")
+public class ApiApplication extends Application {
 	
-	static final Logger LOG = LoggerFactory.getLogger(ApiRoot.class);
+	static final Logger LOG = LoggerFactory.getLogger(ApiApplication.class);
 	
-	private static ApiRoot INSTANCE;
+	private static ApiApplication INSTANCE;
 	
-	private ApiConfig config;
+	private JaxrsConfig config;
 	
-	public ApiRoot() {
-		this(ApiConfig.createConfig());
+	public ApiApplication() {
+		this(JaxrsConfig.createConfig());
 	}
 	
-	public ApiRoot(ApiConfig config) {
+	public ApiApplication(JaxrsConfig config) {
 		this.config = config;
 		config.addService(new ApiService(config));
 		config.addService(new SessionManagerService(config));
 		INSTANCE = this;
 	}
 	
-	public static ApiRoot getInstance() {
+	public static ApiApplication getInstance() {
 		if (INSTANCE == null) {
-			INSTANCE = new ApiRoot();
+			INSTANCE = new ApiApplication();
 		}
 		return INSTANCE;
 	}
@@ -51,7 +51,7 @@ public class ApiRoot extends Application {
 		return Collections.unmodifiableSet(classes);
 	}
 
-	public ApiConfig getConfig() {
+	public JaxrsConfig getConfig() {
 		return config;
 	}
 

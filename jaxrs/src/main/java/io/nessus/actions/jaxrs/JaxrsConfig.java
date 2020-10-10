@@ -15,21 +15,21 @@ import io.nessus.common.BasicConfig;
 import io.nessus.common.CheckedExceptionWrapper;
 
 @JsonInclude(Include.NON_NULL)
-public class ApiConfig extends BasicConfig {
+public class JaxrsConfig extends BasicConfig {
 
 	@JsonCreator
-	ApiConfig(Map<String, String> cfgmap) {
+	JaxrsConfig(Map<String, String> cfgmap) {
 		super(cfgmap);
 	}
 	
-	public static ApiConfig createConfig() {
+	public static JaxrsConfig createConfig() {
 		
-		ApiConfig config;
+		JaxrsConfig config;
 		try {
 			
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-			URL resUrl = ApiConfig.class.getResource("/jaxrs-config.yaml");
-			config = mapper.readValue(resUrl, ApiConfig.class);
+			URL resUrl = JaxrsConfig.class.getResource("/jaxrs-config.yaml");
+			config = mapper.readValue(resUrl, JaxrsConfig.class);
 			
 		} catch (Exception ex) {
 			throw CheckedExceptionWrapper.create(ex);
@@ -45,9 +45,8 @@ public class ApiConfig extends BasicConfig {
 	@Override
 	public void prepare(Map<String, String> mapping) {
 		
-		mapping.put("jaxrsHost", "JAXRS_HOST");
-		mapping.put("jaxrsPort", "JAXRS_PORT");
-		mapping.put("jaxrsTLSPort", "JAXRS_TLS_PORT");
+		mapping.put("jaxrsUrl", "JAXRS_URL");
+		mapping.put("jaxrsTLSUrl", "JAXRS_TLS_URL");
 		mapping.put("jaxrsTLSCrt", "JAXRS_TLS_CRT");
 		mapping.put("jaxrsTLSKey", "JAXRS_TLS_KEY");
 		mapping.put("keycloakUrl", "KEYCLOAK_URL");
@@ -59,35 +58,19 @@ public class ApiConfig extends BasicConfig {
 		super.prepare(mapping);
 	}
 
-	public String getPortalHost() {
-		return getParameter("jaxrsHost", String.class);
+	public String getJaxrsUrl() {
+		return getParameter("jaxrsUrl", String.class);
 	}
 
-	public Integer getPortalPort() {
-		return getParameter("jaxrsPort", Integer.class);
+	public String getJaxrsTLSUrl() {
+		return getParameter("jaxrsTLSUrl", String.class);
 	}
 
-	public String getPortalUrl() {
-		String host = getPortalHost();
-		int port = getPortalPort();
-		return String.format("http://%s:%d/tryit", host, port);
-	}
-
-	public Integer getPortalTLSPort() {
-		return getParameter("jaxrsTLSPort", Integer.class);
-	}
-
-	public String getPortalTLSUrl() {
-		String host = getPortalHost();
-		Integer port = getPortalTLSPort();
-		return String.format("https://%s:%d/tryit", host, port);
-	}
-
-	public String getPortalTLSCrt() {
+	public String getJaxrsTLSCrt() {
 		return getParameter("jaxrsTLSCrt", String.class);
 	}
 
-	public String getPortalTLSKey() {
+	public String getJaxrsTLSKey() {
 		return getParameter("jaxrsTLSKey", String.class);
 	}
 

@@ -35,10 +35,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.nessus.actions.jaxrs.ApiConfig;
-import io.nessus.actions.jaxrs.ApiRoot;
+import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.ApiApplication;
 import io.nessus.actions.jaxrs.JaxrsServer;
-import io.nessus.actions.jaxrs.main.ApiMain;
+import io.nessus.actions.jaxrs.main.JaxrsMain;
 import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
@@ -72,16 +72,16 @@ abstract class AbstractApiTest extends AbstractTest {
 
 	@Override
 	protected Config createConfig() {
-		return ApiRoot.getInstance().getConfig();
+		return ApiApplication.getInstance().getConfig();
 	}
 
 	@Override
-	public ApiConfig getConfig() {
-		return (ApiConfig) super.getConfig();
+	public JaxrsConfig getConfig() {
+		return (JaxrsConfig) super.getConfig();
 	}
 
 	protected JaxrsServer createJaxrsServer() throws IOException, Exception {
-		ApiMain main = new ApiMain(getConfig());
+		JaxrsMain main = new JaxrsMain(getConfig());
 		return main.createJaxrsServer();
 	}
 

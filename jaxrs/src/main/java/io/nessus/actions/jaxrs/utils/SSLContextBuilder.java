@@ -125,6 +125,8 @@ public class SSLContextBuilder {
             
     	} else {
     		
+    		LOG.info("Creating keystore ...");
+            
             keystore.load(null, keysPassword);
             
             Certificate cert = null;
@@ -153,7 +155,7 @@ public class SSLContextBuilder {
             	Path crtPath = certMaterial.path;
             	String crtAlias = certMaterial.alias;
             	
-        		LOG.info("Reading cerificate material: {}", crtPath);
+        		LOG.info("Reading certificate material: {}", crtPath);
         		
             	cert = readCertificate(crtPath);
             	AssertState.notNull(cert, "Null certificate");

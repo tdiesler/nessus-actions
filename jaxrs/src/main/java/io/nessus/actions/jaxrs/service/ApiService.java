@@ -24,14 +24,14 @@ import javax.ws.rs.core.Response.Status;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import io.nessus.actions.jaxrs.ApiConfig;
+import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.type.KeycloakTokenInfo;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
 
-public class ApiService extends AbstractService<ApiConfig> {
+public class ApiService extends AbstractService<JaxrsConfig> {
 
-	public ApiService(ApiConfig config) {
+	public ApiService(JaxrsConfig config) {
 		super(config);
 	}
 

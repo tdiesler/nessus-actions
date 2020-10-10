@@ -24,8 +24,8 @@ fi
 #
 # TLS CONFIG
 #
-if [[ -z "${JAXRS_TLS_PORT}" ]]; then
-    export JAXRS_TLS_PORT=9443
+if [[ -z "${JAXRS_TLS_URL}" ]]; then
+    export JAXRS_TLS_URL=8443
 fi
 export JAXRS_TLS_CRT=/etc/x509/https/tls.crt
 export JAXRS_TLS_KEY=/etc/x509/https/tls.key

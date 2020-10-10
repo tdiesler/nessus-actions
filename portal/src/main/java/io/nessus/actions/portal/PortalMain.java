@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
-import io.nessus.actions.jaxrs.ApiConfig;
+import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.JaxrsServer;
-import io.nessus.actions.jaxrs.main.ApiOptions;
+import io.nessus.actions.jaxrs.main.JaxrsOptions;
 import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.actions.portal.web.WebHome;
@@ -21,30 +21,30 @@ import io.nessus.actions.portal.web.WebUserRegister;
 import io.nessus.actions.portal.web.WebUserStatus;
 import io.nessus.common.main.AbstractMain;
 
-public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
+public class PortalMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 
     public static void main(String... args) throws Exception {
 
-    	ApiConfig config = ApiConfig.createConfig();
+    	JaxrsConfig config = JaxrsConfig.createConfig();
     	
     	new PortalMain(config)
     		.start(args);
     }
 
-    public PortalMain(ApiConfig config) throws IOException {
+    public PortalMain(JaxrsConfig config) throws IOException {
         super(config);
         config.addService(new ApiService(config));
     }
 
     @Override
-    protected ApiOptions createOptions() {
-        return new ApiOptions();
+    protected JaxrsOptions createOptions() {
+        return new JaxrsOptions();
     }
 
 	@Override
-    protected void doStart(ApiOptions options) throws Exception {
+    protected void doStart(JaxrsOptions options) throws Exception {
         
-    	String portalUrl = config.getPortalUrl();
+    	String portalUrl = config.getJaxrsUrl();
     	
         logInfo("***************************************************");
         logInfo("Starting Portal {}", portalUrl);
@@ -56,7 +56,7 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 
 	public JaxrsServer createJaxrsServer() throws Exception {
 		
-		URL url = new URL(config.getPortalUrl());
+		URL url = new URL(config.getJaxrsUrl());
 
 		// Undertow needs to bind to 0.0.0.0 in Docker
 		// At least for now
@@ -71,9 +71,8 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 		if (isTLSEnabled()) {
 			
 			String alias = "tryit";
-			Integer tlsPort = config.getPortalTLSPort();
-			Path tlsKey = Paths.get(config.getPortalTLSKey());
-			Path tlsCrt = Paths.get(config.getPortalTLSCrt());
+			Path tlsKey = Paths.get(config.getJaxrsTLSKey());
+			Path tlsCrt = Paths.get(config.getJaxrsTLSCrt());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
@@ -82,6 +81,10 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 					.build();
 			
 			SSLContext.setDefault(sslContext);
+			
+			URL tlsUrl = new URL(config.getJaxrsTLSUrl());
+			int tlsPort = tlsUrl.getPort();
+			
 			server.setHttpsPort(tlsPort, sslContext);
 		}
 		
@@ -97,13 +100,10 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 	}
 	
 	private boolean isTLSEnabled() {
-		Integer tlsPort = config.getPortalTLSPort();
-		String tlsCert = config.getPortalTLSCrt();
-		String tlsKey = config.getPortalTLSKey();
-		logInfo("TLS Port: {}", tlsPort);
-		logInfo("TLS Crt: {}", tlsCert);
-		logInfo("TLS Key: {}", tlsKey);
-		if (tlsPort == null || tlsCert == null || tlsKey == null) {
+		String tlsUrl = config.getJaxrsTLSUrl();
+		String tlsCert = config.getJaxrsTLSCrt();
+		String tlsKey = config.getJaxrsTLSKey();
+		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
 			return false;
 		}
 		if (!Paths.get(tlsCert).toFile().isFile()) {
@@ -114,6 +114,9 @@ public class PortalMain extends AbstractMain<ApiConfig, ApiOptions> {
 			logError("Cannot find TLS Key: {}", tlsKey);
 			return false;
 		}
+		logInfo("TLS URL: {}", tlsUrl);
+		logInfo("TLS Crt: {}", tlsCert);
+		logInfo("TLS Key: {}", tlsKey);
 		logInfo("TLS Enabled");
 		return true;
 	}

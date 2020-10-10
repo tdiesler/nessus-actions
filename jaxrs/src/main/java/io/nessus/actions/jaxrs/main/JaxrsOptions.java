@@ -4,10 +4,10 @@ import org.kohsuke.args4j.Option;
 
 import io.nessus.common.main.AbstractOptions;
 
-public class ApiOptions extends AbstractOptions {
+public class JaxrsOptions extends AbstractOptions {
 
-    public ApiOptions() {
-        super("tryit");
+    public JaxrsOptions() {
+        super("jaxrs");
     }
 
     @Option(name = "--keycloakUrl", usage = "The Keycloak URL")

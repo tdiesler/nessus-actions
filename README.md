@@ -10,7 +10,8 @@ Explore [Apache Camel](http://camel.apache.org/) based actions inspired by [GitH
 First, you'd want to spin up a [Keycloak](https://www.keycloak.org/getting-started/getting-started-docker) instance
 
 ```
-KEYCLOAK_URL=http://95.179.187.140:8180/auth
+# Download the default application realm
+wget -O docs/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/myrealm.json
 
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
@@ -18,11 +19,11 @@ KEYCLOAK_PASSWORD=admin
 docker rm -f keycloak
 docker run --detach \
     --name keycloak \
-    -p 8180:8080 \
+    -p 6080:8080 \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_IMPORT=/tmp/myrealm.json \
-    -v ~/git/nessus-actions/docs/myrealm.json:/tmp/myrealm.json \
+    -v `pwd`/docs/myrealm.json:/tmp/myrealm.json \
     quay.io/keycloak/keycloak 
 
 docker logs -f keycloak
@@ -31,32 +32,52 @@ docker logs -f keycloak
 and verify that you can login to the admin console
 
 ```
-http://localhost:8180/auth/admin
+http://localhost:7080/auth/admin
 ```
 
-### Running TryIt
+### Running the TryIt API service
 
-Then, you can spin up a the TryIt portal like this ...
+Then, you can spin up a the TryIt API like this ...
 
 ```
-docker rm -f portal
+docker rm -f jaxrs
 docker run --detach \
-    --name portal \
-    -p 8280:8280 \
-    -e KEYCLOAK_URL=$KEYCLOAK_URL \
+    --name jaxrs \
+    -p 7080:7080 \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
-    nessusio/nessus-tryit-portal
+    -e KEYCLOAK_URL=http://keycloak:8080/auth \
+    nessusio/nessus-actions-jaxrs
 
-docker logs -f portal
+docker logs -f jaxrs
 
-docker exec portal tail -fn 1000 tryit/debug.log
+docker exec jaxrs tail -fn 1000 jaxrs/debug.log
+```
+
+### Running the TryIt GUI service
+
+Then, you can spin up a the TryIt GUI like this ...
+
+```
+docker rm -f trygui
+docker run --detach \
+    --name trygui \
+    -p 8080:8080 \
+    -e KEYCLOAK_USER=$KEYCLOAK_USER \
+    -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
+    -e KEYCLOAK_URL=http://keycloak:8080/auth \
+    -e JAXRS_API_URL=http://jaxrs:8080/tryit \
+    nessusio/nessus-actions-gui
+
+docker logs -f trygui
+
+docker exec trygui tail -fn 1000 trygui/debug.log
 ```
 
 and connect to it
 
 ```
-http://localhost:8280/portal
+http://localhost:8080/portal
 ```
 
 Enjoy!

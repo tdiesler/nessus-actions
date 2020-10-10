@@ -76,8 +76,8 @@ public final class ApiUtils {
 	}
 
 	public static String portalUrl() {
-		ApiRoot api = ApiRoot.getInstance();
-		String portalUrl = api.getConfig().getPortalUrl();
+		ApiApplication api = ApiApplication.getInstance();
+		String portalUrl = api.getConfig().getJaxrsUrl();
 		AssertState.notNull(portalUrl, "Null portalUrl");
 		return portalUrl;
 	}
@@ -88,7 +88,7 @@ public final class ApiUtils {
 	}
 
 	public static String keycloakUrl() {
-		ApiRoot api = ApiRoot.getInstance();
+		ApiApplication api = ApiApplication.getInstance();
 		String keycloakUrl = api.getConfig().getKeycloakUrl();
 		AssertState.notNull(keycloakUrl, "Null keycloakUrl");
 		return keycloakUrl;

@@ -39,7 +39,7 @@ import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.User;
 import io.nessus.actions.jaxrs.type.UserInfo;
 
-public class ApiSmokeTest extends AbstractApiTest {
+public class JaxrsSmokeTest extends AbstractApiTest {
 
 	@Test
 	public void testUserLifecycle() throws Exception {
@@ -52,7 +52,7 @@ public class ApiSmokeTest extends AbstractApiTest {
 		
 		// Register
 		
-		// POST http://localhost:8280/tryit/api/users
+		// POST http://localhost:7080/tryit/api/users
 		// 
 		// {
 		//	  "firstName": "My",
@@ -69,7 +69,7 @@ public class ApiSmokeTest extends AbstractApiTest {
 		
 		// Login
 		
-		// POST http://localhost:8280/tryit/api/user/token
+		// POST http://localhost:7080/tryit/api/user/token
 		// Content-Type: application/x-www-form-urlencoded
 		//
 		// username: myuser 
@@ -88,7 +88,7 @@ public class ApiSmokeTest extends AbstractApiTest {
 		
 		// Status
 		
-		// GET http://localhost:8280/tryit/api/user/status
+		// GET http://localhost:7080/tryit/api/user/status
 		// Authorization: "Bearer eyJhbGciOi..."
 		
 		ApiService apisrv = getService(ApiService.class);
@@ -107,7 +107,7 @@ public class ApiSmokeTest extends AbstractApiTest {
 		
 		// Delete
 		
-		// DELETE http://localhost:8280/tryit/api/user
+		// DELETE http://localhost:7080/tryit/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
 		res = withClient(portalUrl("/api/user"), 

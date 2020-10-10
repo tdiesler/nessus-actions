@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import io.nessus.actions.jaxrs.ApiConfig;
-import io.nessus.actions.jaxrs.ApiRoot;
+import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.ApiApplication;
 import io.nessus.actions.jaxrs.service.ApiService;
 
 public class ApiConfigTest extends AbstractApiTest {
@@ -35,7 +35,7 @@ public class ApiConfigTest extends AbstractApiTest {
 	@Test
 	public void testConfig() throws Exception {
 
-		ApiConfig config = ApiConfig.createConfig();
+		JaxrsConfig config = JaxrsConfig.createConfig();
 		
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
@@ -43,8 +43,8 @@ public class ApiConfigTest extends AbstractApiTest {
 		
 		logInfo(yaml);
 
-		Assert.assertEquals("http://127.0.0.1:8280/tryit", config.getPortalUrl());
-		Assert.assertEquals("http://127.0.0.1:8180/auth", config.getKeycloakUrl());
+		Assert.assertEquals("http://127.0.0.1:6080/auth", config.getKeycloakUrl());
+		Assert.assertEquals("http://127.0.0.1:7080/jaxrs", config.getJaxrsUrl());
 		Assert.assertEquals("myrealm", config.getRealmId());
 		Assert.assertEquals("myclient", config.getClientId());
 	}
@@ -52,13 +52,13 @@ public class ApiConfigTest extends AbstractApiTest {
 	@Test
 	public void testMasterAccessToken() throws Exception {
 
-		ApiRoot api = ApiRoot.getInstance();
+		ApiApplication api = ApiApplication.getInstance();
 		ApiService apisrv = api.getApiService();
 
 		String masterAccessToken = apisrv.getMasterAccessToken();
 		Assert.assertNotNull(masterAccessToken);
 		
-		ApiConfig config = api.getConfig();
+		JaxrsConfig config = api.getConfig();
 		String refreshToken = config.getMasterRefreshToken();
 		Assert.assertNotNull(refreshToken);
 	}

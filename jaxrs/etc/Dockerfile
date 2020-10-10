@@ -1,7 +1,7 @@
 FROM openjdk:8
 
-COPY bin /tryapi/bin
-COPY lib /tryapi/lib
-COPY config /tryapi/config
+COPY bin /nessus-jaxrs/bin
+COPY lib /nessus-jaxrs/lib
+COPY config /nessus-jaxrs/config
 
-ENTRYPOINT ["/tryapi/bin/run.sh"]
+ENTRYPOINT ["/nessus-jaxrs/bin/run.sh"]

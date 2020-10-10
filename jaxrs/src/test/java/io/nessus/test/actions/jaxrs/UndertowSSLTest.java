@@ -129,14 +129,21 @@ public class UndertowSSLTest {
 				.sslContext(SSLContext.getDefault())
 				.build();
 		
-		WebTarget target = client.target(uri);
-		Response res = invoker.apply(target);
-		
-		long now = System.currentTimeMillis();
-		int status = res.getStatus();
-		String reason = res.getStatusInfo().getReasonPhrase();
-		LOG.info("{} => [{} {}] in {}ms", uri, status, reason, now - before);
-		
-		return res;
+		try {
+			
+			WebTarget target = client.target(uri);
+			Response res = invoker.apply(target);
+			
+			long now = System.currentTimeMillis();
+			int status = res.getStatus();
+			String reason = res.getStatusInfo().getReasonPhrase();
+			LOG.info("{} => [{} {}] in {}ms", uri, status, reason, now - before);
+			
+			return res;
+			
+		} finally {
+			
+			client.close();
+		}
 	}
 }

@@ -7,51 +7,59 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
-import io.nessus.actions.jaxrs.ApiConfig;
-import io.nessus.actions.jaxrs.ApiRoot;
+import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.ApiApplication;
 import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.common.main.AbstractMain;
 
-public class ApiMain extends AbstractMain<ApiConfig, ApiOptions> {
+public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 
     public static void main(String... args) throws Exception {
 
-    	ApiConfig config = ApiConfig.createConfig();
+    	JaxrsConfig config = JaxrsConfig.createConfig();
     	
-    	new ApiMain(config)
+    	new JaxrsMain(config)
     		.start(args);
     }
 
-    public ApiMain(ApiConfig config) throws IOException {
+    public JaxrsMain(JaxrsConfig config) throws IOException {
         super(config);
         config.addService(new ApiService(config));
     }
 
     @Override
-    protected ApiOptions createOptions() {
-        return new ApiOptions();
+    protected JaxrsOptions createOptions() {
+        return new JaxrsOptions();
     }
 
 	@Override
-    protected void doStart(ApiOptions options) throws Exception {
+    protected void doStart(JaxrsOptions options) throws Exception {
         
-    	String portalUrl = config.getPortalUrl();
+    	String jaxrsUrl = config.getJaxrsUrl();
+    	String jaxrsTLSUrl = config.getJaxrsTLSUrl();
+    	
+    	boolean withTLS = isTLSEnabled();
     	
         logInfo("***************************************************");
-        logInfo("Starting Portal {}", portalUrl);
+        if (withTLS) logInfo("Starting Jaxrs TLS {}", jaxrsTLSUrl);
+        logInfo("Starting Jaxrs {}", jaxrsUrl);
         logInfo("Version {}", getVersionString());
         logInfo("***************************************************");
         logInfo();
         
-        JaxrsServer server = createJaxrsServer();
+        JaxrsServer server = createJaxrsServer(withTLS);
         server.start();
     }
 
 	public JaxrsServer createJaxrsServer() throws Exception {
+		return createJaxrsServer(isTLSEnabled());
+	}
+	
+	private JaxrsServer createJaxrsServer(boolean isTLSEnabled) throws Exception {
 		
-		URL url = new URL(config.getPortalUrl());
+		URL url = new URL(config.getJaxrsUrl());
 
 		// Undertow needs to bind to 0.0.0.0 in Docker
 		// At least for now
@@ -63,12 +71,11 @@ public class ApiMain extends AbstractMain<ApiConfig, ApiOptions> {
 				.setHostname(hostname)
 				.setHttpPort(port);
 		
-		if (isTLSEnabled()) {
+		if (isTLSEnabled) {
 			
 			String alias = "tryit";
-			Integer tlsPort = config.getPortalTLSPort();
-			Path tlsKey = Paths.get(config.getPortalTLSKey());
-			Path tlsCrt = Paths.get(config.getPortalTLSCrt());
+			Path tlsKey = Paths.get(config.getJaxrsTLSKey());
+			Path tlsCrt = Paths.get(config.getJaxrsTLSCrt());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
@@ -77,19 +84,23 @@ public class ApiMain extends AbstractMain<ApiConfig, ApiOptions> {
 					.build();
 			
 			SSLContext.setDefault(sslContext);
+			
+			URL tlsUrl = new URL(config.getJaxrsTLSUrl());
+			int tlsPort = tlsUrl.getPort();
+			
 			server.setHttpsPort(tlsPort, sslContext);
 		}
 		
-		server.deployApplication(ApiRoot.class);
+		server.deployApplication(ApiApplication.class);
 		
 		return server;
 	}
 	
 	private boolean isTLSEnabled() {
-		Integer tlsPort = config.getPortalTLSPort();
-		String tlsCert = config.getPortalTLSCrt();
-		String tlsKey = config.getPortalTLSKey();
-		if (tlsPort == null || tlsCert == null || tlsKey == null) {
+		String tlsUrl = config.getJaxrsTLSUrl();
+		String tlsCert = config.getJaxrsTLSCrt();
+		String tlsKey = config.getJaxrsTLSKey();
+		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
 			return false;
 		}
 		if (!Paths.get(tlsCert).toFile().isFile()) {
@@ -100,7 +111,7 @@ public class ApiMain extends AbstractMain<ApiConfig, ApiOptions> {
 			logError("Cannot find TLS Key: {}", tlsKey);
 			return false;
 		}
-		logInfo("TLS Port: {}", tlsPort);
+		logInfo("TLS URL: {}", tlsUrl);
 		logInfo("TLS Crt: {}", tlsCert);
 		logInfo("TLS Key: {}", tlsKey);
 		logInfo("TLS Enabled");

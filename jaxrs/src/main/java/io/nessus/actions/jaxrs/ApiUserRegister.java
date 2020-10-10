@@ -35,7 +35,7 @@ public class ApiUserRegister extends AbstractResource {
 		LOG.info("Register: {}", user.getEmail());
 		
 		ApiService apisrv = api.getApiService();
-		ApiConfig config = api.getConfig();
+		JaxrsConfig config = api.getConfig();
 		
 		String realmId = config.getRealmId();
 		String accessToken = apisrv.getMasterAccessToken();

@@ -10,16 +10,16 @@ import javax.ws.rs.core.Response;
 import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.common.ConfigSupport;
 
-public abstract class AbstractResource extends ConfigSupport<ApiConfig> {
+public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
 	
 	@Context
 	protected HttpServletRequest httpRequest;
 	
-	protected final ApiRoot api;
+	protected final ApiApplication api;
 	
 	protected AbstractResource() {
-		super(ApiRoot.getInstance().getConfig());
-		this.api = ApiRoot.getInstance();
+		super(ApiApplication.getInstance().getConfig());
+		this.api = ApiApplication.getInstance();
 	}
 
 	protected String getAccessToken() {

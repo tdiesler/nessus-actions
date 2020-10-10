@@ -11,7 +11,7 @@
     <artifactId>nessus-actions-jaxrs</artifactId>
     <packaging>jar</packaging>
 
-    <name>Nessus :: Actions :: JaxRS</name>
+    <name>Nessus :: Actions :: Jaxrs</name>
 
     <!-- Properties -->
     <properties>
@@ -51,26 +51,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-	<!-- 
-        docker run -detach \
-		    -name keycloak \
-		    -p 8180:8080 \
-		    -e KEYCLOAK_USER=admin \
-		    -e KEYCLOAK_PASSWORD=admin \
-		    -e KEYCLOAK_IMPORT=/tmp/myrealm.json \
-		    -v ~/git/nessus-actions/docs/myrealm.json:/tmp/myrealm.json \
-		    quay.io/keycloak/keycloak 
-	
-        http://localhost:8180/auth/admin
-	   
-		docker run -detach \
-		    -name tryit \
-		    -p 8280:8280 \
-		    nessusio/nessus-actions-jaxrs
-		
-		http://127.0.0.1:8280/nessus-tryit
-	-->
 	 
 	<build>
         <plugins>
@@ -93,7 +73,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>io.nessus.actions.jaxrs.main.ApiMain</mainClass>
+                            <mainClass>io.nessus.actions.jaxrs.main.JaxrsMain</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Implementation-Version>${project.version}</Implementation-Version>
@@ -131,9 +111,8 @@
                         <image>
                             <name>quay.io/keycloak/keycloak</name>
                             <run>
-                                <skip>${skipKeycloak}</skip>
 								<ports>
-								    <port>8180:8080</port>
+								    <port>6080:8080</port>
 								</ports>
                                 <env>
                                     <KEYCLOAK_USER>admin</KEYCLOAK_USER>
@@ -147,10 +126,11 @@
                                 </volumes>
 								<wait>
 								  <http>
-								    <url>http://localhost:8180/auth</url>
+								    <url>http://localhost:6080/auth</url>
 								  </http>
 								  <time>120000</time>
 								</wait>
+                                <skip>${skipKeycloak}</skip>
                             </run>
                         </image>
                         <image>
