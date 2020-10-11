@@ -1,6 +1,6 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
 
 import java.net.URL;
 
@@ -47,7 +47,7 @@ public class WebUserRegister extends AbstractWebResource  {
         User user = new User(firstName, lastName, email, username, password);
         AssertArg.isEqual(password, retype, "Password does not match");
         
-		Response res = withClient(portalUrl("/api/users"), 
+		Response res = withClient(jaxrsUrl("/api/users"), 
 				target -> target.request(MediaType.APPLICATION_JSON)
 				.post(Entity.json(user)));
 		

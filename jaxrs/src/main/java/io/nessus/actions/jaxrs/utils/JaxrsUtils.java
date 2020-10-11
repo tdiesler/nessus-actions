@@ -1,4 +1,4 @@
-package io.nessus.actions.jaxrs;
+package io.nessus.actions.jaxrs.utils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -13,16 +13,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nessus.actions.jaxrs.ApiApplication;
+import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.common.AssertArg;
-import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
 
-public final class ApiUtils {
+public final class JaxrsUtils {
 	
-	static final Logger LOG = LoggerFactory.getLogger(ApiUtils.class);
+	static final Logger LOG = LoggerFactory.getLogger(JaxrsUtils.class);
 	
 	// Hide ctor
-	private ApiUtils() {}
+	private JaxrsUtils() {}
 	
 	public static JsonNode readJsonNode(Response res) {
 		try {
@@ -75,41 +76,13 @@ public final class ApiUtils {
 		return false;
 	}
 
-	public static String portalUrl() {
-		ApiApplication api = ApiApplication.getInstance();
-		String portalUrl = api.getConfig().getJaxrsUrl();
-		AssertState.notNull(portalUrl, "Null portalUrl");
-		return portalUrl;
+	public static String jaxrsUrl(String path) {
+		return jaxrsUrl(path, false);
 	}
 
-	public static String portalUrl(String path) {
-		String url = portalUrl() + path;
-		return url;
-	}
-
-	public static String keycloakUrl() {
-		ApiApplication api = ApiApplication.getInstance();
-		String keycloakUrl = api.getConfig().getKeycloakUrl();
-		AssertState.notNull(keycloakUrl, "Null keycloakUrl");
-		return keycloakUrl;
-	}
-	
-	public static String keycloakUrl(String path) {
-		String url = keycloakUrl() + path;
-		return url;
-	}
-	
-	public static String keycloakRealmUrl(String realm, String path) {
-		String url = keycloakUrl() + "/realms/" + realm + path;
-		return url;
-	}
-	
-	public static String keycloakRealmTokenUrl(String realm) {
-		return keycloakRealmTokenUrl(realm, "");
-	}
-	
-	public static String keycloakRealmTokenUrl(String realm, String path) {
-		String url = keycloakUrl() + "/realms/" + realm + "/protocol/openid-connect/token" + path;
-		return url;
+	public static String jaxrsUrl(String path, boolean tls) {
+		JaxrsConfig config = ApiApplication.getInstance().getConfig();
+		String jaxrsUrl = tls ? config.getJaxrsTLSUrl() : config.getJaxrsUrl();
+		return jaxrsUrl + path;
 	}
 }

@@ -10,7 +10,8 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.service.SessionManagerService;
 import io.nessus.common.service.Service;
 
@@ -29,8 +30,9 @@ public class ApiApplication extends Application {
 	
 	public ApiApplication(JaxrsConfig config) {
 		this.config = config;
-		config.addService(new ApiService(config));
 		config.addService(new SessionManagerService(config));
+		config.addService(new KeycloakService(config));
+		config.addService(new JaxrsService(config));
 		INSTANCE = this;
 	}
 	
@@ -47,7 +49,7 @@ public class ApiApplication extends Application {
 		classes.add(ApiUserDelete.class);
 		classes.add(ApiUserRegister.class);
 		classes.add(ApiUserStatus.class);
-		classes.add(ApiUserToken.class);
+		classes.add(ApiUserLogin.class);
 		return Collections.unmodifiableSet(classes);
 	}
 
@@ -55,8 +57,8 @@ public class ApiApplication extends Application {
 		return config;
 	}
 
-	public ApiService getApiService() {
-		return config.getService(ApiService.class);
+	public KeycloakService getApiService() {
+		return config.getService(KeycloakService.class);
 	}
 	
 	public <T extends Service> T getService(Class<T> type) {

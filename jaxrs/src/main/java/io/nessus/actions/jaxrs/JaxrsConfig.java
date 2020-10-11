@@ -50,6 +50,7 @@ public class JaxrsConfig extends BasicConfig {
 		mapping.put("jaxrsTLSCrt", "JAXRS_TLS_CRT");
 		mapping.put("jaxrsTLSKey", "JAXRS_TLS_KEY");
 		mapping.put("keycloakUrl", "KEYCLOAK_URL");
+		mapping.put("keycloakTLSUrl", "KEYCLOAK_TLS_URL");
 		mapping.put("keycloakUser", "KEYCLOAK_USER");
 		mapping.put("keycloakPassword", "KEYCLOAK_PASSWORD");
 		mapping.put("keycloakRealm", "KEYCLOAK_REALM");
@@ -78,7 +79,11 @@ public class JaxrsConfig extends BasicConfig {
 		return getParameter("keycloakUrl", String.class);
 	}
 
-	public String getMasterUsername() {
+	public String getKeycloakTLSUrl() {
+		return getParameter("keycloakTLSUrl", String.class);
+	}
+
+	public String getMasterUser() {
 		return getParameter("keycloakUser", String.class);
 	}
 

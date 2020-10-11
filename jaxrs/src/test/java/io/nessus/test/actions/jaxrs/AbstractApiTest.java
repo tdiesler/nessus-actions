@@ -19,7 +19,7 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.ApiUtils.hasStatus;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,11 +35,11 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.ApiApplication;
+import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.main.JaxrsMain;
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.JaxrsService;
 import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
 
@@ -72,7 +72,9 @@ abstract class AbstractApiTest extends AbstractTest {
 
 	@Override
 	protected Config createConfig() {
-		return ApiApplication.getInstance().getConfig();
+		ApiApplication api = ApiApplication.getInstance();
+		JaxrsConfig config = api.getConfig();
+		return config;
 	}
 
 	@Override
@@ -85,9 +87,9 @@ abstract class AbstractApiTest extends AbstractTest {
 		return main.createJaxrsServer();
 	}
 
-	protected Response withClient(String uri, Function<WebTarget, Response> function) {
-		ApiService apisrv = getService(ApiService.class);
-		return apisrv.withClient(uri, function);
+	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
+		JaxrsService jaxrs = getService(JaxrsService.class);
+		return jaxrs.withClient(uri, invoker);
 	}
 
 	protected void assertStatus(Response res, Status... exp) {

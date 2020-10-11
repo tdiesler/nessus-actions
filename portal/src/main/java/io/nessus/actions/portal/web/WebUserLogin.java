@@ -1,6 +1,6 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
 
 import java.net.URL;
 
@@ -14,7 +14,7 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
 import io.nessus.actions.jaxrs.type.User;
@@ -43,7 +43,7 @@ public class WebUserLogin extends AbstractWebResource  {
 		
 		MultivaluedMap<String, String> qparams = getRequestParameters(exchange);
 		
-		Response res = withClient(portalUrl("/api/user/token"), 
+		Response res = withClient(jaxrsUrl("/api/user/token"), 
 				target -> target.request(MediaType.APPLICATION_FORM_URLENCODED)
 				.post(Entity.form(qparams)));
 		
@@ -54,7 +54,7 @@ public class WebUserLogin extends AbstractWebResource  {
 		
 		// Get the user info using the access token 
 		
-		ApiService apisrv = api.getApiService();
+		KeycloakService apisrv = api.getApiService();
 		res = apisrv.getUserInfo(accessToken);
 		
 		assertStatus(res, Status.OK);

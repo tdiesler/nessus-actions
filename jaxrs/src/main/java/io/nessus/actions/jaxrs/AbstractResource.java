@@ -7,7 +7,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.JaxrsService;
 import io.nessus.common.ConfigSupport;
 
 public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
@@ -32,8 +32,8 @@ public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
 		return accessToken;
 	}
 
-	protected Response withClient(String uri, Function<WebTarget, Response> function) {
-		ApiService apisrv = api.getApiService();
-		return apisrv.withClient(uri, function);
+	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
+		JaxrsService jaxrs = getService(JaxrsService.class);
+		return jaxrs.withClient(uri, invoker);
 	}
 }

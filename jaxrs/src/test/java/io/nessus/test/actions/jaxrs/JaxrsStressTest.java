@@ -19,7 +19,7 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,12 +40,12 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.User;
 import io.nessus.actions.jaxrs.type.UserInfo;
 
-public class ApiStressTest extends AbstractApiTest {
+public class JaxrsStressTest extends AbstractApiTest {
 
 	@Test
 	public void testUserLifecycle() throws Exception {
@@ -105,7 +105,7 @@ public class ApiStressTest extends AbstractApiTest {
 		
 		// Register
 		
-		Response res = withClient(portalUrl("/api/users"), 
+		Response res = withClient(jaxrsUrl("/api/users"), 
 				target -> target.request().post(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
@@ -116,7 +116,7 @@ public class ApiStressTest extends AbstractApiTest {
 		reqmap.add("username", user.getUsername());
 		reqmap.add("password", user.getPassword());
 		
-		res = withClient(portalUrl("/api/user/token"), 
+		res = withClient(jaxrsUrl("/api/user/token"), 
 				target -> target.request().post(Entity.form(reqmap)));
 		
 		assertStatus(res, Status.OK);
@@ -124,11 +124,11 @@ public class ApiStressTest extends AbstractApiTest {
 
 		// Status
 		
-		ApiService apisrv = getService(ApiService.class);
+		KeycloakService apisrv = getService(KeycloakService.class);
 		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(portalUrl("/api/user/status"), 
+		res = withClient(jaxrsUrl("/api/user/status"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
@@ -140,7 +140,7 @@ public class ApiStressTest extends AbstractApiTest {
 		
 		// Delete
 		
-		res = withClient(portalUrl("/api/user"), 
+		res = withClient(jaxrsUrl("/api/user"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());

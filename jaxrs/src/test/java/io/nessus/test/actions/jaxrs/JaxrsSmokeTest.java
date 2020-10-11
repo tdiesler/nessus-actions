@@ -19,10 +19,13 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
 
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -30,17 +33,62 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.User;
 import io.nessus.actions.jaxrs.type.UserInfo;
+import io.nessus.actions.jaxrs.utils.KeycloakUtils;
+import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 
 public class JaxrsSmokeTest extends AbstractApiTest {
 
+	boolean useTLS = false;
+	
+	@Before
+	public void before() throws Exception {
+		super.before();
+		
+		if (useTLS) {
+			
+			Path srcdir = Paths.get("src/test/resources/tls-public");
+			Path pemPath = srcdir.resolve("tls.pem");
+			
+			SSLContext sslContext = new SSLContextBuilder()
+					.keystorePath(Paths.get("target/keystore-public.jks"))
+					.addPem("self-signed-public", pemPath)
+					.build();
+			
+			SSLContext.setDefault(sslContext);
+		}
+	}
+	
+	/*
+	 * https://access.redhat.com/solutions/973783
+	 * 
+	 * -Djavax.net.debug=ssl,handshake
+	 * -Djavax.net.debug=all
+	 */
+	@Test
+	public void testPublicTLS() throws Exception {
+		
+		MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
+		data.add("client_id", "admin-cli");
+		data.add("username", getConfig().getMasterUser());
+		data.add("password", getConfig().getMasterPassword());
+		data.add("grant_type", "password");
+		
+		String url = KeycloakUtils.keycloakUrl("/realms/master/protocol/openid-connect/token", useTLS);
+		
+		Response res = withClient(url, target -> target.request().post(Entity.form(data)));
+		
+		assertStatus(res, Status.OK);
+	}
+	
 	@Test
 	public void testUserLifecycle() throws Exception {
 
@@ -62,7 +110,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		//	  "password":  "mypass"
 		// }
 		
-		Response res = withClient(portalUrl("/api/users"), 
+		Response res = withClient(jaxrsUrl("/api/users", useTLS), 
 				target -> target.request().post(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
@@ -75,12 +123,12 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		// username: myuser 
 		// password: mypass
 		
-		MultivaluedMap<String, String> reqmap = new MultivaluedHashMap<>();
-		reqmap.add("username", user.getUsername());
-		reqmap.add("password", user.getPassword());
+		MultivaluedMap<String, String> data = new MultivaluedHashMap<>();
+		data.add("username", user.getUsername());
+		data.add("password", user.getPassword());
 		
-		res = withClient(portalUrl("/api/user/token"), 
-				target -> target.request().post(Entity.form(reqmap)));
+		res = withClient(jaxrsUrl("/api/user/token", useTLS), 
+				target -> target.request().post(Entity.form(data)));
 		
 		assertStatus(res, Status.OK);
 		
@@ -91,11 +139,11 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		// GET http://localhost:7080/tryit/api/user/status
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		ApiService apisrv = getService(ApiService.class);
+		KeycloakService apisrv = getService(KeycloakService.class);
 		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(portalUrl("/api/user/status"), 
+		res = withClient(jaxrsUrl("/api/user/status", useTLS), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
@@ -110,7 +158,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		// DELETE http://localhost:7080/tryit/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		res = withClient(portalUrl("/api/user"), 
+		res = withClient(jaxrsUrl("/api/user", useTLS), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());

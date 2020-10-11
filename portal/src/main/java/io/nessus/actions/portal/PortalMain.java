@@ -10,7 +10,7 @@ import javax.net.ssl.SSLContext;
 import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.main.JaxrsOptions;
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.actions.portal.web.WebHome;
 import io.nessus.actions.portal.web.WebRoot;
@@ -33,7 +33,7 @@ public class PortalMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 
     public PortalMain(JaxrsConfig config) throws IOException {
         super(config);
-        config.addService(new ApiService(config));
+        config.addService(new KeycloakService(config));
     }
 
     @Override

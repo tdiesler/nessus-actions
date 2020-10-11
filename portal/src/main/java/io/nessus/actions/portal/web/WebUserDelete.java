@@ -1,13 +1,13 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.jaxrs.ApiUtils.portalUrl;
+import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
-import io.nessus.actions.jaxrs.service.ApiService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
@@ -22,10 +22,10 @@ public class WebUserDelete extends AbstractWebResource  {
 		
     	if (tokens != null) {
     		
-    		ApiService apisrv = api.getApiService();
+    		KeycloakService apisrv = api.getApiService();
     		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
     		
-    		Response res = withClient(portalUrl("/api/user"), 
+    		Response res = withClient(jaxrsUrl("/api/user"), 
     				target -> target.request()
     					.header("Authorization", "Bearer " + accessToken)
     					.delete());

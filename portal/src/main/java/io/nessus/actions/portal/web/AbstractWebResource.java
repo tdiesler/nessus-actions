@@ -23,8 +23,8 @@ import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
 import io.nessus.actions.jaxrs.AbstractResource;
-import io.nessus.actions.jaxrs.ApiUtils;
 import io.nessus.actions.jaxrs.service.SessionManagerService;
+import io.nessus.actions.jaxrs.utils.JaxrsUtils;
 import io.nessus.actions.portal.PortalMain;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
@@ -187,7 +187,7 @@ abstract class AbstractWebResource extends AbstractResource implements HttpHandl
 	}
 
 	protected void assertStatus(Response res, Status... exp) {
-		if (!ApiUtils.hasStatus(res, exp)) {
+		if (!JaxrsUtils.hasStatus(res, exp)) {
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
 			throw new IllegalStateException(String.format("[%d %s]", status, reason));

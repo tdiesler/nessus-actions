@@ -1,9 +1,9 @@
 
-# The Portal HTTP binding
+# The Jaxrs HTTP binding
 jaxrsUrl: http://127.0.0.1:7080/jaxrs
   
-# The Portal HTTPS port
-#jaxrsTLSUrl: https://127.0.0.1:8443/jaxrs
+# The Jaxrs HTTPS port
+jaxrsTLSUrl: https://95.179.141.20:7443/jaxrs
 
 # Certificate used for TLS
 #jaxrsTLSCrt: /etc/x509/https/tls.crt
@@ -11,8 +11,9 @@ jaxrsUrl: http://127.0.0.1:7080/jaxrs
 # Private key used for TLS
 #jaxrsTLSKey: /etc/x509/https/tls.key
 
-# The Keycloak API endpoint 
+# The Keycloak endpoints 
 keycloakUrl: http://127.0.0.1:6080/auth
+keycloakTLSUrl: https://95.179.141.20:6443/auth
   
 # Realm this service belongs to 
 keycloakRealm: myrealm

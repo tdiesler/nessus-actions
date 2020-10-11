@@ -10,16 +10,15 @@
 ALIAS=tryit
 KEYSTORE=keycloak
 STOREPASS=changeit
+YOURHOST=yourhost
 YOURIP=95.179.141.20
 
 keytool -genkey -alias $ALIAS -keyalg RSA -keystore $KEYSTORE.jks -storepass $STOREPASS -keypass $STOREPASS -validity 360 \
-    -dname "CN=Thomas Diesler,OU=Fuse,O=RedHat,L=Munich,ST=Bavaria,C=DE"
+    -dname "CN=Thomas Diesler,OU=Fuse,O=RedHat,L=Munich,ST=Bavaria,C=DE" \
+    -ext "SAN:c=DNS:$YOURHOST,IP:$YOURIP"
     
 keytool -importkeystore -srckeystore $KEYSTORE.jks -srcstorepass $STOREPASS \
     -destkeystore $KEYSTORE.p12 -deststorepass $STOREPASS -deststoretype pkcs12
-
-# [TODO] Verify when this is needed
-# -ext "SAN:c=DNS:$HOSTNAME,IP:$YOURIP"
 ```
 
 ### Export the cert and key

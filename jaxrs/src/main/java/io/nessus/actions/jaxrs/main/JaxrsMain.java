@@ -7,10 +7,9 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
-import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.ApiApplication;
+import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.JaxrsServer;
-import io.nessus.actions.jaxrs.service.ApiService;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.common.main.AbstractMain;
 
@@ -26,7 +25,6 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 
     public JaxrsMain(JaxrsConfig config) throws IOException {
         super(config);
-        config.addService(new ApiService(config));
     }
 
     @Override

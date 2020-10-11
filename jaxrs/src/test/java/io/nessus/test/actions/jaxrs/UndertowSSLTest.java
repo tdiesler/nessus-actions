@@ -48,19 +48,18 @@ public class UndertowSSLTest {
 	 * 
 	 * -Djavax.net.debug=ssl,handshake
 	 * -Djavax.net.debug=all
-	 * 
 	 */
 	@Test
 	public void testHttps() throws Exception {
 
-		Path tls = Paths.get("src/test/resources/tls");
+		Path srcdir = Paths.get("src/test/resources/tls-local");
 		
 		String alias = "self-signed-local";
-		Path certPath = tls.resolve("tls.crt");
-		Path privKeyPath = tls.resolve("tls.key");
+		Path certPath = srcdir.resolve("tls.crt");
+		Path privKeyPath = srcdir.resolve("tls.key");
 		
 		SSLContext sslContext = new SSLContextBuilder()
-				.keystorePath(Paths.get("target/undertow.p12"))
+				.keystorePath(Paths.get("target/keystore-local.p12"))
 				.keystoreType("pkcs12")
 				.addPrivateKey(alias, privKeyPath)
 				.addCertificate(alias, certPath)
