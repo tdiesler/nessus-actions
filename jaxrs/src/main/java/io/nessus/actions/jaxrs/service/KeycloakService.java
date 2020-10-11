@@ -1,8 +1,8 @@
 package io.nessus.actions.jaxrs.service;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.errorMessageJson;
 import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
 import static io.nessus.actions.jaxrs.utils.JaxrsUtils.readJsonNode;
+import static io.nessus.actions.jaxrs.utils.KeycloakUtils.keycloakRealmPath;
 import static io.nessus.actions.jaxrs.utils.KeycloakUtils.keycloakRealmTokenPath;
 
 import java.util.LinkedHashMap;
@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.type.KeycloakTokenInfo;
 import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
+import io.nessus.actions.jaxrs.utils.JaxrsUtils.ErrorMessage;
 import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.common.AssertArg;
 import io.nessus.common.AssertState;
@@ -42,6 +43,18 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 	}
 
 	public String refreshMasterAccessToken(String refreshToken) {
+		
+		String accessToken = refreshMasterAccessTokenInternal(refreshToken);
+		
+		if (accessToken == null) {
+			refreshToken = createMasterRefreshToken();
+			accessToken = refreshMasterAccessTokenInternal(refreshToken);
+		}
+		
+		return accessToken;
+	}
+
+	private String refreshMasterAccessTokenInternal(String refreshToken) {
 		AssertArg.notNull(refreshToken, "Null refreshToken");
 		
 		logInfo("Refresh master access token ...");
@@ -51,11 +64,12 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		data.add("refresh_token", refreshToken);
 		data.add("grant_type", "refresh_token");
 		
-		Response res = withClient(KeycloakUtils.keycloakUrl(keycloakRealmTokenPath("master")),
+		Response res = withClient(keycloakUrl(keycloakRealmTokenPath("master")),
 				target -> target.request().post(Entity.form(data)));
 		
-		if (!hasStatus(res, Status.OK))
+		if (!hasStatus(res, Status.OK)) {
 			return null;
+		}
 		
 		@SuppressWarnings("unchecked")
 		Map<String, String> resmap = res.readEntity(LinkedHashMap.class);
@@ -68,34 +82,39 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		
 		String masterRefreshToken = config.getMasterRefreshToken();
 		if (masterRefreshToken == null) {
-
-			logInfo("Get master refresh token ...");
-			
-			String masterUsername = config.getMasterUser();
-			String masterPassword = config.getMasterPassword();
-			
-			boolean valid = (masterUsername != null && masterPassword != null);
-			AssertState.isTrue(valid, "Master username/massword required");
-			
-			MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
-			data.add("client_id", "admin-cli");
-			data.add("username", masterUsername);
-			data.add("password", masterPassword);
-			data.add("grant_type", "password");
-			
-			Response res = withClient(KeycloakUtils.keycloakUrl(keycloakRealmTokenPath("master")),
-					target -> target.request().post(Entity.form(data)));
-			
-			if (!hasStatus(res, Status.OK))
-				return null;
-			
-			@SuppressWarnings("unchecked")
-			Map<String, String> resmap = ((Map<String, String>) res.readEntity(LinkedHashMap.class));
-			masterRefreshToken = resmap.get("refresh_token");
-			
-			config.putParameter("masterRefreshToken", masterRefreshToken);
+			masterRefreshToken = createMasterRefreshToken();
 		}
 		
+		return masterRefreshToken;
+	}
+
+	private String createMasterRefreshToken() {
+		
+		logInfo("Create master refresh token ...");
+		
+		String masterUsername = config.getMasterUser();
+		String masterPassword = config.getMasterPassword();
+		
+		boolean valid = (masterUsername != null && masterPassword != null);
+		AssertState.isTrue(valid, "Master username/massword required");
+		
+		MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
+		data.add("client_id", "admin-cli");
+		data.add("username", masterUsername);
+		data.add("password", masterPassword);
+		data.add("grant_type", "password");
+		
+		Response res = withClient(keycloakUrl(keycloakRealmTokenPath("master")),
+				target -> target.request().post(Entity.form(data)));
+		
+		if (!hasStatus(res, Status.OK))
+			return null;
+		
+		@SuppressWarnings("unchecked")
+		Map<String, String> resmap = ((Map<String, String>) res.readEntity(LinkedHashMap.class));
+		String masterRefreshToken = resmap.get("refresh_token");
+		
+		config.putParameter("masterRefreshToken", masterRefreshToken);
 		return masterRefreshToken;
 	}
 
@@ -121,7 +140,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		data.add("refresh_token", refreshToken);
 		data.add("grant_type", "refresh_token");
 		
-		Response res = withClient(KeycloakUtils.keycloakUrl(keycloakRealmTokenPath(realmId)),
+		Response res = withClient(keycloakUrl(keycloakRealmTokenPath(realmId)),
 				target -> target.request().post(Entity.form(data)));
 		
 		if (!hasStatus(res, Status.OK))
@@ -144,7 +163,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 			
 			String accessToken = getMasterAccessToken();
 			
-			Response res = withClient(KeycloakUtils.keycloakUrl(String.format("/admin/realms/%s/clients?clientId=%s", realmId, clientId)), 
+			Response res = withClient(keycloakUrl(String.format("/admin/realms/%s/clients?clientId=%s", realmId, clientId)), 
 					target -> target.request().header("Authorization", "Bearer " + accessToken).get());
 			
 			JsonNode node = readJsonNode(res);
@@ -153,7 +172,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 
 			// GET the client secret
 			
-			res = withClient(KeycloakUtils.keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)), 
+			res = withClient(keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)), 
 					target -> target.request().header("Authorization", "Bearer " + accessToken).get());
 			
 			if (!hasStatus(res, Status.OK))
@@ -168,7 +187,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 				
 				// POST to update the client secret
 				
-				res = withClient(KeycloakUtils.keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)), 
+				res = withClient(keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id)), 
 						target -> target.request()
 							.header("Authorization", "Bearer " + accessToken)
 							.post(null));
@@ -188,7 +207,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 
 	public Response getUserTokens(String username, String password) {
 		
-		logInfo("Get user access/refresh tokens [user={}] ...", username);
+		logInfo("Get user tokens [user={}] ...", username);
 		
 		String realmId = config.getRealmId();
 		String clientId = config.getClientId();
@@ -201,7 +220,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		data.add("password", password);
 		data.add("grant_type", "password");
 		
-		Response res = withClient(KeycloakUtils.keycloakUrl(keycloakRealmTokenPath(realmId)),
+		Response res = withClient(keycloakUrl(keycloakRealmTokenPath(realmId)),
 				target -> target.request().post(Entity.form(data)));
 		
 		if (!hasStatus(res, Status.OK)) {
@@ -217,7 +236,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		
 		String realmId = config.getRealmId();
 
-		Response res = withClient(KeycloakUtils.keycloakUrl(KeycloakUtils.keycloakRealmPath(realmId, "/protocol/openid-connect/userinfo")), 
+		Response res = withClient(keycloakUrl(keycloakRealmPath(realmId, "/protocol/openid-connect/userinfo")), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
@@ -227,7 +246,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		}
 
 		KeycloakUserInfo uinfo = res.readEntity(KeycloakUserInfo.class);
-		logInfo("Accessed user info [user={}] ...", uinfo.username);
+		logInfo("User info [user={}, email={}] ...", uinfo.username, uinfo.email);
 		
 		return res;
 	}
@@ -243,7 +262,7 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		reqmap.add("client_secret", clientSecret);
 		reqmap.add("token", accessToken);
 		
-		Response res = withClient(KeycloakUtils.keycloakUrl(keycloakRealmTokenPath(realmId, "/introspect")), 
+		Response res = withClient(keycloakUrl(keycloakRealmTokenPath(realmId, "/introspect")), 
 				target -> target.request().post(Entity.form(reqmap)));
 		
 		if (!hasStatus(res, Status.OK)) {
@@ -251,14 +270,19 @@ public class KeycloakService extends AbstractService<JaxrsConfig> {
 		}
 
 		KeycloakTokenInfo kctoken = res.readEntity(KeycloakTokenInfo.class);
-		logInfo("Introspect token [user={}] ...", kctoken.username);
+		logInfo("Introspect token [user={}, email={}] ...", kctoken.username, kctoken.email);
 		
 		if (!kctoken.active) {
-			String errmsg = errorMessageJson("non active token");
+			ErrorMessage errmsg = new ErrorMessage("Token is not active");
 			res = Response.status(Status.UNAUTHORIZED).type(MediaType.APPLICATION_JSON).entity(errmsg).build();
 		}
 		
 		return res;
+	}
+
+	private String keycloakUrl(String path) {
+		boolean useTLS = config.isUseTLS();
+		return KeycloakUtils.keycloakUrl(path, useTLS);
 	}
 
 	private Response withClient(String uri, Function<WebTarget, Response> invoker) {

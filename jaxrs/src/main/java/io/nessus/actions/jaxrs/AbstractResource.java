@@ -8,6 +8,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.jaxrs.utils.JaxrsUtils;
+import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.common.ConfigSupport;
 
 public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
@@ -35,5 +37,15 @@ public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
 	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
 		JaxrsService jaxrs = getService(JaxrsService.class);
 		return jaxrs.withClient(uri, invoker);
+	}
+
+	protected String jaxrsUrl(String path) {
+		boolean useTLS = config.isUseTLS();
+		return JaxrsUtils.jaxrsUrl(path, useTLS);
+	}
+
+	protected String keycloakUrl(String path) {
+		boolean useTLS = config.isUseTLS();
+		return KeycloakUtils.keycloakUrl(path, useTLS);
 	}
 }

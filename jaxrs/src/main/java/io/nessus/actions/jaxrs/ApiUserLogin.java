@@ -17,8 +17,8 @@ public class ApiUserLogin extends AbstractResource {
 		
 		logInfo("Login: {}", username);
 		
-		KeycloakService apisrv = api.getApiService();
-		Response res = apisrv.getUserTokens(username, password);
+		KeycloakService kcsrv = api.getApiService();
+		Response res = kcsrv.getUserTokens(username, password);
 		
 		return res;
 	}

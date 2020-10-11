@@ -9,7 +9,6 @@ import javax.ws.rs.core.Response.Status;
 
 import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
-import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 
 @Path("/user")
 public class ApiUserDelete extends AbstractResource {
@@ -24,8 +23,8 @@ public class ApiUserDelete extends AbstractResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		KeycloakService apisrv = api.getApiService();
-		Response res = apisrv.getUserInfo(accessToken);
+		KeycloakService kcsrv = api.getApiService();
+		Response res = kcsrv.getUserInfo(accessToken);
 		
 		if (!hasStatus(res, Status.OK)) {
 			return res;
@@ -39,8 +38,8 @@ public class ApiUserDelete extends AbstractResource {
 		// Delete the user
 		
 		String realmId = config.getRealmId();
-		String masterToken = apisrv.getMasterAccessToken();
-		res = withClient(KeycloakUtils.keycloakUrl("/admin/realms/" + realmId + "/users/" + id), 
+		String masterToken = kcsrv.getMasterAccessToken();
+		res = withClient(keycloakUrl("/admin/realms/" + realmId + "/users/" + id), 
 				target -> target.request()
 				.header("Authorization", "Bearer " + masterToken)
 				.delete());

@@ -25,8 +25,8 @@ public class ApiUserStatus extends AbstractResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		KeycloakService apisrv = api.getApiService();
-		Response res = apisrv.getUserInfo(accessToken);
+		KeycloakService kcsrv = api.getApiService();
+		Response res = kcsrv.getUserInfo(accessToken);
 		
 		if (!hasStatus(res, Status.OK)) {
 			return res;

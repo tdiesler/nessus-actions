@@ -1,7 +1,5 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
-
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 

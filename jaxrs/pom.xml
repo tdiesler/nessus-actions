@@ -18,6 +18,7 @@
         <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <skipKeycloak>false</skipKeycloak>
+        <useTLS>false</useTLS>
     </properties>
 
 	<!-- Dependencies -->
@@ -101,6 +102,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <key>useTLS</key>
+                        <value>${useTLS}</value>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>

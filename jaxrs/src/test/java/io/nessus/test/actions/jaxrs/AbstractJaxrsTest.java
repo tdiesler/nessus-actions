@@ -40,10 +40,12 @@ import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.main.JaxrsMain;
 import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.jaxrs.utils.JaxrsUtils;
+import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
 
-abstract class AbstractApiTest extends AbstractTest {
+abstract class AbstractJaxrsTest extends AbstractTest {
 
 	private static UndertowJaxrsServer server;
 
@@ -98,5 +100,15 @@ abstract class AbstractApiTest extends AbstractTest {
 			String reason = res.getStatusInfo().getReasonPhrase();
 			Assert.fail(String.format("[%d %s] not in %s", status, reason, Arrays.asList(exp)));
 		}
+	}
+
+	protected String jaxrsUrl(String path) {
+		boolean useTLS = getConfig().isUseTLS();
+		return JaxrsUtils.jaxrsUrl(path, useTLS);
+	}
+
+	protected String keycloakUrl(String path) {
+		boolean useTLS = getConfig().isUseTLS();
+		return KeycloakUtils.keycloakUrl(path, useTLS);
 	}
 }

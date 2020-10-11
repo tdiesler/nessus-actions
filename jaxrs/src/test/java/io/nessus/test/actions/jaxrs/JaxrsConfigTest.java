@@ -30,7 +30,7 @@ import io.nessus.actions.jaxrs.JaxrsConfig;
 import io.nessus.actions.jaxrs.ApiApplication;
 import io.nessus.actions.jaxrs.service.KeycloakService;
 
-public class JaxrsConfigTest extends AbstractApiTest {
+public class JaxrsConfigTest extends AbstractJaxrsTest {
 
 	@Test
 	public void testConfig() throws Exception {
@@ -53,9 +53,9 @@ public class JaxrsConfigTest extends AbstractApiTest {
 	public void testMasterAccessToken() throws Exception {
 
 		ApiApplication api = ApiApplication.getInstance();
-		KeycloakService apisrv = api.getApiService();
+		KeycloakService kcsrv = api.getApiService();
 
-		String masterAccessToken = apisrv.getMasterAccessToken();
+		String masterAccessToken = kcsrv.getMasterAccessToken();
 		Assert.assertNotNull(masterAccessToken);
 		
 		JaxrsConfig config = api.getConfig();

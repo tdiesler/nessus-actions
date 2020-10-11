@@ -19,8 +19,6 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +43,7 @@ import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.User;
 import io.nessus.actions.jaxrs.type.UserInfo;
 
-public class JaxrsStressTest extends AbstractApiTest {
+public class JaxrsStressTest extends AbstractJaxrsTest {
 
 	@Test
 	public void testUserLifecycle() throws Exception {
@@ -124,8 +122,8 @@ public class JaxrsStressTest extends AbstractApiTest {
 
 		// Status
 		
-		KeycloakService apisrv = getService(KeycloakService.class);
-		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
+		KeycloakService kcsrv = getService(KeycloakService.class);
+		String accessToken = kcsrv.refreshAccessToken(tokens.refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
 		res = withClient(jaxrsUrl("/api/user/status"), 

@@ -41,8 +41,8 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
     	boolean withTLS = isTLSEnabled();
     	
         logInfo("***************************************************");
-        if (withTLS) logInfo("Starting Jaxrs TLS {}", jaxrsTLSUrl);
-        logInfo("Starting Jaxrs {}", jaxrsUrl);
+        if (withTLS) logInfo("Starting {}", jaxrsTLSUrl);
+        logInfo("Starting {}", jaxrsUrl);
         logInfo("Version {}", getVersionString());
         logInfo("***************************************************");
         logInfo();

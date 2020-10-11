@@ -15,7 +15,9 @@ public class KeycloakUserInfo {
 	@JsonProperty("email_verified")
 	public boolean emailVerified;
 
-	public String name;
+	@JsonProperty("preferred_username")
 	public String username;
+	
+	public String name;
 	public String email;
 }

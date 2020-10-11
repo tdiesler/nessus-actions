@@ -5,10 +5,6 @@ import io.nessus.actions.jaxrs.JaxrsConfig;
 
 public class KeycloakUtils {
 
-	public static String keycloakUrl(String path) {
-		return keycloakUrl(path, false);
-	}
-
 	public static String keycloakUrl(String path, boolean tls) {
 		JaxrsConfig config = ApiApplication.getInstance().getConfig();
 		String keycloakUrl = tls ? config.getKeycloakTLSUrl() : config.getKeycloakUrl();

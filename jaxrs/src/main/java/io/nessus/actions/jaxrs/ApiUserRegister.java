@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response.Status;
 import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakUserRegister;
 import io.nessus.actions.jaxrs.type.User;
-import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 
 /**
  * User self registration requires the a master access token.
@@ -34,15 +33,15 @@ public class ApiUserRegister extends AbstractResource {
 		
 		logInfo("Register: {}", user.getEmail());
 		
-		KeycloakService apisrv = api.getApiService();
+		KeycloakService kcsrv = api.getApiService();
 		JaxrsConfig config = api.getConfig();
 		
 		String realmId = config.getRealmId();
-		String accessToken = apisrv.getMasterAccessToken();
+		String accessToken = kcsrv.getMasterAccessToken();
 		
 		// Create the user record
 		
-		Response res = withClient(KeycloakUtils.keycloakUrl("/admin/realms/" + realmId + "/users"),
+		Response res = withClient(keycloakUrl("/admin/realms/" + realmId + "/users"),
 				target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
 				.post(Entity.json(new KeycloakUserRegister(user))));

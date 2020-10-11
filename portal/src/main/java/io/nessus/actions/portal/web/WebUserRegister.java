@@ -1,7 +1,5 @@
 package io.nessus.actions.portal.web;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
-
 import java.net.URL;
 
 import javax.ws.rs.client.Entity;

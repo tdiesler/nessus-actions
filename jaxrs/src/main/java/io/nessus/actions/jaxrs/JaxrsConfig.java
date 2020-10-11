@@ -103,4 +103,13 @@ public class JaxrsConfig extends BasicConfig {
 	public String getMasterRefreshToken() {
 		return getParameter("masterRefreshToken", String.class);
 	}
+
+	@JsonIgnore
+	public boolean isUseTLS() {
+		return getParameter("useTLS", false);
+	}
+
+	public void setUseTLS(boolean useTLS) {
+		putParameter("useTLS", useTLS);
+	}
 }

@@ -19,8 +19,6 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.jaxrsUrl;
-
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,18 +40,15 @@ import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.KeycloakTokens;
 import io.nessus.actions.jaxrs.type.User;
 import io.nessus.actions.jaxrs.type.UserInfo;
-import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 
-public class JaxrsSmokeTest extends AbstractApiTest {
+public class JaxrsSmokeTest extends AbstractJaxrsTest {
 
-	boolean useTLS = false;
-	
 	@Before
 	public void before() throws Exception {
 		super.before();
 		
-		if (useTLS) {
+		if (isUseTLS()) {
 			
 			Path srcdir = Paths.get("src/test/resources/tls-public");
 			Path pemPath = srcdir.resolve("tls.pem");
@@ -64,7 +59,22 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 					.build();
 			
 			SSLContext.setDefault(sslContext);
+			
+			getConfig().setUseTLS(true);
 		}
+	}
+	
+	private boolean isUseTLS() {
+		
+		boolean useTLS = getConfig().isUseTLS();
+		if (useTLS) return true; 
+		
+		String sysprop = System.getProperty("useTLS");
+		if (!useTLS && sysprop != null) {
+			useTLS = sysprop.length() > 0 ? Boolean.valueOf(sysprop) : true;
+		}
+		
+		return useTLS;
 	}
 	
 	/*
@@ -82,7 +92,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		data.add("password", getConfig().getMasterPassword());
 		data.add("grant_type", "password");
 		
-		String url = KeycloakUtils.keycloakUrl("/realms/master/protocol/openid-connect/token", useTLS);
+		String url = keycloakUrl("/realms/master/protocol/openid-connect/token");
 		
 		Response res = withClient(url, target -> target.request().post(Entity.form(data)));
 		
@@ -110,7 +120,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		//	  "password":  "mypass"
 		// }
 		
-		Response res = withClient(jaxrsUrl("/api/users", useTLS), 
+		Response res = withClient(jaxrsUrl("/api/users"), 
 				target -> target.request().post(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
@@ -127,7 +137,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		data.add("username", user.getUsername());
 		data.add("password", user.getPassword());
 		
-		res = withClient(jaxrsUrl("/api/user/token", useTLS), 
+		res = withClient(jaxrsUrl("/api/user/token"), 
 				target -> target.request().post(Entity.form(data)));
 		
 		assertStatus(res, Status.OK);
@@ -139,11 +149,11 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		// GET http://localhost:7080/tryit/api/user/status
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		KeycloakService apisrv = getService(KeycloakService.class);
-		String accessToken = apisrv.refreshAccessToken(tokens.refreshToken);
+		KeycloakService kcsrv = getService(KeycloakService.class);
+		String accessToken = kcsrv.refreshAccessToken(tokens.refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(jaxrsUrl("/api/user/status", useTLS), 
+		res = withClient(jaxrsUrl("/api/user/status"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
@@ -158,7 +168,7 @@ public class JaxrsSmokeTest extends AbstractApiTest {
 		// DELETE http://localhost:7080/tryit/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		res = withClient(jaxrsUrl("/api/user", useTLS), 
+		res = withClient(jaxrsUrl("/api/user"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());
