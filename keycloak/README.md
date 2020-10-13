@@ -68,4 +68,42 @@ java -jar h2/h2-1.4.197.jar
 
 To connect, use `jdbc:h2:tcp://localhost:9092/keycloak` from above.
 
+### Multiple Database Schemas
+
+Sets supose you'd like to do other stuff on that H2 instance too. In that case, we could 
+spin up the H2 server with its default database and create the keycloak schema like this ...
+
+```
+docker rm -f h2
+docker run --detach \
+    --name h2 \
+    -p 9092:9092 \
+    --network kcnet \
+    -v h2vol:/var/h2db \
+    -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/nessus \
+    -e JDBC_URL="jdbc:h2:/var/h2db/nessus;init=create schema if not exists keycloak" \
+    -e JDBC_USER=keycloak \
+    -e JDBC_PASS=password \
+    nessusio/nessus-h2
+
+docker logs -f h2
+```
+
+Keycloak can then be configured to use the 'keycloak' schema, which may potentially be colocated with some other schemas 
+
+```
+docker rm -f keycloak
+docker run -it --rm \
+    --name keycloak \
+    -p 8080:8080 \
+    --network kcnet \
+    -e DB_DATABASE=nessus \
+    -e DB_SCHEMA=keycloak \
+    -e KEYCLOAK_USER=admin \
+    -e KEYCLOAK_PASSWORD=admin \
+    nessusio/keycloak 
+
+docker logs -f keycloak
+```
+
 Enjoy!
