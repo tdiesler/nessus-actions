@@ -53,9 +53,10 @@
     
     <modules>
         <module>camel</module>
-        <module>runner</module>
         <module>jaxrs</module>
+        <module>keycloak</module>
         <module>portal</module>
+        <module>runner</module>
     </modules>
 
     <dependencyManagement>
