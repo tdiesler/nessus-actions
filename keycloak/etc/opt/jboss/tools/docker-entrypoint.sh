@@ -127,6 +127,9 @@ if [[ -z ${DB_VENDOR:-} ]]; then
         export DB_VENDOR="oracle"
     elif (getent hosts mssql &>/dev/null); then
         export DB_VENDOR="mssql"
+    elif (getent hosts h2 &>/dev/null); then
+        export DB_VENDOR="h2"
+        export DB_ADDR="h2"
     fi
 fi
 
@@ -142,6 +145,9 @@ if [[ -z ${DB_VENDOR:-} ]]; then
         export DB_VENDOR="oracle"
     elif (printenv | grep '^MSSQL_ADDR=' &>/dev/null); then
         export DB_VENDOR="mssql"
+    elif (printenv | grep '^H2_ADDR=' &>/dev/null); then
+        export DB_VENDOR="h2"
+        export DB_ADDR="h2"
     fi
 fi
 
@@ -178,12 +184,16 @@ case "$DB_VENDOR" in
         DB_NAME="MySQL";;
     mariadb)
         DB_NAME="MariaDB";;
+    mssql)
+        DB_NAME="Microsoft SQL Server";;
     oracle)
         DB_NAME="Oracle";;
     h2)
-        DB_NAME="Embedded H2";;
-    mssql)
-        DB_NAME="Microsoft SQL Server";;
+        if [[ -z ${DB_ADDR:-} ]] ; then
+          DB_NAME="Embedded H2"
+        else
+          DB_NAME="H2"
+        fi;;
     *)
         echo "Unknown DB vendor $DB_VENDOR"
         exit 1
@@ -215,7 +225,7 @@ echo ""
 echo "========================================================================="
 echo ""
 
-if [ "$DB_VENDOR" != "h2" ]; then
+if [ "$DB_NAME" != "Embedded H2" ]; then
     /bin/sh /opt/jboss/tools/databases/change-database.sh $DB_VENDOR
 fi
 

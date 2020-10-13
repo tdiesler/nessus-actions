@@ -5,6 +5,33 @@
 
 Explore [Apache Camel](http://camel.apache.org/) based actions inspired by [GitHub Actions](https://docs.github.com/en/actions). 
 
+### Creating a user network
+
+Containers communiacte with the outside world via TLS (i.e. https). For inter-container communication they bypass
+TLS and use plain http on the network that we create here.
+
+```
+docker network create kcnet
+```
+
+### Running an H2 database instance
+
+```
+docker rm -f h2db
+docker run --detach \
+    --name h2db \
+    -p 5080:8080 \
+    -v h2vol:/var/h2db \
+    --network kcnet \
+    -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:8080/keycloak \
+    -e JDBC_URL=jdbc:h2:/var/h2db/keycloak \
+    -e JDBC_USER=h2 \
+    -e JDBC_PASS=h2 \
+    nessusio/nessus-h2
+
+docker logs -f h2db
+```
+
 ### Running Keycloak
 
 First, you'd want to spin up a [Keycloak](https://www.keycloak.org/getting-started/getting-started-docker) instance
@@ -16,13 +43,15 @@ wget -O docs/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-acti
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
 
-docker network create kcnet
-
 docker rm -f keycloak
 docker run --detach \
     --name keycloak \
     -p 6080:8080 \
     --network kcnet \
+    -e DB_VENDOR=h2 \
+    -e DB_ADDR=h2db:8080 \
+    -e DB_USER=h2 \
+    -e DB_PASSWORD=h2 \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_IMPORT=/tmp/myrealm.json \
