@@ -1,7 +1,7 @@
 ## Nessus Keycloak
 
-This is a simple extension to the [quay.io/keycloak/keycloak](https://registry.hub.docker.com/r/jboss/keycloak) image 
-that allows us to use H2 database storage.
+This is a simple extension to the [jboss/keycloak](https://registry.hub.docker.com/r/jboss/keycloak) image 
+that allows us to use persistent H2 remote database storage.
  
 ### Creating a user network
 

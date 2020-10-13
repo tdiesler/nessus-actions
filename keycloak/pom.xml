@@ -16,7 +16,7 @@
     <!-- Properties -->
     <properties>
         <version.keycloak.image>11.0.2</version.keycloak.image>
-        <docker.keycloak.image.name>quay.io/keycloak/keycloak:${version.keycloak.image}</docker.keycloak.image.name>
+        <docker.keycloak.image.name>jboss/keycloak:${version.keycloak.image}</docker.keycloak.image.name>
         <docker.image.name>nessusio/keycloak</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <docker.image.version>latest</docker.image.version>
