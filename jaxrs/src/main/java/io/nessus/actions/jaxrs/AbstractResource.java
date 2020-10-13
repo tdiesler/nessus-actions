@@ -7,21 +7,20 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.utils.JaxrsUtils;
 import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.common.ConfigSupport;
 
-public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
+public abstract class AbstractResource<T extends JaxrsConfig> extends ConfigSupport<T> {
 	
 	@Context
 	protected HttpServletRequest httpRequest;
 	
-	protected final ApiApplication api;
-	
-	protected AbstractResource() {
-		super(ApiApplication.getInstance().getConfig());
-		this.api = ApiApplication.getInstance();
+	protected AbstractResource(T config) {
+		super(config);
 	}
 
 	protected String getAccessToken() {
@@ -47,5 +46,13 @@ public abstract class AbstractResource extends ConfigSupport<JaxrsConfig> {
 	protected String keycloakUrl(String path) {
 		boolean useTLS = config.isUseTLS();
 		return KeycloakUtils.keycloakUrl(path, useTLS);
+	}
+
+	protected KeycloakService getKeycloakService() {
+		return config.getService(KeycloakService.class);
+	}
+	
+	protected JaxrsService getJaxrsService() {
+		return config.getService(JaxrsService.class);
 	}
 }

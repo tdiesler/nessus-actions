@@ -1,19 +1,39 @@
 #parse( "template/header.vm" )
 
-<div style="float:left;width:50%;">
-
-    <h1>User Login</h1>
+<div>
+    <div style="float:left;width:300;">
     
-    <table>
-    <form method="post" action="login/act">
-    <tr><td>Username</td><td><input name="username" type="text" value="$user.username"></td></tr>
-    <tr><td>Password</td><td><input name="password" type="password" value="$user.password"></td></tr>
-    <tr><td>&nbsp;</td><td><input type="submit" value="login"></td></tr>
-    </form>
-    </table>
+        <h1>User Login</h1>
+        
+        <table>
+        <form method="post" action="login/act">
+        <input name="type" type="hidden" value="login">
+        <tr><td>Username</td><td><input name="username" type="text" value="$user.username"></td></tr>
+        <tr><td>Password</td><td><input name="password" type="password" value="$user.password"></td></tr>
+        <tr><td>&nbsp;</td><td><input type="submit" value="login"></td></tr>
+        </form>
+        </table>
+        
+    </div>
     
-    <p/>
-    <a href="register">Register</a>
-</div>
+    <div style="float:left;">
+    
+        <h1>User Register</h1>
+        
+        <table>
+        <form method="post" action="login/act">
+        <input name="type" type="hidden" value="register">
+        <tr><td>First Name</td><td><input name="firstName" type="text" value="$user.firstName"></td></tr>
+        <tr><td>Last Name</td><td><input name="lastName" type="text" value="$user.lastName"></td></tr>
+        <tr><td>EMail</td><td><input name="email" type="text" value="$user.email"></td></tr>
+        <tr><td>Username</td><td><input name="username" type="text" value="$user.username"></td></tr>
+        <tr><td>Password</td><td><input name="password" type="password" value="$user.password"></td></tr>
+        <tr><td>Retype</td><td><input name="retype" type="password" value="$user.password"></td></tr>
+        <tr><td>&nbsp;</td><td><input type="submit" value="register"></td></tr>
+        </form>
+        </table>
+        
+    </div>
+</div
 
 #parse( "template/footer.vm" )

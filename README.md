@@ -16,10 +16,13 @@ wget -O docs/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-acti
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
 
+docker network create kcnet
+
 docker rm -f keycloak
 docker run --detach \
     --name keycloak \
     -p 6080:8080 \
+    --network kcnet \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_IMPORT=/tmp/myrealm.json \
@@ -44,6 +47,7 @@ docker rm -f jaxrs
 docker run --detach \
     --name jaxrs \
     -p 7080:7080 \
+    --network kcnet \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \
@@ -63,6 +67,7 @@ docker rm -f trygui
 docker run --detach \
     --name trygui \
     -p 8080:8080 \
+    --network kcnet \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \

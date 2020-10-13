@@ -22,7 +22,7 @@ import io.nessus.actions.model.step.StepDeserializer;
 import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
 
-@JsonPropertyOrder({"name", "runtime", "from" }) 
+@JsonPropertyOrder({"title", "runtime", "from" }) 
 public class Model {
 	
 	public static final String CAMEL_ACTIONS_RESOURCE_NAME = "camel-actions.yaml";
@@ -35,15 +35,15 @@ public class Model {
 		}
 	}
 	
-	private final String name;
+	private final String title;
 	private final TargetRuntime runtime;
 	private final List<Step> steps = new ArrayList<>();
 	
 	private FromStep fromStep;
 	
-	@ConstructorProperties({"name", "runtime"})
-	public Model(String name, TargetRuntime runtime) {
-		this.name = name;
+	@ConstructorProperties({"title", "runtime"})
+	public Model(String title, TargetRuntime runtime) {
+		this.title = title;
 		this.runtime = runtime;
 	}
 
@@ -71,8 +71,8 @@ public class Model {
 		return this;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
 	public TargetRuntime getRuntime() {

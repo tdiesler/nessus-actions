@@ -35,9 +35,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.nessus.actions.jaxrs.ApiApplication;
-import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.JaxrsApplication;
 import io.nessus.actions.jaxrs.JaxrsServer;
+import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.actions.jaxrs.main.JaxrsMain;
 import io.nessus.actions.jaxrs.service.JaxrsService;
 import io.nessus.actions.jaxrs.utils.JaxrsUtils;
@@ -74,7 +74,7 @@ abstract class AbstractJaxrsTest extends AbstractTest {
 
 	@Override
 	protected Config createConfig() {
-		ApiApplication api = ApiApplication.getInstance();
+		JaxrsApplication api = JaxrsApplication.getInstance();
 		JaxrsConfig config = api.getConfig();
 		return config;
 	}

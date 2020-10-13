@@ -39,9 +39,9 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.jaxrs.service.KeycloakService;
-import io.nessus.actions.jaxrs.type.KeycloakTokens;
-import io.nessus.actions.jaxrs.type.User;
-import io.nessus.actions.jaxrs.type.UserInfo;
+import io.nessus.actions.jaxrs.type.UserRegister;
+import io.nessus.actions.jaxrs.type.UserState;
+import io.nessus.actions.jaxrs.type.UserTokens;
 
 public class JaxrsStressTest extends AbstractJaxrsTest {
 
@@ -56,10 +56,10 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		
 		URL resUrl = getClass().getResource("/json/user-register.json");
 		ObjectMapper mapper = new ObjectMapper();
-		User bu = mapper.readValue(resUrl, User.class);
+		UserRegister bu = mapper.readValue(resUrl, UserRegister.class);
 		
 		CountDownLatch latch = new CountDownLatch(cycles);
-		List<User> completed = new ArrayList<User>();
+		List<UserRegister> completed = new ArrayList<>();
 		
 		long before = System.currentTimeMillis();
 		
@@ -73,12 +73,8 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 
 				for (int j = startIdx; j < startIdx + loop; j++) {
 					
-					User user = new User(
-							j + bu.getFirstName(),
-							j + bu.getLastName(),
-							j + bu.getEmail(),
-							String.format("%03d%s", j, bu.getUsername()),
-							j + bu.getPassword());
+					UserRegister user = new UserRegister(String.format("%03d%s", j, bu.getUsername()),
+							j + bu.getFirstName(), j + bu.getLastName(), j + bu.getEmail(), j + bu.getPassword());
 					
 					workcycle(j, user);
 					
@@ -97,14 +93,14 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		Assert.assertEquals(cycles, completed.size());
 	}
 
-	public void workcycle(int id, User user) {
+	public void workcycle(int id, UserRegister user) {
 
 		logInfo("{}: {}", id, user);
 		
 		// Register
 		
 		Response res = withClient(jaxrsUrl("/api/users"), 
-				target -> target.request().post(Entity.json(user)));
+				target -> target.request().put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
 		
@@ -114,31 +110,34 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		reqmap.add("username", user.getUsername());
 		reqmap.add("password", user.getPassword());
 		
-		res = withClient(jaxrsUrl("/api/user/token"), 
+		res = withClient(jaxrsUrl("/api/users/login"), 
 				target -> target.request().post(Entity.form(reqmap)));
 		
 		assertStatus(res, Status.OK);
-		KeycloakTokens tokens = res.readEntity(KeycloakTokens.class);
 
-		// Status
+		UserTokens tokens = res.readEntity(UserTokens.class);
+		String refreshToken = tokens.refreshToken;
+		String userId = tokens.userId;
+
+		// State
 		
 		KeycloakService kcsrv = getService(KeycloakService.class);
-		String accessToken = kcsrv.refreshAccessToken(tokens.refreshToken);
+		String accessToken = kcsrv.refreshAccessToken(refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(jaxrsUrl("/api/user/status"), 
+		res = withClient(jaxrsUrl("/api/user/" + userId + "/state"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
 		assertStatus(res, Status.OK);
 		
-		UserInfo userInfo = res.readEntity(UserInfo.class);
-		Assert.assertEquals(user.getEmail(), userInfo.getEmail());
+		UserState userStatus = res.readEntity(UserState.class);
+		Assert.assertEquals(user.getEmail(), userStatus.getEmail());
 		
 		// Delete
 		
-		res = withClient(jaxrsUrl("/api/user"), 
+		res = withClient(jaxrsUrl("/api/user/" + userId), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());

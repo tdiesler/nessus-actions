@@ -7,8 +7,7 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
-import io.nessus.actions.jaxrs.ApiApplication;
-import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.JaxrsApplication;
 import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.common.main.AbstractMain;
@@ -55,23 +54,23 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 		return createJaxrsServer(isTLSEnabled());
 	}
 	
-	private JaxrsServer createJaxrsServer(boolean isTLSEnabled) throws Exception {
+	private JaxrsServer createJaxrsServer(boolean withTLS) throws Exception {
 		
 		URL url = new URL(config.getJaxrsUrl());
 
 		// Undertow needs to bind to 0.0.0.0 in Docker
 		// At least for now
 
-		String hostname = "0.0.0.0";
+		String host = "0.0.0.0";
 		int port = url.getPort();
 		
 		JaxrsServer server = new JaxrsServer()
-				.setHostname(hostname)
+				.setHostname(host)
 				.setHttpPort(port);
 		
-		if (isTLSEnabled) {
+		if (withTLS) {
 			
-			String alias = "tryit";
+			String alias = "nessus-actions-jaxrs";
 			Path tlsKey = Paths.get(config.getJaxrsTLSKey());
 			Path tlsCrt = Paths.get(config.getJaxrsTLSCrt());
 			
@@ -89,7 +88,7 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 			server.setHttpsPort(tlsPort, sslContext);
 		}
 		
-		server.deployApplication(ApiApplication.class);
+		server.deployApplication(JaxrsApplication.class);
 		
 		return server;
 	}

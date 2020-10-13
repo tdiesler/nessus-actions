@@ -47,6 +47,10 @@ td.gray {
     color: gray;
 }
 
+li {
+    font-size: 14px;
+}
+
 html,
 body {
    margin:0;

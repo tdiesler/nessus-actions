@@ -23,6 +23,7 @@
         <version.apache.camel>3.4.0</version.apache.camel>
         <version.apache.velocity>1.7</version.apache.velocity>
         <version.fasterxml.jackson>2.11.0</version.fasterxml.jackson>
+        <version.io.swagger.core>2.1.5</version.io.swagger.core>
         <version.io.undertow>2.1.0.Final</version.io.undertow>
         <version.jakarta.enterprise>2.0.2</version.jakarta.enterprise>
         <version.javax.servlet>2.0.0.Final</version.javax.servlet>
@@ -46,6 +47,8 @@
         <version-maven-javadoc-plugin>3.0.1</version-maven-javadoc-plugin>
         <version-maven-release-plugin>2.5</version-maven-release-plugin>
         <version-maven-surefire-plugin>2.19.1</version-maven-surefire-plugin>
+        <version-openapi-maven-generator>4.3.1</version-openapi-maven-generator>
+        <version-swagger-maven-plugin>2.1.5</version-swagger-maven-plugin>
     </properties>
     
     <modules>
@@ -95,6 +98,11 @@
                 <artifactId>nessus-h2-server</artifactId>
                 <version>${version.nessus.h2}</version>
             </dependency>
+			<dependency>
+				<groupId>io.swagger.core.v3</groupId>
+				<artifactId>swagger-core</artifactId>
+				<version>${version.io.swagger.core}</version>
+			</dependency>
             <dependency>
                 <groupId>io.undertow</groupId>
                 <artifactId>undertow-core</artifactId>
@@ -122,11 +130,16 @@
                 <artifactId>velocity</artifactId>
                 <version>${version.apache.velocity}</version>
             </dependency>
-			<dependency>
-			    <groupId>org.jboss.resteasy</groupId>
-			    <artifactId>resteasy-jackson2-provider</artifactId>
-			    <version>${version.jboss.resteasy}</version>
-			</dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-jackson2-provider</artifactId>
+                <version>${version.jboss.resteasy}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-multipart-provider</artifactId>
+                <version>${version.jboss.resteasy}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-client</artifactId>
@@ -191,6 +204,11 @@
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>${version-docker-maven-plugin}</version>
                 </plugin>
+	            <plugin>
+	                <groupId>io.openapitools.swagger</groupId>
+	                <artifactId>swagger-maven-plugin</artifactId>
+                    <version>${version-swagger-maven-plugin}</version>
+	            </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -247,6 +265,11 @@
                        <shortRevisionLength>6</shortRevisionLength>
                     </configuration>
                 </plugin>
+				<plugin>
+				    <groupId>org.openapitools</groupId>
+				    <artifactId>openapi-generator-maven-plugin</artifactId>
+				    <version>${version-openapi-maven-generator}</version>
+				</plugin>
             </plugins>
         </pluginManagement>
     </build>

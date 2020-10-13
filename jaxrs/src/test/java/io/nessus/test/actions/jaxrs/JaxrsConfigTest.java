@@ -26,8 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import io.nessus.actions.jaxrs.JaxrsConfig;
-import io.nessus.actions.jaxrs.ApiApplication;
+import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.actions.jaxrs.service.KeycloakService;
 
 public class JaxrsConfigTest extends AbstractJaxrsTest {
@@ -52,14 +51,12 @@ public class JaxrsConfigTest extends AbstractJaxrsTest {
 	@Test
 	public void testMasterAccessToken() throws Exception {
 
-		ApiApplication api = ApiApplication.getInstance();
-		KeycloakService kcsrv = api.getApiService();
+		KeycloakService kcsrv = getService(KeycloakService.class);
 
 		String masterAccessToken = kcsrv.getMasterAccessToken();
 		Assert.assertNotNull(masterAccessToken);
 		
-		JaxrsConfig config = api.getConfig();
-		String refreshToken = config.getMasterRefreshToken();
+		String refreshToken = getConfig().getMasterRefreshToken();
 		Assert.assertNotNull(refreshToken);
 	}
 }

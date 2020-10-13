@@ -14,8 +14,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.jaxrs.ApiApplication;
-import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.JaxrsApplication;
+import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.common.AssertArg;
 import io.nessus.common.CheckedExceptionWrapper;
 
@@ -31,8 +31,8 @@ public final class JaxrsUtils {
 			ObjectMapper mapper = new ObjectMapper();
 			String content = res.readEntity(String.class);
 			return mapper.readTree(content);
-		} catch (JsonProcessingException ex) {
-			throw CheckedExceptionWrapper.create(ex);
+		} catch (Exception ex) {
+			return null;
 		}
 	}
 	
@@ -47,8 +47,6 @@ public final class JaxrsUtils {
 
 	public static boolean hasStatus(Response res, Status... exp) {
 		AssertArg.notNull(exp, "Null expected");
-		
-		res.bufferEntity();
 		
 		Status status = res.getStatusInfo().toEnum();
 		if (Arrays.asList(exp).contains(status)) { 
@@ -68,15 +66,22 @@ public final class JaxrsUtils {
 	}
 
 	public static ErrorMessage getErrorMessage(Response res) {
+		ErrorMessage errmsg = null;
 		JsonNode node = readJsonNode(res);
-		JsonNode errNode = node.findValue("error_description");
-		if (errNode == null) errNode = node.findValue("errorMessage");
-		String errmsg = errNode != null ? errNode.asText() : null;
-		return errmsg != null ? new ErrorMessage(errmsg) : null;
+		if (node != null) {
+			JsonNode errNode = node.findValue("error_description");
+			if (errNode == null) 
+				errNode = node.findValue("errorMessage");
+			if (errNode != null) {
+				String errtxt = errNode.asText();
+				errmsg = new ErrorMessage(errtxt);
+			}
+		}
+		return errmsg;
 	}
 
 	public static String jaxrsUrl(String path, boolean tls) {
-		JaxrsConfig config = ApiApplication.getInstance().getConfig();
+		JaxrsConfig config = JaxrsApplication.getInstance().getConfig();
 		String jaxrsUrl = tls ? config.getJaxrsTLSUrl() : config.getJaxrsUrl();
 		return jaxrsUrl + path;
 	}

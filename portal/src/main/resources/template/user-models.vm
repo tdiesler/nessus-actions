@@ -1,0 +1,20 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;">
+
+    <h1>User Models</h1>
+    
+    <ol>
+        #foreach( $m in $models.models )
+            <li>$m.title&nbsp;
+                <a href="model/update?modelId=$m.modelId">update</a>&nbsp;
+                <a href="model/delete/act?modelId=$m.modelId">delete</a>
+            </li>
+        #end
+    </ol>    
+    
+    <p/>
+    <a href="models/create">Create</a>
+</div>
+
+#parse( "template/footer.vm" )

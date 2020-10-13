@@ -9,7 +9,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import io.nessus.actions.jaxrs.JaxrsConfig;
+import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.common.CheckedExceptionWrapper;
 
 public class JaxrsService extends AbstractService<JaxrsConfig> {
@@ -42,6 +42,8 @@ public class JaxrsService extends AbstractService<JaxrsConfig> {
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
 			logInfo("{} => [{} {}] in {}ms", uri, status, reason, now - before);
+			
+			res.bufferEntity();
 			
 			return res;
 			

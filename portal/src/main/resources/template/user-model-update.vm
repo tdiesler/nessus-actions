@@ -1,0 +1,21 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;">
+
+    <h1>User Model Update</h1>
+    
+    <table>
+    <form method="post" action="update/act">
+    <input name="modelId" type="hidden" value="$model.modelId"/>
+    <tr><td valign="top">Title</td><td><input name="title" type="text" value="$model.title"/></td></tr>
+    <tr><td valign="top">Content</td><td><textarea name="content" rows="40" cols="70">$model.content</textarea></td></tr>
+    <tr><td>&nbsp;</td><td><input type="submit" value="update"/></td></tr>
+    </form>
+    </table>
+    
+    <p/>
+    <a href="../models">Back to list</a>
+
+</div>
+
+#parse( "template/footer.vm" )

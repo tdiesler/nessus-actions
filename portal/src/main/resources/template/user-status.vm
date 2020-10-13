@@ -1,17 +1,14 @@
 #parse( "template/header.vm" )
 
-<div style="float:left;width:50%;">
+<div style="float:left;">
 
     <h1>User Status</h1>
     
     <table>
-    <tr><td>Name</td><td class="gray">$user.name</td></tr>
+    <tr><td>Userame</td><td class="gray">$user.username</td></tr>
     <tr><td>Email</td><td class="gray">$user.email</td></tr>
     <tr><td>Status</td><td class="gray">$user.status</td></tr>
     </table>
-    
-    <p/>
-    <a href="logout/act">Logout</a>&nbsp;<a href="delete/act">Delete</a>
     
 </div>
 

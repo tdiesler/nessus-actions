@@ -12,12 +12,19 @@ public class KeycloakUserInfo {
 	@JsonProperty("sub")
 	public String subject;
 	
-	@JsonProperty("email_verified")
-	public boolean emailVerified;
-
 	@JsonProperty("preferred_username")
 	public String username;
 	
-	public String name;
+	@JsonProperty("given_name")
+	public String givenName;
+	
+	@JsonProperty("family_name")
+	public String familyName;
+
+	@JsonProperty("email")
 	public String email;
+	
+	@JsonProperty("email_verified")
+	public boolean emailVerified;
+
 }

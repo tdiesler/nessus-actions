@@ -17,12 +17,19 @@
     <properties>
         <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
+        <docker.image.version>latest</docker.image.version>
         <skipKeycloak>false</skipKeycloak>
         <useTLS>false</useTLS>
     </properties>
 
 	<!-- Dependencies -->
     <dependencies>
+        
+        <dependency>
+            <groupId>io.nessus.actions</groupId>
+            <artifactId>nessus-actions-camel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -33,6 +40,10 @@
             <artifactId>nessus-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-undertow</artifactId>
         </dependency>
@@ -40,6 +51,10 @@
 		    <groupId>org.jboss.resteasy</groupId>
 		    <artifactId>resteasy-jackson2-provider</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -82,6 +97,49 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+			<plugin>
+				<groupId>io.openapitools.swagger</groupId>
+				<artifactId>swagger-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+                        <phase>package</phase>
+		                <configuration>
+		                    <resourcePackages>
+		                        <resourcePackage>io.nessus.actions.jaxrs</resourcePackage>
+		                    </resourcePackages>
+		                    <outputDirectory>${basedir}/src/main/resources/schema</outputDirectory>
+		                    <outputFilename>swagger</outputFilename>
+		                    <outputFormats>YAML</outputFormats>
+		                    <prettyPrint>true</prettyPrint>
+		                </configuration>
+					</execution>
+				</executions>
+			</plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>package</phase>
+						<!-- 
+						  https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin 
+						-->
+						<configuration>
+                            <output>${basedir}/src/main/resources/schema</output>
+							<inputSpec>${basedir}/src/main/resources/schema/swagger.yaml</inputSpec>
+							<generatorName>html</generatorName>
+							<configOptions>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

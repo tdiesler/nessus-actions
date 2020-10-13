@@ -1,0 +1,19 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;">
+
+    <h1>User Home</h1>
+    
+    <ul>
+        <li><a href="models">My Models</a></li>
+        
+        <li><a href="status">My Status</a></li>
+        
+        <li><a href="logout/act">Logout</a></li>
+        
+        <li><a href="delete/act">Delete Account</a></li>
+    </ul>    
+    
+</div>
+
+#parse( "template/footer.vm" )

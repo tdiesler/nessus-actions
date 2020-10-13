@@ -1,0 +1,286 @@
+openapi: 3.0.1
+info:
+  title: Fuse TryIt - Jaxrs API
+  version: 1.0.0
+externalDocs:
+  url: https://github.com/tdiesler/nessus-actions
+paths:
+  /jaxrs/api/user/{userId}:
+    delete:
+      summary: Delete the user with the given id
+      operationId: userDelete
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "[No Content] Sucessfully delete the user in Keycloak."
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+  /jaxrs/api/user/{userId}/model:
+    post:
+      summary: Update the given model.
+      operationId: updateUserModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      responses:
+        "200":
+          description: "[OK] Successfully updated the model."
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+  /jaxrs/api/user/{userId}/model/{modelId}:
+    get:
+      summary: Get the model for the given id.
+      operationId: getUserModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Model for the given id could be accessed."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserModel'
+        "404":
+          description: "[Not Found] The model for the given id could not be found."
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+    delete:
+      summary: Delete the model with the given id.
+      operationId: deleteUserModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: "[No Content] Successfully deleted the model."
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+  /jaxrs/api/user/{userId}/models:
+    get:
+      summary: Get the list of the given user's model ids.
+      operationId: findUserModels
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] List of model ids."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserModels'
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+    put:
+      summary: Add a new integration model
+      operationId: addModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModelAdd'
+      responses:
+        "201":
+          description: "[Created] Model was successfully added."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserModel'
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+  /jaxrs/api/user/{userId}/state:
+    get:
+      summary: Fetch the current state for the given user id
+      operationId: userStatus
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the requested user state."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserState'
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+  /jaxrs/api/users:
+    put:
+      summary: Register a new user with Keycloak
+      operationId: userRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        "201":
+          description: "[Created] User was successfully created to Keycloak."
+        "409":
+          description: "[Conflict] If the user already exists in Keycloak."
+  /jaxrs/api/users/login:
+    post:
+      summary: Login the user with Keycloak
+      operationId: userLogin
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              required:
+              - password
+              - username
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "[OK] Successful user login."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTokens'
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+components:
+  schemas:
+    UserModel:
+      required:
+      - modelId
+      - title
+      - userId
+      type: object
+      properties:
+        content:
+          type: string
+        modelId:
+          type: string
+        title:
+          type: string
+        userId:
+          type: string
+    UserModelAdd:
+      required:
+      - content
+      - title
+      - userId
+      type: object
+      properties:
+        content:
+          type: string
+        title:
+          type: string
+        userId:
+          type: string
+    UserModels:
+      required:
+      - userId
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserModel'
+        userId:
+          type: string
+    UserRegister:
+      required:
+      - email
+      - firstName
+      - lastName
+      - password
+      - username
+      type: object
+      properties:
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+    UserState:
+      required:
+      - email
+      - emailVerified
+      - firstName
+      - id
+      - lastName
+      - status
+      - username
+      type: object
+      properties:
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        firstName:
+          type: string
+        id:
+          type: string
+        lastName:
+          type: string
+        status:
+          type: string
+        username:
+          type: string
+    UserTokens:
+      required:
+      - accessToken
+      - refreshToken
+      - userId
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        userId:
+          type: string
