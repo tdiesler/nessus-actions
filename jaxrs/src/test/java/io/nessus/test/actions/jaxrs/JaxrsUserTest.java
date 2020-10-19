@@ -64,40 +64,6 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		}
 	}
 	
-	private boolean isUseTLS() {
-		
-		boolean useTLS = getConfig().isUseTLS();
-		if (useTLS) return true; 
-		
-		String sysprop = System.getProperty("useTLS");
-		if (!useTLS && sysprop != null) {
-			useTLS = sysprop.length() > 0 ? Boolean.valueOf(sysprop) : true;
-		}
-		
-		return useTLS;
-	}
-	
-	/*
-	 * https://access.redhat.com/solutions/973783
-	 * 
-	 * -Djavax.net.debug=ssl,handshake
-	 * -Djavax.net.debug=all
-	 */
-	@Test
-	public void testPublicTLS() throws Exception {
-		
-		MultivaluedHashMap<String, String> data = new MultivaluedHashMap<>();
-		data.add("client_id", "admin-cli");
-		data.add("username", getConfig().getMasterUser());
-		data.add("password", getConfig().getMasterPassword());
-		data.add("grant_type", "password");
-		
-		String url = keycloakUrl("/realms/master/protocol/openid-connect/token");
-		Response res = withClient(url, target -> target.request().post(Entity.form(data)));
-		
-		assertStatus(res, Status.OK);
-	}
-	
 	@Test
 	public void testUserLifecycle() throws Exception {
 
@@ -119,8 +85,9 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		//	  "password":  "mypass"
 		// }
 		
-		Response res = withClient(jaxrsUrl("/api/users"), 
-				target -> target.request().put(Entity.json(user)));
+		String url = jaxrsUrl("/api/users");
+		Response res = withClient(url, target -> target.request()
+				.put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
 		
@@ -136,8 +103,9 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		data.add("username", user.getUsername());
 		data.add("password", user.getPassword());
 		
-		res = withClient(jaxrsUrl("/api/users/login"), 
-				target -> target.request().post(Entity.form(data)));
+		url = jaxrsUrl("/api/users/login");
+		res = withClient(url, target -> target.request()
+				.post(Entity.form(data)));
 		
 		assertStatus(res, Status.OK);
 		
@@ -154,8 +122,8 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		String accessToken = kcsrv.refreshAccessToken(refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(jaxrsUrl("/api/user/" + userId + "/state"), 
-				target -> target.request()
+		url = jaxrsUrl("/api/user/" + userId + "/state");
+		res = withClient(url, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
@@ -169,11 +137,24 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		// DELETE http://localhost:7080/jaxrs/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		res = withClient(jaxrsUrl("/api/user/" + userId), 
-				target -> target.request()
+		url = jaxrsUrl("/api/user/" + userId);
+		res = withClient(url, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());
 		
 		assertStatus(res, Status.NO_CONTENT);
+	}
+
+	private boolean isUseTLS() {
+		
+		boolean useTLS = getConfig().isUseTLS();
+		if (useTLS) return true; 
+		
+		String sysprop = System.getProperty("useTLS");
+		if (!useTLS && sysprop != null) {
+			useTLS = sysprop.length() > 0 ? Boolean.valueOf(sysprop) : true;
+		}
+		
+		return useTLS;
 	}
 }

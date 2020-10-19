@@ -7,7 +7,7 @@
     <ul>
         <li><a href="models">My Models</a></li>
         
-        <li><a href="status">My Status</a></li>
+        <li><a href="state">My Status</a></li>
         
         <li><a href="logout/act">Logout</a></li>
         

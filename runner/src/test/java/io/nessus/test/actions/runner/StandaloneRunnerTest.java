@@ -41,9 +41,10 @@ import io.nessus.actions.runner.StandaloneRunner;
 import io.nessus.actions.testing.HttpRequest;
 import io.nessus.actions.testing.HttpRequest.HttpResponse;
 import io.nessus.common.AssertState;
+import io.nessus.common.BasicConfig;
 import io.nessus.common.testing.AbstractTest;
 
-public class StandaloneRunnerTest extends AbstractTest {
+public class StandaloneRunnerTest extends AbstractTest<BasicConfig> {
     
     @Test
     public void testWithPlainCamel() throws Exception {

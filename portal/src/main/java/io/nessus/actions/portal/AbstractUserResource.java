@@ -69,7 +69,7 @@ abstract class AbstractUserResource extends AbstractWebResource {
 		
 		// Update the user status
 		
-		String url = jaxrsUrl("/api/user/" + userId + "/status");
+		String url = jaxrsUrl("/api/user/" + userId + "/state");
 		Response res = withClient(url, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());

@@ -26,7 +26,7 @@ docker run --detach \
     -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/keycloak \
     -e JDBC_URL=jdbc:h2:/var/h2db/keycloak \
     -e JDBC_USER=keycloak \
-    -e JDBC_PASS=password \
+    -e JDBC_PASSWORD=password \
     nessusio/nessus-h2
 
 docker logs -f h2
@@ -83,7 +83,7 @@ docker run --detach \
     -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/nessus \
     -e JDBC_URL="jdbc:h2:/var/h2db/nessus;init=create schema if not exists keycloak" \
     -e JDBC_USER=keycloak \
-    -e JDBC_PASS=password \
+    -e JDBC_PASSWORD=password \
     nessusio/nessus-h2
 
 docker logs -f h2

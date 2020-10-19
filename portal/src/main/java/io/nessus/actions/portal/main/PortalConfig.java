@@ -61,10 +61,10 @@ public class PortalConfig extends JaxrsConfig {
 	}
 
 	public String getPortalTLSCrt() {
-		return getParameter("portalTLSCrt", String.class);
+		return getParameter("portalTLSCrt", "/etc/x509/https/tls.crt");
 	}
 
 	public String getPortalTLSKey() {
-		return getParameter("portalTLSKey", String.class);
+		return getParameter("portalTLSKey", "/etc/x509/https/tls.key");
 	}
 }

@@ -61,28 +61,12 @@
                                     <tag>${docker.image.version}</tag>
                                 </tags>
                             </build>
-                            <run>
-                                <ports>
-                                    <port>6080:8080</port>
-                                </ports>
-                                <env>
-                                    <KEYCLOAK_USER>admin</KEYCLOAK_USER>
-                                    <KEYCLOAK_PASSWORD>admin</KEYCLOAK_PASSWORD>
-                                </env>
-                                <wait>
-                                  <http>
-                                    <url>http://localhost:6080/auth</url>
-                                  </http>
-                                  <time>120000</time>
-                                </wait>
-                                <skip>${skipKeycloak}</skip>
-                            </run>
                         </image>
                     </images>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>remove-images</id>
+                        <id>docker-remove</id>
                         <goals>
                             <goal>remove</goal>
                         </goals>
@@ -106,31 +90,14 @@
                         <phase>package</phase>
                     </execution>
                     <execution>
-                        <id>docker-start</id>
+                        <id>docker-push</id>
                         <goals>
-                            <goal>start</goal>
+                            <goal>push</goal>
                         </goals>
-                        <phase>pre-integration-test</phase>
+                        <phase>package</phase>
                         <configuration>
-                            <images>
-                                <image>
-                                    <name>${docker.image.name}</name>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>docker-stop</id>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                        <phase>post-integration-test</phase>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>${docker.image.name}</name>
-                                </image>
-                            </images>
+                            <skipPush>${skipPush}</skipPush>
+                            <skipTag>true</skipTag>
                         </configuration>
                     </execution>
                 </executions>

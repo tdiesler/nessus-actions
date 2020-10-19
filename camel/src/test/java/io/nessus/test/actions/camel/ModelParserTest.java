@@ -28,9 +28,10 @@ import io.nessus.actions.model.MarshalStep;
 import io.nessus.actions.model.Model;
 import io.nessus.actions.model.Model.TargetRuntime;
 import io.nessus.actions.model.ToStep;
+import io.nessus.common.BasicConfig;
 import io.nessus.common.testing.AbstractTest;
 
-public class ModelParserTest extends AbstractTest {
+public class ModelParserTest extends AbstractTest<BasicConfig> {
     
     @Test
     public void writeModel() throws Exception {

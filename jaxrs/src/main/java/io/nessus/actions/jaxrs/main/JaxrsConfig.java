@@ -68,11 +68,11 @@ public class JaxrsConfig extends BasicConfig {
 	}
 
 	public String getJaxrsTLSCrt() {
-		return getParameter("jaxrsTLSCrt", String.class);
+		return getParameter("jaxrsTLSCrt", "/etc/x509/https/tls.crt");
 	}
 
 	public String getJaxrsTLSKey() {
-		return getParameter("jaxrsTLSKey", String.class);
+		return getParameter("jaxrsTLSKey", "/etc/x509/https/tls.key");
 	}
 
 	public String getKeycloakUrl() {

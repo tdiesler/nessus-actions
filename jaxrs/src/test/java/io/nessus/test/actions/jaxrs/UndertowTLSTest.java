@@ -39,9 +39,9 @@ import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.util.HeaderValues;
 
-public class UndertowSSLTest {
+public class UndertowTLSTest {
 
-	static final Logger LOG = LoggerFactory.getLogger(UndertowSSLTest.class);
+	static final Logger LOG = LoggerFactory.getLogger(UndertowTLSTest.class);
 	
 	/*
 	 * https://access.redhat.com/solutions/973783

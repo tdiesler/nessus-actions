@@ -50,26 +50,6 @@
         </dependency>
     </dependencies>
 
-	<!-- 
-        docker run -detach \
-		    -name keycloak \
-		    -p 8180:8080 \
-		    -e KEYCLOAK_USER=admin \
-		    -e KEYCLOAK_PASSWORD=admin \
-		    -e KEYCLOAK_IMPORT=/tmp/myrealm.json \
-		    -v ~/git/nessus-actions/docs/myrealm.json:/tmp/myrealm.json \
-		    quay.io/keycloak/keycloak 
-	
-        http://localhost:8180/auth/admin
-	   
-		docker run -detach \
-		    -name tryit \
-		    -p 8280:8280 \
-		    nessusio/nessus-tryit
-		
-		http://127.0.0.1:8280/nessus-tryit
-	-->
-	 
 	<build>
         <plugins>
             <plugin>
@@ -91,7 +71,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>io.nessus.actions.portal.PortalMain</mainClass>
+                            <mainClass>io.nessus.actions.portal.main.PortalMain</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Implementation-Version>${project.version}</Implementation-Version>
@@ -126,31 +106,6 @@
                 <configuration>
                     <autoPull>always</autoPull>
                     <images>
-                        <image>
-                            <name>quay.io/keycloak/keycloak</name>
-                            <run>
-                                <skip>${skipKeycloak}</skip>
-								<ports>
-								    <port>8180:8080</port>
-								</ports>
-                                <env>
-                                    <KEYCLOAK_USER>admin</KEYCLOAK_USER>
-                                    <KEYCLOAK_PASSWORD>admin</KEYCLOAK_PASSWORD>
-                                    <KEYCLOAK_IMPORT>/tmp/myrealm.json</KEYCLOAK_IMPORT>
-                                </env>
-                                <volumes>
-                                    <bind>
-                                        <volume>${basedir}/../docs/myrealm.json:/tmp/myrealm.json</volume>
-                                    </bind>
-                                </volumes>
-								<wait>
-								  <http>
-								    <url>http://localhost:8180/auth</url>
-								  </http>
-								  <time>120000</time>
-								</wait>
-                            </run>
-                        </image>
                         <image>
                             <name>${docker.image.name}</name>
                             <build>
@@ -190,31 +145,14 @@
                         <phase>package</phase>
                     </execution>
                     <execution>
-                        <id>docker-start</id>
+                        <id>docker-push</id>
                         <goals>
-                            <goal>start</goal>
+                            <goal>push</goal>
                         </goals>
-                        <phase>process-test-classes</phase>
+                        <phase>package</phase>
                         <configuration>
-                            <images>
-                                <image>
-                                    <name>quay.io/keycloak/keycloak</name>
-                                </image>
-                            </images>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>docker-stop</id>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                        <phase>post-integration-test</phase>
-                        <configuration>
-                            <images>
-                                <image>
-                                    <name>quay.io/keycloak/keycloak</name>
-                                </image>
-                            </images>
+                            <skipPush>${skipPush}</skipPush>
+                            <skipTag>true</skipTag>
                         </configuration>
                     </execution>
                 </executions>

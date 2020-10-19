@@ -1,0 +1,238 @@
+#
+# NAMESPACE=nessus
+# kubectl create namespace $NAMESPACE
+
+# curl --create-dirs -so tls/tls.crt https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/tls.crt
+# curl --create-dirs -so tls/tls.key https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/tls.key
+
+# kubectl -n $NAMESPACE create secret generic keycloak --from-file=tls.crt=tls/tls.crt --from-file=tls.key=tls/tls.key
+
+# H2 Database Pod #####################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: h2
+  labels:
+    app: nessus
+    pod: h2
+spec:
+  containers:
+  - name: h2
+    image: nessusio/nessus-h2
+    env:
+      - name: JDBC_SERVER_URL
+        value: jdbc:h2:tcp://localhost:9092/nessus
+      - name: JDBC_URL
+        value: jdbc:h2:/var/h2db/nessus;init=create schema if not exists keycloak
+      - name: JDBC_USER
+        value: keycloak
+      - name: JDBC_PASS
+        value: password
+    ports:
+    - containerPort: 9092
+    volumeMounts:
+    - name: h2vol
+      mountPath: /var/h2db
+  volumes:
+  - name: h2vol
+    emptyDir: {} 
+
+# H2 HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: h2-http
+spec:
+  selector:
+    app: nessus
+    pod: h2
+  ports:
+  - name: http
+    port: 9092
+    nodePort: 30092
+  type: NodePort    
+
+# Keycloak Pod ########################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keycloak
+  labels:
+    app: nessus
+    pod: keycloak
+spec:
+  containers:
+  - name: keycloak
+    image: nessusio/keycloak
+    env:
+    - name: DB_VENDOR
+      value: h2
+    - name: DB_ADDR
+      value: $(H2_HTTP_SERVICE_HOST)
+    - name: DB_DATABASE
+      value: nessus
+    - name: KEYCLOAK_USER
+      value: admin
+    - name: KEYCLOAK_PASSWORD
+      value: admin
+    - name: KEYCLOAK_IMPORT
+      value: https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/myrealm.json
+    ports:
+    - containerPort: 8080
+    - containerPort: 8443
+    volumeMounts:
+    - name: tls
+      mountPath: /etc/x509/https
+    - name: keycloak
+      mountPath: /tmp/keycloak
+  volumes:
+  - name: tls
+    secret: 
+      secretName: keycloak
+  - name: keycloak
+    hostPath: 
+      path: /tmp/keycloak
+ 
+# Keycloak HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-http
+spec:
+  selector:
+    app: nessus
+    pod: keycloak
+  ports:
+  - name: http
+    port: 8080
+  type: ClusterIP    
+
+# Keycloak HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-https
+spec:
+  selector:
+    app: nessus
+    pod: keycloak
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 30443
+  type: NodePort    
+
+# Jaxrs API Pod #######################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jaxrs
+  labels:
+    app: nessus
+    pod: jaxrs
+spec:
+  containers:
+  - name: jaxrs
+    image: nessusio/nessus-actions-jaxrs
+    env:
+    - name: KEYCLOAK_USER
+      value: admin
+    - name: KEYCLOAK_PASSWORD
+      value: admin
+    - name: KEYCLOAK_URL
+      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):8080/auth
+    ports:
+    - containerPort: 8180
+    - containerPort: 8443
+    volumeMounts:
+    - name: tls
+      mountPath: /etc/x509/https
+  volumes:
+  - name: tls
+    secret: 
+      secretName: keycloak
+
+# Jaxrs HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaxrs-http
+spec:
+  selector:
+    app: nessus
+    pod: jaxrs
+  ports:
+  - name: http
+    port: 8180
+  type: ClusterIP    
+
+# Jaxrs HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaxrs-https
+spec:
+  selector:
+    app: nessus
+    pod: jaxrs
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 31443
+  type: NodePort    
+
+# Portal Pod #######################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: portal
+  labels:
+    app: nessus
+    pod: portal
+spec:
+  containers:
+  - name: portal
+    image: nessusio/nessus-actions-portal
+    env:
+    - name: JAXRS_URL
+      value: http://$(JAXRS_HTTP_SERVICE_HOST):8180/jaxrs
+    - name: KEYCLOAK_USER
+      value: admin
+    - name: KEYCLOAK_PASSWORD
+      value: admin
+    - name: KEYCLOAK_URL
+      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):8080/auth
+    ports:
+    - containerPort: 8443
+    volumeMounts:
+    - name: tls
+      mountPath: /etc/x509/https
+  volumes:
+  - name: tls
+    secret: 
+      secretName: keycloak
+
+# Portal HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal-https
+spec:
+  selector:
+    app: nessus
+    pod: portal
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 32443
+  type: NodePort

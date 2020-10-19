@@ -44,7 +44,7 @@ import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.nessus.actions.model.Model;
 
-public class JaxrsUserModelTest extends AbstractJaxrsTest {
+public class JaxrsModelTest extends AbstractJaxrsTest {
 
 	@Test
 	public void testModelLifecycle() throws Exception {

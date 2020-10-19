@@ -42,10 +42,9 @@ import io.nessus.actions.jaxrs.main.JaxrsMain;
 import io.nessus.actions.jaxrs.service.JaxrsService;
 import io.nessus.actions.jaxrs.utils.JaxrsUtils;
 import io.nessus.actions.jaxrs.utils.KeycloakUtils;
-import io.nessus.common.Config;
 import io.nessus.common.testing.AbstractTest;
 
-abstract class AbstractJaxrsTest extends AbstractTest {
+abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
 
 	private static UndertowJaxrsServer server;
 
@@ -73,15 +72,10 @@ abstract class AbstractJaxrsTest extends AbstractTest {
 	}
 
 	@Override
-	protected Config createConfig() {
-		JaxrsApplication api = JaxrsApplication.getInstance();
-		JaxrsConfig config = api.getConfig();
+	protected JaxrsConfig createConfig() {
+		JaxrsConfig config = JaxrsConfig.createConfig();
+		new JaxrsApplication(config);
 		return config;
-	}
-
-	@Override
-	public JaxrsConfig getConfig() {
-		return (JaxrsConfig) super.getConfig();
 	}
 
 	protected JaxrsServer createJaxrsServer() throws IOException, Exception {

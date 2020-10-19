@@ -69,6 +69,13 @@ fi
 ################
 
 if [[ -n ${KEYCLOAK_IMPORT:-} ]]; then
+    if [ "${KEYCLOAK_IMPORT#https://}" != "${KEYCLOAK_IMPORT}" ]; then
+        FILENAME=`basename ${KEYCLOAK_IMPORT:8}`
+        OUTFILE=/tmp/keycloak/$FILENAME
+        echo "curl -o $OUTFILE $KEYCLOAK_IMPORT"
+        curl --create-dirs -so $OUTFILE $KEYCLOAK_IMPORT
+        KEYCLOAK_IMPORT=$OUTFILE
+    fi
     SYS_PROPS+=" -Dkeycloak.import=$KEYCLOAK_IMPORT"
 fi
 

@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.nessus.actions.jaxrs.main.JaxrsConfig;
-import io.nessus.actions.jaxrs.service.KeycloakService;
 
 public class JaxrsConfigTest extends AbstractJaxrsTest {
 
@@ -42,21 +41,9 @@ public class JaxrsConfigTest extends AbstractJaxrsTest {
 		
 		logInfo(yaml);
 
-		Assert.assertEquals("http://127.0.0.1:6080/auth", config.getKeycloakUrl());
-		Assert.assertEquals("http://127.0.0.1:7080/jaxrs", config.getJaxrsUrl());
+		Assert.assertEquals("http://127.0.0.1:8080/auth", config.getKeycloakUrl());
+		Assert.assertEquals("http://127.0.0.1:8180/jaxrs", config.getJaxrsUrl());
 		Assert.assertEquals("myrealm", config.getRealmId());
 		Assert.assertEquals("myclient", config.getClientId());
-	}
-
-	@Test
-	public void testMasterAccessToken() throws Exception {
-
-		KeycloakService kcsrv = getService(KeycloakService.class);
-
-		String masterAccessToken = kcsrv.getMasterAccessToken();
-		Assert.assertNotNull(masterAccessToken);
-		
-		String refreshToken = getConfig().getMasterRefreshToken();
-		Assert.assertNotNull(refreshToken);
 	}
 }

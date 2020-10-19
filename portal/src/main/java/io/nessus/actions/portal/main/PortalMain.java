@@ -87,10 +87,6 @@ public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
 		handler.addPrefixPath("/portal/user/models/create", new WebUserModelCreate(config));
 		handler.addPrefixPath("/portal/user/model/update", new WebUserModelUpdate(config));
 		handler.addPrefixPath("/portal/user/model/delete", new WebUserModelDelete(config));
-		//handler.addPrefixPath("/portal/user/model/publish/eap", new WebUserModelPublishEAP(config));
-		//handler.addPrefixPath("/portal/user/model/publish/docker", new WebUserModelPublishDocker(config));
-		//handler.addPrefixPath("/portal/user/model/publish/openshift", new WebUserModelPublishOpenshift(config));
-		//handler.addPrefixPath("/portal/user/model/publish/standalone", new WebUserModelPublishStandalone(config));
 		handler.addPrefixPath("/portal/user/state", new WebUserState(config));
 		
 		Builder builder = Undertow.builder()
