@@ -1,11 +1,7 @@
 #
 # NAMESPACE=nessus
 # kubectl create namespace $NAMESPACE
-
-# curl --create-dirs -so tls/tls.crt https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/tls.crt
-# curl --create-dirs -so tls/tls.key https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/tls.key
-
-# kubectl -n $NAMESPACE create secret generic keycloak --from-file=tls.crt=tls/tls.crt --from-file=tls.key=tls/tls.key
+#
 
 # H2 Database Pod #####################################################################################################
 ---
@@ -27,7 +23,7 @@ spec:
         value: jdbc:h2:/var/h2db/nessus;init=create schema if not exists keycloak
       - name: JDBC_USER
         value: keycloak
-      - name: JDBC_PASS
+      - name: JDBC_PASSWORD
         value: password
     ports:
     - containerPort: 9092
@@ -44,6 +40,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: h2-http
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus
@@ -79,22 +77,17 @@ spec:
     - name: KEYCLOAK_PASSWORD
       value: admin
     - name: KEYCLOAK_IMPORT
-      value: https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/myrealm.json
+      value: https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/myrealm.json
     ports:
     - containerPort: 8080
     - containerPort: 8443
     volumeMounts:
     - name: tls
       mountPath: /etc/x509/https
-    - name: keycloak
-      mountPath: /tmp/keycloak
   volumes:
   - name: tls
     secret: 
       secretName: keycloak
-  - name: keycloak
-    hostPath: 
-      path: /tmp/keycloak
  
 # Keycloak HTTP Service 
 ---
@@ -102,6 +95,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: keycloak-http
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus
@@ -117,6 +112,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: keycloak-https
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus
@@ -164,6 +161,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaxrs-http
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus
@@ -179,6 +178,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaxrs-https
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus
@@ -227,6 +228,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: portal-https
+  labels:
+    app: nessus
 spec:
   selector:
     app: nessus

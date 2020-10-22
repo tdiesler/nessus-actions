@@ -14,6 +14,14 @@ sed -i "s/^PasswordAuthentication yes$/PasswordAuthentication no/" /etc/ssh/sshd
 cat /etc/ssh/sshd_config | grep PasswordAuthentication
 systemctl restart sshd
 
+HOSTNAME=`hostname`
+HOSTIP=`hostname -I | cut -d " " -f1`
+cat << EOF > /etc/hosts
+127.0.0.1 localhost
+$HOSTIP $HOSTNAME
+EOF
+cat /etc/hosts
+
 yum update -y
 
 timedatectl set-timezone Europe/Amsterdam
@@ -48,7 +56,6 @@ sysctl --system | grep net.bridge
 
 ```
 yum install -y docker
-
 systemctl enable --now docker
 
 docker ps
@@ -57,6 +64,7 @@ docker ps
 ### Install Kubernetes
 
 ```
+# Add the Kubernetes repository
 cat << EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -87,12 +95,27 @@ https://github.com/coreos/flannel/blob/master/Documentation/kubernetes.md
 ```
 kubeadm init --pod-network-cidr=10.244.0.0/16 
 
-echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> .bash_profile
-source .bash_profile
+mkdir .kube
+cp /etc/kubernetes/admin.conf .kube/config
 
-mkdir /home/$NUSER/.kube
-cp /etc/kubernetes/admin.conf /home/$NUSER/.kube/config
-chown -R $NUSER.$NUSER /home/$NUSER/.kube
+cat << EOF >> .bash_profile
+
+# Kubernetes
+alias kc="kubectl"
+export KUBECONFIG="$HOME/.kube/config"
+
+# Function that sets the namespace for the current context
+kubens() {
+   current=`kubectl config current-context`
+   kubectl config set contexts.\$current.namespace \$1
+}
+
+# Function that switches the current context
+kubectx() { 
+   kubectl config use-context \$1
+}
+EOF
+source .bash_profile
 
 kubectl get pods --all-namespaces
 ```
@@ -102,9 +125,8 @@ kubectl get pods --all-namespaces
 Pods may never leave 'Pending' state when the target node is tainted with 'NoSchedule'
 
 ```
-kubectl describe node kube01 | grep Taints
-
-kubectl taint node kube01 node-role.kubernetes.io/master-
+kubectl describe node `hostname` | grep Taints
+kubectl taint node `hostname` node-role.kubernetes.io/master-
 ```
 
 ### Install Flannel CNI
@@ -116,49 +138,15 @@ FLANNEL_VERSION=v0.13.0
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/$FLANNEL_VERSION/Documentation/kube-flannel.yml
 
 kubectl get pods --all-namespaces
-```
-
-### Install NGINX Ingress Controller
-
-https://kubernetes.io/docs/concepts/services-networking/ingress/
-
-https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-manifests/
-
-```
-NGINX_VERSION=v1.8.1
-
-# Configure RBAC
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/ns-and-sa.yaml
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/rbac/rbac.yaml
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/rbac/ap-rbac.yaml
-
-# Create Common Resources
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/default-server-secret.yaml
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/nginx-config.yaml
-
-# Create Custom Resources
-# kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/vs-definition.yaml
-# kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/vsr-definition.yaml
-# kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/ts-definition.yaml
-# kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/common/policy-definition.yaml
-
-# Run the Ingress Controller
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/kubernetes-ingress/$NGINX_VERSION/deployments/daemon-set/nginx-ingress.yaml
-
-# Check that the Ingress Controller is Running
-kubectl get pods --namespace=nginx-ingress
-```
-
-## Install Kubernetes Client Tools
-
-### Install kubectl on macOS
-
-https://kubernetes.io/docs/tasks/tools/install-kubectl/
-
-```
-brew install kubectl 
-
-scp root@95.179.141.20:/etc/kubernetes/admin.conf ~/.kube/config
+NAMESPACE     NAME                               READY   STATUS    RESTARTS   AGE
+kube-system   coredns-f9fd979d6-fqlk5            1/1     Running   0          5m31s
+kube-system   coredns-f9fd979d6-j4jvf            1/1     Running   0          5m30s
+kube-system   etcd-nessus01                      1/1     Running   0          5m45s
+kube-system   kube-apiserver-nessus01            1/1     Running   0          5m45s
+kube-system   kube-controller-manager-nessus01   1/1     Running   0          5m45s
+kube-system   kube-flannel-ds-7ncbx              1/1     Running   0          37s
+kube-system   kube-proxy-749lw                   1/1     Running   0          5m31s
+kube-system   kube-scheduler-nessus01            1/1     Running   0          5m45s
 ```
 
 ### Install the Dashborad
@@ -170,6 +158,13 @@ https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/cre
 ```
 DASHBOARD_VERSION=v2.0.4
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/$DASHBOARD_VERSION/aio/deploy/recommended.yaml
+
+kubectl -n kubernetes-dashboard patch service kubernetes-dashboard \
+    -p '"spec": {"ports": [{"port": 443, "nodePort": 30123 }], "type": "NodePort"}'
+
+kubectl -n kubernetes-dashboard get service kubernetes-dashboard
+# NAME                   TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+# kubernetes-dashboard   NodePort   10.99.169.208   <none>        443:30123/TCP   112s
 
 # Creating a Service Account
 cat << EOF | kubectl apply -f -
@@ -198,15 +193,26 @@ EOF
 
 kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
-kubectl get pods -n kubernetes-dashboard
-
-kubectl proxy &
-http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+https://136.244.111.173:30123
 ```
 
 ### Wipe your cluster installation
 
+Just in case you need to do this
+
 ```
 kubeadm reset -f
 rm -rf /etc/kubernetes
+```
+
+## Install Kubernetes Client Tools
+
+### Install kubectl on macOS
+
+https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
+```
+brew install kubectl 
+
+scp root@45.76.36.143:/etc/kubernetes/admin.conf ~/.kube/config
 ```

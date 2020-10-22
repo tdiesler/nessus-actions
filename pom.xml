@@ -31,8 +31,8 @@
         <version.jboss.resteasy>4.5.8.Final</version.jboss.resteasy>
         <version.jboss.shrinkwrap>1.2.2</version.jboss.shrinkwrap>
         <version.junit>4.13.1</version.junit>
-        <version.nessus.common>1.0.2-SNAPSHOT</version.nessus.common>
-        <version.nessus.h2>1.1.1-SNAPSHOT</version.nessus.h2>
+        <version.nessus.common>1.0.3</version.nessus.common>
+        <version.nessus.h2>1.2.1</version.nessus.h2>
         <version.slf4j>1.7.28</version.slf4j>
         <version.wildfly.arquillian>2.2.0.Final</version.wildfly.arquillian>
         <version.wildfly.camel>12.0.0</version.wildfly.camel>

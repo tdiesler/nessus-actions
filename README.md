@@ -1,9 +1,76 @@
 ## Nessus Actions
 
-[![Default Build](https://github.com/tdiesler/nessus-actions/workflows/Default%20Build/badge.svg)](https://github.com/tdiesler/nessus-actions/actions)
+<!-- [![Default Build](https://github.com/tdiesler/nessus-actions/workflows/Default%20Build/badge.svg)](https://github.com/tdiesler/nessus-actions/actions) -->
 [![License](https://img.shields.io/:license-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 Explore [Apache Camel](http://camel.apache.org/) based actions inspired by [GitHub Actions](https://docs.github.com/en/actions). 
+
+## Running on Kubernetes
+
+Running on Kubernetes is currently the preferred setup. For this, you would want to have access to 
+a running Kubernetes cluster. In case you'd like to get started from scratch, we have instructions 
+on how to setup Kubernetes on CentOS are [here](https://github.com/tdiesler/nessus-actions/blob/master/docs/vps/k8s-centos7.md) 
+
+### Create Pods and Services
+
+```
+NAMESPACE=nessus
+kubectl create namespace $NAMESPACE
+
+# Delete all pods, service, etc in this app
+kubectl -n $NAMESPACE delete pod,svc -l app=nessus
+
+# Apply the last stable configuration
+kubectl -n $NAMESPACE apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/secret.yaml
+kubectl -n $NAMESPACE apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/nessus.yaml
+
+kubectl -n $NAMESPACE get pod,svc
+# NAME           READY   STATUS    RESTARTS   AGE
+# pod/h2         1/1     Running   0          2m3s
+# pod/jaxrs      1/1     Running   0          2m3s
+# pod/keycloak   1/1     Running   0          2m3s
+# pod/portal     1/1     Running   0          2m3s
+
+# NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+# service/h2-http          NodePort    10.104.214.182   <none>        9092:30092/TCP   2m3s
+# service/jaxrs-http       ClusterIP   10.101.201.71    <none>        8180/TCP         2m3s
+# service/jaxrs-https      NodePort    10.100.83.174    <none>        8443:31443/TCP   2m3s
+# service/keycloak-http    ClusterIP   10.110.111.149   <none>        8080/TCP         2m3s
+# service/keycloak-https   NodePort    10.108.35.102    <none>        8443:30443/TCP   2m3s
+# service/portal-https     NodePort    10.100.37.29     <none>        8443:32443/TCP   2m2s
+```
+
+### Access to the Portal
+
+Access to the [protal](https://136.244.111.173:32443/portal) is not restriced. Anyone can register
+and try out what we currently have.
+
+### Access to the REST API
+
+Access to the [REST API](https://136.244.111.173:31443/api) is not restriced. Anyone can access the 
+full functional scope just like the portal above, which is just another Jaxrs client.
+
+The OpenAPI schema is published here: [TODO]
+
+Here are a few examples of API requests ...
+
+[TODO]
+
+### Access to the Kubernetes Console
+
+Access to the [console](https://136.244.111.173:30123) is restriced to folks who have a valid token.
+
+If you have access to the cluster, you can get a token like this ... 
+
+```
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+```
+
+## Running on Docker
+
+Although Kubernetes is the preferred runtime, it may be useful to run these containers selectively 
+on your local Docker instance. The default build does just that.
+ 
 
 ### Creating a user network
 
@@ -38,7 +105,7 @@ First, you'd want to spin up a [Keycloak](https://www.keycloak.org/getting-start
 
 ```
 # Download the default application realm
-curl --create-dirs -o /tmp/keycloak/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-actions/k8s/docs/k8s/deployment/keycloak/myrealm.json
+curl --create-dirs -o /tmp/keycloak/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/myrealm.json
 
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin
