@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
+import io.nessus.common.rest.SSLContextBuilder;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.util.HeaderValues;

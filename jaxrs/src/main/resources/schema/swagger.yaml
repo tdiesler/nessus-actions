@@ -5,7 +5,7 @@ info:
 externalDocs:
   url: https://github.com/tdiesler/nessus-actions
 paths:
-  /jaxrs/api/user/{userId}:
+  /user/{userId}:
     delete:
       summary: Delete the user with the given id
       operationId: userDelete
@@ -20,7 +20,7 @@ paths:
           description: "[No Content] Sucessfully delete the user in Keycloak."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /jaxrs/api/user/{userId}/model:
+  /user/{userId}/model:
     post:
       summary: Update the given model.
       operationId: updateUserModel
@@ -40,7 +40,7 @@ paths:
           description: "[OK] Successfully updated the model."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /jaxrs/api/user/{userId}/model/{modelId}:
+  /user/{userId}/model/{modelId}:
     get:
       summary: Get the model for the given id.
       operationId: getUserModel
@@ -85,7 +85,7 @@ paths:
           description: "[No Content] Successfully deleted the model."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /jaxrs/api/user/{userId}/models:
+  /user/{userId}/models:
     get:
       summary: Get the list of the given user's model ids.
       operationId: findUserModels
@@ -127,7 +127,7 @@ paths:
                 $ref: '#/components/schemas/UserModel'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /jaxrs/api/user/{userId}/state:
+  /user/{userId}/state:
     get:
       summary: Fetch the current state for the given user id
       operationId: userStatus
@@ -146,7 +146,7 @@ paths:
                 $ref: '#/components/schemas/UserState'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /jaxrs/api/users:
+  /users:
     put:
       summary: Register a new user with Keycloak
       operationId: userRegister
@@ -160,7 +160,7 @@ paths:
           description: "[Created] User was successfully created to Keycloak."
         "409":
           description: "[Conflict] If the user already exists in Keycloak."
-  /jaxrs/api/users/login:
+  /users/login:
     post:
       summary: Login the user with Keycloak
       operationId: userLogin

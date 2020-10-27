@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ import io.swagger.v3.oas.annotations.info.Info;
 @OpenAPIDefinition(
 	info = @Info(title = "Fuse TryIt - Jaxrs API", version = "1.0.0"), 
 	externalDocs = @ExternalDocumentation(url = "https://github.com/tdiesler/nessus-actions"))
-@ApplicationPath("/jaxrs/api")
 public class JaxrsApplication extends Application {
 	
 	static final Logger LOG = LoggerFactory.getLogger(JaxrsApplication.class);
@@ -30,10 +28,6 @@ public class JaxrsApplication extends Application {
 	private static JaxrsApplication INSTANCE;
 	
 	private JaxrsConfig config;
-	
-	public JaxrsApplication() {
-		this(JaxrsConfig.createConfig());
-	}
 	
 	public JaxrsApplication(JaxrsConfig config) {
 		this.config = config;
@@ -44,9 +38,6 @@ public class JaxrsApplication extends Application {
 	}
 	
 	public static JaxrsApplication getInstance() {
-		if (INSTANCE == null) {
-			INSTANCE = new JaxrsApplication();
-		}
 		return INSTANCE;
 	}
 	

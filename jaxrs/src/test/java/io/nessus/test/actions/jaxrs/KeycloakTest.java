@@ -29,9 +29,9 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.service.KeycloakService;
-import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
+import io.nessus.common.rest.JaxrsServer;
+import io.nessus.common.rest.SSLContextBuilder;
 
 public class KeycloakTest extends AbstractJaxrsTest {
 

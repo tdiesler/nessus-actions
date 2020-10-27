@@ -196,22 +196,22 @@ font-style: italic;
   <div class="method-summary"></div>
   <h4><a href="#Default">Default</a></h4>
   <ul>
-  <li><a href="#addModel"><code><span class="http-method">put</span> /jaxrs/api/user/{userId}/models</code></a></li>
-  <li><a href="#deleteUserModel"><code><span class="http-method">delete</span> /jaxrs/api/user/{userId}/model/{modelId}</code></a></li>
-  <li><a href="#findUserModels"><code><span class="http-method">get</span> /jaxrs/api/user/{userId}/models</code></a></li>
-  <li><a href="#getUserModel"><code><span class="http-method">get</span> /jaxrs/api/user/{userId}/model/{modelId}</code></a></li>
-  <li><a href="#updateUserModel"><code><span class="http-method">post</span> /jaxrs/api/user/{userId}/model</code></a></li>
-  <li><a href="#userDelete"><code><span class="http-method">delete</span> /jaxrs/api/user/{userId}</code></a></li>
-  <li><a href="#userLogin"><code><span class="http-method">post</span> /jaxrs/api/users/login</code></a></li>
-  <li><a href="#userRegister"><code><span class="http-method">put</span> /jaxrs/api/users</code></a></li>
-  <li><a href="#userStatus"><code><span class="http-method">get</span> /jaxrs/api/user/{userId}/state</code></a></li>
+  <li><a href="#addModel"><code><span class="http-method">put</span> /user/{userId}/models</code></a></li>
+  <li><a href="#deleteUserModel"><code><span class="http-method">delete</span> /user/{userId}/model/{modelId}</code></a></li>
+  <li><a href="#findUserModels"><code><span class="http-method">get</span> /user/{userId}/models</code></a></li>
+  <li><a href="#getUserModel"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}</code></a></li>
+  <li><a href="#updateUserModel"><code><span class="http-method">post</span> /user/{userId}/model</code></a></li>
+  <li><a href="#userDelete"><code><span class="http-method">delete</span> /user/{userId}</code></a></li>
+  <li><a href="#userLogin"><code><span class="http-method">post</span> /users/login</code></a></li>
+  <li><a href="#userRegister"><code><span class="http-method">put</span> /users</code></a></li>
+  <li><a href="#userStatus"><code><span class="http-method">get</span> /user/{userId}/state</code></a></li>
   </ul>
 
   <h1><a name="Default">Default</a></h1>
   <div class="method"><a name="addModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="put"><code class="huge"><span class="http-method">put</span> /jaxrs/api/user/{userId}/models</code></pre></div>
+    <pre class="put"><code class="huge"><span class="http-method">put</span> /user/{userId}/models</code></pre></div>
     <div class="method-summary">Add a new integration model (<span class="nickname">addModel</span>)</div>
     <div class="method-notes"></div>
 
@@ -275,7 +275,7 @@ font-style: italic;
   <div class="method"><a name="deleteUserModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /jaxrs/api/user/{userId}/model/{modelId}</code></pre></div>
+    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /user/{userId}/model/{modelId}</code></pre></div>
     <div class="method-summary">Delete the model with the given id. (<span class="nickname">deleteUserModel</span>)</div>
     <div class="method-notes"></div>
 
@@ -310,7 +310,7 @@ font-style: italic;
   <div class="method"><a name="findUserModels"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /jaxrs/api/user/{userId}/models</code></pre></div>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/models</code></pre></div>
     <div class="method-summary">Get the list of the given user's model ids. (<span class="nickname">findUserModels</span>)</div>
     <div class="method-notes"></div>
 
@@ -370,7 +370,7 @@ font-style: italic;
   <div class="method"><a name="getUserModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /jaxrs/api/user/{userId}/model/{modelId}</code></pre></div>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/model/{modelId}</code></pre></div>
     <div class="method-summary">Get the model for the given id. (<span class="nickname">getUserModel</span>)</div>
     <div class="method-notes"></div>
 
@@ -427,7 +427,7 @@ font-style: italic;
   <div class="method"><a name="updateUserModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="post"><code class="huge"><span class="http-method">post</span> /jaxrs/api/user/{userId}/model</code></pre></div>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /user/{userId}/model</code></pre></div>
     <div class="method-summary">Update the given model. (<span class="nickname">updateUserModel</span>)</div>
     <div class="method-notes"></div>
 
@@ -472,7 +472,7 @@ font-style: italic;
   <div class="method"><a name="userDelete"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /jaxrs/api/user/{userId}</code></pre></div>
+    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /user/{userId}</code></pre></div>
     <div class="method-summary">Delete the user with the given id (<span class="nickname">userDelete</span>)</div>
     <div class="method-notes"></div>
 
@@ -505,7 +505,7 @@ font-style: italic;
   <div class="method"><a name="userLogin"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="post"><code class="huge"><span class="http-method">post</span> /jaxrs/api/users/login</code></pre></div>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /users/login</code></pre></div>
     <div class="method-summary">Login the user with Keycloak (<span class="nickname">userLogin</span>)</div>
     <div class="method-notes"></div>
 
@@ -563,7 +563,7 @@ font-style: italic;
   <div class="method"><a name="userRegister"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="put"><code class="huge"><span class="http-method">put</span> /jaxrs/api/users</code></pre></div>
+    <pre class="put"><code class="huge"><span class="http-method">put</span> /users</code></pre></div>
     <div class="method-summary">Register a new user with Keycloak (<span class="nickname">userRegister</span>)</div>
     <div class="method-notes"></div>
 
@@ -602,7 +602,7 @@ font-style: italic;
   <div class="method"><a name="userStatus"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /jaxrs/api/user/{userId}/state</code></pre></div>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/state</code></pre></div>
     <div class="method-summary">Fetch the current state for the given user id (<span class="nickname">userStatus</span>)</div>
     <div class="method-notes"></div>
 

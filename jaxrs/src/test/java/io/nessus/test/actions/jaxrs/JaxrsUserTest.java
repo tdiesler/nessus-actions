@@ -40,7 +40,7 @@ import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserState;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
+import io.nessus.common.rest.SSLContextBuilder;
 
 public class JaxrsUserTest extends AbstractJaxrsTest {
 

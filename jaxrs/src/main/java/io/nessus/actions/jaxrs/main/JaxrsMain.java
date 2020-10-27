@@ -8,9 +8,9 @@ import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 
 import io.nessus.actions.jaxrs.JaxrsApplication;
-import io.nessus.actions.jaxrs.JaxrsServer;
-import io.nessus.actions.jaxrs.utils.SSLContextBuilder;
 import io.nessus.common.main.AbstractMain;
+import io.nessus.common.rest.JaxrsServer;
+import io.nessus.common.rest.SSLContextBuilder;
 
 public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 
@@ -64,9 +64,9 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 		String host = "0.0.0.0";
 		int port = url.getPort();
 		
-		JaxrsServer server = new JaxrsServer()
-				.setHostname(host)
-				.setHttpPort(port);
+		JaxrsServer server = new JaxrsServer(getConfig())
+				.withHostname(host)
+				.withHttpPort(port);
 		
 		if (withTLS) {
 			
@@ -85,10 +85,10 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 			URL tlsUrl = new URL(config.getJaxrsTLSUrl());
 			int tlsPort = tlsUrl.getPort();
 			
-			server.setHttpsPort(tlsPort, sslContext);
+			server.withHttpsPort(tlsPort, sslContext);
 		}
 		
-		server.deployApplication(JaxrsApplication.class);
+		server.deploy("/jaxrs/api", new JaxrsApplication(getConfig()));
 		
 		return server;
 	}

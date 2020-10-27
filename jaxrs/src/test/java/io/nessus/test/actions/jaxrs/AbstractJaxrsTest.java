@@ -36,12 +36,12 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import io.nessus.actions.jaxrs.JaxrsApplication;
-import io.nessus.actions.jaxrs.JaxrsServer;
 import io.nessus.actions.jaxrs.main.JaxrsConfig;
 import io.nessus.actions.jaxrs.main.JaxrsMain;
 import io.nessus.actions.jaxrs.service.JaxrsService;
 import io.nessus.actions.jaxrs.utils.JaxrsUtils;
 import io.nessus.actions.jaxrs.utils.KeycloakUtils;
+import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.testing.AbstractTest;
 
 abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
