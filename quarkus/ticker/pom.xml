@@ -26,9 +26,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>nessus-actions-quarkus-rest-json</artifactId>
+    <artifactId>nessus-actions-quarkus-ticker</artifactId>
 
-    <name>Nessus :: Actions :: Quarkus :: Rest Json</name>
+    <name>Nessus :: Actions :: Quarkus :: Ticker</name>
 
 	<dependencies>
 		<dependency>
@@ -43,18 +43,37 @@
 			<groupId>org.apache.camel.quarkus</groupId>
 			<artifactId>camel-quarkus-jackson</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-xchange</artifactId>
+        </dependency>
 
 		<!-- Test -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -71,10 +90,10 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
 		</plugins>
 	</build>
 

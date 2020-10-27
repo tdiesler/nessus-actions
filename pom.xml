@@ -137,11 +137,16 @@
 	            <artifactId>camel-quarkus-platform-http</artifactId>
                 <version>${version.camel.quarkus}</version>
 	        </dependency>
-	        <dependency>
-	            <groupId>org.apache.camel.quarkus</groupId>
-	            <artifactId>camel-quarkus-jackson</artifactId>
+            <dependency>
+                <groupId>org.apache.camel.quarkus</groupId>
+                <artifactId>camel-quarkus-jackson</artifactId>
                 <version>${version.camel.quarkus}</version>
-	        </dependency>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel.quarkus</groupId>
+                <artifactId>camel-quarkus-xchange</artifactId>
+                <version>${version.camel.quarkus}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
