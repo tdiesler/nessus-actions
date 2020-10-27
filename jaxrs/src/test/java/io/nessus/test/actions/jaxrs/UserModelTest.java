@@ -28,8 +28,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import io.nessus.actions.core.utils.IOUtils;
 import io.nessus.actions.jaxrs.type.UserModel;
-import io.nessus.actions.jaxrs.utils.IOUtils;
 
 public class UserModelTest extends AbstractJaxrsTest {
 

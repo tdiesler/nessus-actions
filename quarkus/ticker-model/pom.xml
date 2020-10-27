@@ -26,9 +26,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     
-    <artifactId>nessus-actions-quarkus-ticker</artifactId>
+    <artifactId>nessus-actions-quarkus-ticker-model</artifactId>
 
-    <name>Nessus :: Actions :: Quarkus :: Ticker</name>
+    <name>Nessus :: Actions :: Quarkus :: Ticker Model</name>
 
 	<dependencies>
         <dependency>

@@ -10,9 +10,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
+import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.model.Model;
 import io.nessus.actions.portal.main.PortalConfig;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
@@ -30,7 +30,7 @@ public class WebUserModelCreate extends AbstractUserResource {
 		String userId = tokens.userId;
 		
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
-		Model model = Model.read(input);
+		RouteModel model = RouteModel.read(input);
 
 		String title = model.getTitle();
 		String content = model.toString();

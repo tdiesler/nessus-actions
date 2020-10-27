@@ -37,12 +37,12 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
 import io.nessus.actions.jaxrs.type.UserModels;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.model.Model;
 
 public class JaxrsModelTest extends AbstractJaxrsTest {
 
@@ -57,7 +57,7 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		String userId = tokens.userId;
 		
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
-		Model model = Model.read(input);
+		RouteModel model = RouteModel.read(input);
 
 		String title = model.getTitle();
 		String content = model.toString();

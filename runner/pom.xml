@@ -16,7 +16,7 @@
         
         <dependency>
 		    <groupId>io.nessus.actions</groupId>
-		    <artifactId>nessus-actions-camel</artifactId>
+		    <artifactId>nessus-actions-core</artifactId>
 		    <version>${project.version}</version>
         </dependency>
         

@@ -14,26 +14,11 @@
     <name>Nessus :: Actions :: Quarkus</name>
 
     <modules>
+        <module>builder</module>
         <module>rest-json</module>
         <module>ticker</module>
+        <module>ticker-model</module>
     </modules>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <failIfNoTests>false</failIfNoTests>
-                        <systemProperties>
-                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        </systemProperties>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <profiles>
         <profile>

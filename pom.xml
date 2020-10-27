@@ -59,7 +59,7 @@
     </properties>
     
     <modules>
-        <module>camel</module>
+        <module>core</module>
         <module>keycloak</module>
         <module>jaxrs</module>
         <module>portal</module>
