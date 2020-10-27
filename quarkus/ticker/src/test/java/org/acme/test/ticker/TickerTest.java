@@ -29,9 +29,6 @@ import org.slf4j.LoggerFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 
-/**
- * JVM mode tests.
- */
 @QuarkusTest
 public class TickerTest {
 
@@ -40,7 +37,7 @@ public class TickerTest {
     @Test
     public void btcusdt() {
 
-    	Response res = ClientBuilder.newClient().target(getTargetUri("/xchange"))
+    	Response res = ClientBuilder.newClient().target(getTargetUri("/ticker"))
     			.request().get();
     	
     	Assert.assertEquals(200, res.getStatus());

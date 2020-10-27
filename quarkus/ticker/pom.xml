@@ -31,6 +31,12 @@
     <name>Nessus :: Actions :: Quarkus :: Ticker</name>
 
 	<dependencies>
+        <dependency>
+	        <groupId>io.nessus.actions</groupId>
+	        <artifactId>nessus-actions-camel</artifactId>
+	        <version>${project.version}</version>
+        </dependency>
+        
 		<dependency>
 			<groupId>org.apache.camel.quarkus</groupId>
 			<artifactId>camel-quarkus-main</artifactId>

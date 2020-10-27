@@ -14,10 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.acme.test.ticker;
+package org.acme.ticker;
 
-import io.quarkus.test.junit.NativeImageTest;
+import org.apache.camel.builder.RouteBuilder;
 
-@NativeImageTest
-public class TickerIT extends TickerTest {
+import io.nessus.actions.model.utils.ModelRouteBuilder;
+
+/**
+ * Camel route definitions.
+ */
+public class ModelRoutes extends RouteBuilder {
+	
+    @Override
+    public void configure() throws Exception {
+    
+    	new ModelRouteBuilder()
+    		.withModelResource("/crypto-ticker.yaml")
+    		.configure(this);
+    }
 }
