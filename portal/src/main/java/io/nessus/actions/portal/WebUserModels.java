@@ -6,17 +6,13 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserModels;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.portal.main.PortalConfig;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
 public class WebUserModels extends AbstractUserResource {
-
-	public WebUserModels(PortalConfig config) {
-		super(config);
-	}
 
 	@Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context, Session session) throws Exception {
@@ -25,7 +21,7 @@ public class WebUserModels extends AbstractUserResource {
 		String accessToken = tokens.accessToken;
 		String userId = tokens.userId;
 		
-		String url = jaxrsUrl("/api/user/" + userId + "/models");
+		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/models");
 		Response res = withClient(url, target -> target
 				.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)

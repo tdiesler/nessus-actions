@@ -1,11 +1,11 @@
 package io.nessus.actions.jaxrs.type;
 
-class UserBase {
+public class UserBase {
 	
-	private final String username;
-	private final String firstName;
-	private final String lastName;
-	private final String email;
+	protected final String username;
+	protected final String firstName;
+	protected final String lastName;
+	protected final String email;
 	
 	UserBase(String username, String firstName, String lastName, String email) {
 		this.username = username;

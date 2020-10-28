@@ -7,8 +7,9 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
+import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.jaxrs.service.JaxrsService;
-import io.nessus.actions.jaxrs.service.KeycloakService;
 import io.nessus.actions.portal.WebRoot;
 import io.nessus.actions.portal.WebUserDelete;
 import io.nessus.actions.portal.WebUserHome;
@@ -26,17 +27,17 @@ import io.undertow.Undertow;
 import io.undertow.Undertow.Builder;
 import io.undertow.server.handlers.PathHandler;
 
-public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
+public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 
     public static void main(String... args) throws Exception {
 
-    	PortalConfig config = PortalConfig.createConfig();
+    	NessusConfig config = NessusConfig.createConfig();
     	
     	new PortalMain(config)
     		.start(args);
     }
 
-    public PortalMain(PortalConfig config) throws IOException {
+    public PortalMain(NessusConfig config) throws IOException {
         super(config);
         config.addService(new JaxrsService(config));
         config.addService(new KeycloakService(config));
@@ -78,16 +79,16 @@ public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
 		int port = url.getPort();
 		
 		PathHandler handler = new PathHandler();
-		handler.addPrefixPath("/portal", new WebRoot(config));
-		handler.addPrefixPath("/portal/user", new WebUserHome(config));
-		handler.addPrefixPath("/portal/user/login", new WebUserLogin(config));
-		handler.addPrefixPath("/portal/user/logout", new WebUserLogout(config));
-		handler.addPrefixPath("/portal/user/delete", new WebUserDelete(config));
-		handler.addPrefixPath("/portal/user/models", new WebUserModels(config));
-		handler.addPrefixPath("/portal/user/models/create", new WebUserModelCreate(config));
-		handler.addPrefixPath("/portal/user/model/update", new WebUserModelUpdate(config));
-		handler.addPrefixPath("/portal/user/model/delete", new WebUserModelDelete(config));
-		handler.addPrefixPath("/portal/user/state", new WebUserState(config));
+		handler.addPrefixPath("/portal", new WebRoot());
+		handler.addPrefixPath("/portal/user", new WebUserHome());
+		handler.addPrefixPath("/portal/user/login", new WebUserLogin());
+		handler.addPrefixPath("/portal/user/logout", new WebUserLogout());
+		handler.addPrefixPath("/portal/user/delete", new WebUserDelete());
+		handler.addPrefixPath("/portal/user/models", new WebUserModels());
+		handler.addPrefixPath("/portal/user/models/create", new WebUserModelCreate());
+		handler.addPrefixPath("/portal/user/model/update", new WebUserModelUpdate());
+		handler.addPrefixPath("/portal/user/model/delete", new WebUserModelDelete());
+		handler.addPrefixPath("/portal/user/state", new WebUserState());
 		
 		Builder builder = Undertow.builder()
 	         .addHttpListener(port, host, handler)
@@ -96,8 +97,8 @@ public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
 		if (isTLSEnabled()) {
 			
 			String alias = "nessus-actions-portal";
-			Path tlsKey = Paths.get(config.getPortalTLSKey());
-			Path tlsCrt = Paths.get(config.getPortalTLSCrt());
+			Path tlsCrt = Paths.get(config.getTLSCrt());
+			Path tlsKey = Paths.get(config.getTLSKey());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
@@ -119,8 +120,8 @@ public class PortalMain extends AbstractMain<PortalConfig, PortalOptions> {
 	
 	private boolean isTLSEnabled() {
 		String tlsUrl = config.getPortalTLSUrl();
-		String tlsCert = config.getPortalTLSCrt();
-		String tlsKey = config.getPortalTLSKey();
+		String tlsCert = config.getTLSCrt();
+		String tlsKey = config.getTLSKey();
 		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
 			return false;
 		}

@@ -5,16 +5,12 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.portal.main.PortalConfig;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
 public class WebUserModelDelete extends AbstractUserResource {
-
-	public WebUserModelDelete(PortalConfig config) {
-		super(config);
-	}
 
 	@Override
 	protected void handleActionRequest(HttpServerExchange exchange, VelocityContext context, Session session) throws Exception {
@@ -30,7 +26,7 @@ public class WebUserModelDelete extends AbstractUserResource {
 		// DELETE http://localhost:7080/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		String url = jaxrsUrl("/api/user/" + userId + "/model/" + modelId);
+		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/model/" + modelId);
 		Response res = withClient(url, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.delete());

@@ -28,8 +28,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import io.nessus.actions.core.utils.IOUtils;
 import io.nessus.actions.jaxrs.type.UserModel;
+import io.nessus.common.utils.StreamUtils;
 
 public class UserModelTest extends AbstractJaxrsTest {
 
@@ -38,7 +38,7 @@ public class UserModelTest extends AbstractJaxrsTest {
 
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		IOUtils.copyStream(input, output);
+		StreamUtils.copyStream(input, output);
 
 		String content = new String(output.toByteArray());
 		UserModel exp = new UserModel("model01", "user01", "Some Title", content);

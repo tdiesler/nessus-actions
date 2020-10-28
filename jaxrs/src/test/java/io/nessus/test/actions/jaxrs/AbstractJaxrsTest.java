@@ -19,7 +19,7 @@
  */
 package io.nessus.test.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
+import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,16 +35,14 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
-import io.nessus.actions.jaxrs.JaxrsApplication;
-import io.nessus.actions.jaxrs.main.JaxrsConfig;
+import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.KeycloakService;
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.main.JaxrsMain;
-import io.nessus.actions.jaxrs.service.JaxrsService;
-import io.nessus.actions.jaxrs.utils.JaxrsUtils;
-import io.nessus.actions.jaxrs.utils.KeycloakUtils;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.testing.AbstractTest;
 
-abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
+abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 
 	private static UndertowJaxrsServer server;
 
@@ -72,9 +70,9 @@ abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
 	}
 
 	@Override
-	protected JaxrsConfig createConfig() {
-		JaxrsConfig config = JaxrsConfig.createConfig();
-		new JaxrsApplication(config);
+	protected NessusConfig createConfig() {
+		NessusConfig config = NessusConfig.createConfig();
+		config.addService(new KeycloakService(config));
 		return config;
 	}
 
@@ -84,8 +82,8 @@ abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
 	}
 
 	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
-		JaxrsService jaxrs = getService(JaxrsService.class);
-		return jaxrs.withClient(uri, invoker);
+		KeycloakService keycloak = getService(KeycloakService.class);
+		return keycloak.withClient(uri, invoker);
 	}
 
 	protected void assertStatus(Response res, Status... exp) {
@@ -97,12 +95,10 @@ abstract class AbstractJaxrsTest extends AbstractTest<JaxrsConfig> {
 	}
 
 	protected String jaxrsUrl(String path) {
-		boolean useTLS = getConfig().isUseTLS();
-		return JaxrsUtils.jaxrsUrl(path, useTLS);
+		return ApiUtils.jaxrsUrl(getConfig(), path);
 	}
 
 	protected String keycloakUrl(String path) {
-		boolean useTLS = getConfig().isUseTLS();
-		return KeycloakUtils.keycloakUrl(path, useTLS);
+		return ApiUtils.keycloakUrl(getConfig(), path);
 	}
 }

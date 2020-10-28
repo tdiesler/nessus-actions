@@ -22,10 +22,9 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.RuntimeSingleton;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 
-import io.nessus.actions.jaxrs.AbstractResource;
-import io.nessus.actions.jaxrs.utils.JaxrsUtils;
-import io.nessus.actions.jaxrs.utils.JaxrsUtils.ErrorMessage;
-import io.nessus.actions.portal.main.PortalConfig;
+import io.nessus.actions.core.jaxrs.AbstractResource;
+import io.nessus.actions.core.utils.ApiUtils;
+import io.nessus.actions.core.utils.ApiUtils.ErrorMessage;
 import io.nessus.actions.portal.main.PortalMain;
 import io.nessus.actions.portal.service.SessionService;
 import io.nessus.common.AssertArg;
@@ -43,12 +42,11 @@ import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
 
-public abstract class AbstractWebResource extends AbstractResource<PortalConfig> implements HttpHandler {
+public abstract class AbstractWebResource extends AbstractResource implements HttpHandler {
 	
 	protected final HttpHandler httpHandler;
     
-	protected AbstractWebResource(PortalConfig config) {
-		super(config);
+	protected AbstractWebResource() {
 
 		if (!RuntimeSingleton.isInitialized()) {
 	        Velocity.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
@@ -75,7 +73,7 @@ public abstract class AbstractWebResource extends AbstractResource<PortalConfig>
         // Redirect home
         
         if (reqPath.length() <= "/portal/".length()) {
-        	new WebHome(getConfig()).handlePageRequest(exchange, context);
+        	new WebHome().handlePageRequest(exchange, context);
         	return;
         }
         
@@ -200,10 +198,10 @@ public abstract class AbstractWebResource extends AbstractResource<PortalConfig>
 	}
 
 	protected void assertStatus(Response res, Status... exp) {
-		if (!JaxrsUtils.hasStatus(res, exp)) {
+		if (!ApiUtils.hasStatus(res, exp)) {
 			int status = res.getStatus();
 			String reason = res.getStatusInfo().getReasonPhrase();
-			ErrorMessage errmsg = JaxrsUtils.getErrorMessage(res);
+			ErrorMessage errmsg = ApiUtils.getErrorMessage(res);
 			if (errmsg != null) {
 				throw new IllegalStateException(String.format("[%d %s] - %s", status, reason, errmsg));
 			} else {

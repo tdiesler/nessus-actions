@@ -1,6 +1,6 @@
 package io.nessus.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
+import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -10,8 +10,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import io.nessus.actions.jaxrs.service.KeycloakService;
-import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
+import io.nessus.actions.core.jaxrs.AbstractUserResource;
+import io.nessus.actions.core.service.KeycloakService;
+import io.nessus.actions.core.types.KeycloakUserInfo;
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -58,10 +60,10 @@ public class UserResource extends AbstractUserResource {
 		
 		// Delete the user
 		
-		String realmId = config.getRealmId();
+		String realmId = config.getKeycloakRealmId();
 		KeycloakService keycloak = getKeycloakService();
 		String masterToken = keycloak.getMasterAccessToken();
-		String url = keycloakUrl("/admin/realms/" + realmId + "/users/" + userId);
+		String url = ApiUtils.keycloakUrl(config, "/admin/realms/" + realmId + "/users/" + userId);
 		Response res = withClient(url, target -> target.request()
 				.header("Authorization", "Bearer " + masterToken)
 				.delete());

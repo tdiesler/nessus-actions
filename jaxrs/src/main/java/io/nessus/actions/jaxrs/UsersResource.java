@@ -1,6 +1,6 @@
 package io.nessus.actions.jaxrs;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
+import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -12,10 +12,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import io.nessus.actions.jaxrs.service.KeycloakService;
-import io.nessus.actions.jaxrs.type.KeycloakTokens;
-import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
-import io.nessus.actions.jaxrs.type.KeycloakUserRegister;
+import io.nessus.actions.core.jaxrs.AbstractResource;
+import io.nessus.actions.core.service.KeycloakService;
+import io.nessus.actions.core.types.KeycloakTokens;
+import io.nessus.actions.core.types.KeycloakUserInfo;
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Path("/users")
-public class UsersResource extends AbstractApiResource {
+public class UsersResource extends AbstractResource {
 	
 	@PUT
 	@Consumes(value = MediaType.APPLICATION_JSON)
@@ -37,16 +38,16 @@ public class UsersResource extends AbstractApiResource {
 		
 		logInfo("Register: {}", user.getEmail());
 		
-		String realmId = getConfig().getRealmId();
+		String realmId = getConfig().getKeycloakRealmId();
 		KeycloakService keycloak = getKeycloakService();
 		String accessToken = keycloak.getMasterAccessToken();
 		
 		// Create the user record
 		
-		String url = keycloakUrl("/admin/realms/" + realmId + "/users");
+		String url = ApiUtils.keycloakUrl(config, "/admin/realms/" + realmId + "/users");
 		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
-				.post(Entity.json(new KeycloakUserRegister(user))));
+				.post(Entity.json(user.toKeycloakUserRegister())));
 		
 		hasStatus(res, Status.CREATED);
 		

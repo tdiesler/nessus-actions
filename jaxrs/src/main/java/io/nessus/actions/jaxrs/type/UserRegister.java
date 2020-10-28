@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.nessus.actions.core.types.KeycloakUserRegister;
+
 @JsonInclude(Include.NON_EMPTY)
-public class UserRegister extends UserBase{
+public class UserRegister extends UserBase {
 	
 	private final String password;
 	
@@ -23,5 +25,9 @@ public class UserRegister extends UserBase{
 
 	public String getPassword() {
 		return password;
+	}
+	
+	public KeycloakUserRegister toKeycloakUserRegister() {
+		return new KeycloakUserRegister(firstName, lastName, email, username, password);
 	}
 }

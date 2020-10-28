@@ -1,0 +1,27 @@
+
+# Keycloak endpoints 
+keycloakUrl: http://127.0.0.1:8000/auth
+keycloakTLSUrl: https://127.0.0.1:8443/auth
+  
+# Keycloak realm/client
+keycloakRealm: myrealm
+keycloakClient: myclient
+
+# Keycloak master credentials
+keycloakUser: admin
+keycloakPassword: admin
+
+# Maven endpoints 
+mavenUrl: http://127.0.0.1:8100/maven
+mavenTLSUrl: https://127.0.0.1:8443/maven
+
+# Jaxrs endpoints 
+jaxrsUrl: http://127.0.0.1:8200/jaxrs
+jaxrsTLSUrl: https://127.0.0.1:8443/jaxrs
+
+# Potal endpoints
+portalUrl: http://127.0.0.1:8300/portal
+portalTLSUrl: https://127.0.0.1:8443/portal
+  
+# Use TLS locations 
+useTLS: false

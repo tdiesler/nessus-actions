@@ -12,18 +12,14 @@ import org.apache.velocity.VelocityContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.portal.main.PortalConfig;
 import io.nessus.common.AssertArg;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
 public class WebUserLogin extends AbstractWebResource {
-
-	public WebUserLogin(PortalConfig config) {
-		super(config);
-	}
 
 	@Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
@@ -59,7 +55,7 @@ public class WebUserLogin extends AbstractWebResource {
 
 	private void doLogin(HttpServerExchange exchange, MultivaluedMap<String, String> qparams) throws Exception {
 		
-		String url = jaxrsUrl("/api/users/login");
+		String url = ApiUtils.jaxrsUrl(config, "/api/users/login");
 		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_FORM_URLENCODED)
 				.post(Entity.form(qparams)));
 		
@@ -85,7 +81,7 @@ public class WebUserLogin extends AbstractWebResource {
 		UserRegister user = new UserRegister(username, firstName, lastName, email, password);
 		AssertArg.isEqual(password, retype, "Password does not match");
 		
-		String url = jaxrsUrl("/api/users");
+		String url = ApiUtils.jaxrsUrl(config, "/api/users");
 		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
 				.put(Entity.json(user)));
 		

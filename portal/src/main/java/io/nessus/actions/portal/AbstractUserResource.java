@@ -1,24 +1,20 @@
 package io.nessus.actions.portal;
 
-import static io.nessus.actions.jaxrs.utils.JaxrsUtils.hasStatus;
+import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.velocity.VelocityContext;
 
-import io.nessus.actions.jaxrs.service.KeycloakService;
+import io.nessus.actions.core.service.KeycloakService;
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserState;
 import io.nessus.actions.jaxrs.type.UserTokens;
-import io.nessus.actions.portal.main.PortalConfig;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
 abstract class AbstractUserResource extends AbstractWebResource {
-
-	public AbstractUserResource(PortalConfig config) {
-		super(config);
-	}
 
 	@Override
 	protected final String handlePageRequest(HttpServerExchange exchange, VelocityContext context) throws Exception {
@@ -69,7 +65,7 @@ abstract class AbstractUserResource extends AbstractWebResource {
 		
 		// Update the user status
 		
-		String url = jaxrsUrl("/api/user/" + userId + "/state");
+		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/state");
 		Response res = withClient(url, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());

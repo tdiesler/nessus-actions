@@ -7,16 +7,17 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import io.nessus.actions.jaxrs.main.JaxrsConfig;
+import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.AbstractService;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
 
-public class UserModelsService extends AbstractService<JaxrsConfig> {
+public class UserModelsService extends AbstractService<NessusConfig> {
 
 	private final Map<String, List<UserModel>> userModels = new HashMap<>();
 	private final AtomicInteger sequence = new AtomicInteger();
 	
-	public UserModelsService(JaxrsConfig config) {
+	public UserModelsService(NessusConfig config) {
 		super(config);
 	}
 

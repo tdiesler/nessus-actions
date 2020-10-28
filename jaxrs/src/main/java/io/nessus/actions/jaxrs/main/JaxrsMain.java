@@ -7,23 +7,30 @@ import java.nio.file.Paths;
 
 import javax.net.ssl.SSLContext;
 
+import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.jaxrs.JaxrsApplication;
+import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.jaxrs.service.UserModelsService;
 import io.nessus.common.main.AbstractMain;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.rest.SSLContextBuilder;
 
-public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
+public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 
     public static void main(String... args) throws Exception {
 
-    	JaxrsConfig config = JaxrsConfig.createConfig();
+    	NessusConfig config = NessusConfig.createConfig();
     	
     	new JaxrsMain(config)
     		.start(args);
     }
 
-    public JaxrsMain(JaxrsConfig config) throws IOException {
+    public JaxrsMain(NessusConfig config) throws IOException {
         super(config);
+		config.addService(new JaxrsService(config));
+		config.addService(new KeycloakService(config));
+		config.addService(new UserModelsService(config));
     }
 
     @Override
@@ -71,8 +78,8 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 		if (withTLS) {
 			
 			String alias = "nessus-actions-jaxrs";
-			Path tlsKey = Paths.get(config.getJaxrsTLSKey());
-			Path tlsCrt = Paths.get(config.getJaxrsTLSCrt());
+			Path tlsKey = Paths.get(config.getTLSKey());
+			Path tlsCrt = Paths.get(config.getTLSCrt());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
@@ -95,8 +102,8 @@ public class JaxrsMain extends AbstractMain<JaxrsConfig, JaxrsOptions> {
 	
 	private boolean isTLSEnabled() {
 		String tlsUrl = config.getJaxrsTLSUrl();
-		String tlsCert = config.getJaxrsTLSCrt();
-		String tlsKey = config.getJaxrsTLSKey();
+		String tlsCert = config.getTLSCrt();
+		String tlsKey = config.getTLSKey();
 		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
 			return false;
 		}

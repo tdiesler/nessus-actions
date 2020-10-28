@@ -3,6 +3,8 @@ package io.nessus.actions.jaxrs.type;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.nessus.actions.core.types.KeycloakUserInfo;
+
 public class UserState extends UserBase {
 	
 	private String id;

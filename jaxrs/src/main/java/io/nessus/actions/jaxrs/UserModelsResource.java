@@ -11,8 +11,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import io.nessus.actions.core.jaxrs.AbstractUserResource;
+import io.nessus.actions.core.types.KeycloakUserInfo;
 import io.nessus.actions.jaxrs.service.UserModelsService;
-import io.nessus.actions.jaxrs.type.KeycloakUserInfo;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
 import io.nessus.actions.jaxrs.type.UserModels;

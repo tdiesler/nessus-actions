@@ -5,6 +5,16 @@
 
 Explore [Apache Camel](http://camel.apache.org/) based actions inspired by [GitHub Actions](https://docs.github.com/en/actions). 
 
+## Container Ports
+
+|| HTTP     | HTTPS |
+| --------- | ----- | ----- |
+| H2        | 9092  |       |
+| Keycloak  | 8000  | 30043 |
+| Maven     | 8100  | 30143 |
+| Jaxrs     | 8200  | 30243 |
+| Portal    | 8300  | 30343 |
+
 ## Running on Kubernetes
 
 Running on Kubernetes is currently the preferred setup. For this, you would want to have access to 
@@ -113,7 +123,7 @@ KEYCLOAK_PASSWORD=admin
 docker rm -f keycloak
 docker run --detach \
     --name keycloak \
-    -p 8080:8080 \
+    -p 8000:8080 \
     --network kcnet \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \

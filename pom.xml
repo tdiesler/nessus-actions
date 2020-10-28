@@ -60,8 +60,9 @@
     
     <modules>
         <module>core</module>
-        <module>keycloak</module>
         <module>jaxrs</module>
+        <module>keycloak</module>
+        <module>maven</module>
         <module>portal</module>
         <module>quarkus</module>
     </modules>
@@ -73,9 +74,16 @@
                 <groupId>org.apache.camel.quarkus</groupId>
                 <artifactId>camel-quarkus-bom</artifactId>
                 <version>${version.camel.quarkus}</version>
-                <type>pom</type>
                 <scope>import</scope>
+                <type>pom</type>
             </dependency>
+			<dependency>
+				<groupId>org.jboss.shrinkwrap</groupId>
+				<artifactId>shrinkwrap-bom</artifactId>
+				<version>${version.jboss.shrinkwrap}</version>
+                <scope>import</scope>
+                <type>pom</type>
+			</dependency>
             
 			<dependency>
 				<groupId>com.fasterxml.jackson.dataformat</groupId>

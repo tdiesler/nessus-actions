@@ -2,8 +2,8 @@ package io.nessus.actions.portal.service;
 
 import static io.undertow.server.session.SessionCookieConfig.DEFAULT_SESSION_ID;
 
-import io.nessus.actions.jaxrs.main.JaxrsConfig;
-import io.nessus.actions.jaxrs.service.AbstractService;
+import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.AbstractService;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.server.session.InMemorySessionManager;
@@ -11,11 +11,11 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
 
-public class SessionService extends AbstractService<JaxrsConfig> {
+public class SessionService extends AbstractService<NessusConfig> {
 
 	private final SessionManager sessionManager;
 	
-	public SessionService(JaxrsConfig config) {
+	public SessionService(NessusConfig config) {
 		super(config);
 		sessionManager = new InMemorySessionManager("portal");
 	}

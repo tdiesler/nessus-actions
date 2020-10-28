@@ -39,7 +39,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.nessus.actions.jaxrs.service.KeycloakService;
+import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserState;
 import io.nessus.actions.jaxrs.type.UserTokens;

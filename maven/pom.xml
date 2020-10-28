@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+	    <groupId>io.nessus.actions</groupId>
+	    <artifactId>nessus-actions</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>nessus-actions-maven</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Nessus :: Actions :: Maven</name>
+
+    <!-- Properties -->
+    <properties>
+        <version.maven.image>3.6.3-jdk-8</version.maven.image>
+        <docker.maven.image.name>maven:${version.maven.image}</docker.maven.image.name>
+        <docker.image.name>nessusio/maven</docker.image.name>
+        <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
+        <docker.image.version>latest</docker.image.version>
+        <skipKeycloak>false</skipKeycloak>
+    </properties>
+
+    <!-- Dependencies -->
+    <dependencies>
+        
+        <dependency>
+            <groupId>io.nessus.actions</groupId>
+            <artifactId>nessus-actions-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.nessus</groupId>
+            <artifactId>nessus-common-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-undertow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+               <executions>
+                    <execution>
+                        <id>proj</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>scripts/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>${project.artifactId}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <autoPull>always</autoPull>
+                    <images>
+                        <image>
+                            <name>${docker.image.name}</name>
+                            <build>
+                                <maintainer>${docker.image.maintainer}</maintainer>
+                                <dockerFile>${project.build.directory}/${project.artifactId}/context/Dockerfile</dockerFile>
+                                <tags>
+                                    <tag>${version.maven.image}</tag>
+                                    <tag>${docker.image.version}</tag>
+                                </tags>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-remove</id>
+                        <goals>
+                            <goal>remove</goal>
+                        </goals>
+                        <phase>clean</phase>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>${docker.image.name}:${docker.image.version}</name>
+                                </image>
+                                <image>
+                                    <name>${docker.image.name}:${project.version}</name>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-build</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                    <execution>
+                        <id>docker-push</id>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <skipPush>${skipPush}</skipPush>
+                            <skipTag>true</skipTag>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>	 
+</project>

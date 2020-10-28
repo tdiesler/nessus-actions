@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
-import io.nessus.actions.jaxrs.service.KeycloakService;
+import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.rest.SSLContextBuilder;
 
@@ -84,7 +84,7 @@ public class KeycloakTest extends AbstractJaxrsTest {
 		String masterAccessToken = kcsrv.getMasterAccessToken();
 		Assert.assertNotNull(masterAccessToken);
 		
-		String refreshToken = getConfig().getMasterRefreshToken();
+		String refreshToken = getConfig().getKeycloakRefreshToken();
 		Assert.assertNotNull(refreshToken);
 	}
 	
