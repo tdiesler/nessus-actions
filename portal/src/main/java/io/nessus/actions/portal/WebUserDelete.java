@@ -1,5 +1,7 @@
 package io.nessus.actions.portal;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -19,8 +21,8 @@ public class WebUserDelete extends AbstractUserResource  {
 		String accessToken = tokens.accessToken;
 		String userId = tokens.userId;
 		
-		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId);
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId);
+		Response res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());
 		

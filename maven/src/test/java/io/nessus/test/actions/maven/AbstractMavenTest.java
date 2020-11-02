@@ -22,6 +22,7 @@ package io.nessus.test.actions.maven;
 import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -37,7 +38,6 @@ import org.junit.Before;
 
 import io.nessus.actions.core.NessusConfig;
 import io.nessus.actions.core.service.KeycloakService;
-import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.maven.main.MavenMain;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.testing.AbstractTest;
@@ -81,7 +81,7 @@ abstract class AbstractMavenTest extends AbstractTest<NessusConfig> {
 		return main.createJaxrsServer();
 	}
 
-	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
+	protected Response withClient(URI uri, Function<WebTarget, Response> invoker) {
 		KeycloakService keycloak = getService(KeycloakService.class);
 		return keycloak.withClient(uri, invoker);
 	}
@@ -92,9 +92,5 @@ abstract class AbstractMavenTest extends AbstractTest<NessusConfig> {
 			String reason = res.getStatusInfo().getReasonPhrase();
 			Assert.fail(String.format("[%d %s] not in %s", status, reason, Arrays.asList(exp)));
 		}
-	}
-
-	protected String keycloakUrl(String path) {
-		return ApiUtils.keycloakUrl(getConfig(), path);
 	}
 }

@@ -1,7 +1,5 @@
 title: Crypto Ticker
 
-runtime: standalone
-
 from:
    comp: camel/platform-http@v1
    with: /ticker?httpMethodRestrict=GET

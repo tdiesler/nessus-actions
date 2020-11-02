@@ -11,10 +11,41 @@
     </formats>
     <baseDirectory>/context</baseDirectory>
     
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
+            <scope>compile</scope>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <useStrictFiltering>true</useStrictFiltering>
+            <scope>runtime</scope>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    
     <fileSets>
         <fileSet>
+            <outputDirectory>/bin</outputDirectory>
+            <directory>${basedir}/etc/bin</directory>
+            <filtered>true</filtered>
+            <fileMode>755</fileMode>
+        </fileSet>
+        <fileSet>
             <outputDirectory>/</outputDirectory>
-            <directory>${basedir}/etc/</directory>
+            <directory>${basedir}/etc</directory>
+            <includes>
+                <include>config/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>/</outputDirectory>
+            <directory>${basedir}/etc</directory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
             <filtered>true</filtered>
         </fileSet>
     </fileSets>

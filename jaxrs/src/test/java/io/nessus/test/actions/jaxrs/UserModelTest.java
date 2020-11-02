@@ -41,7 +41,7 @@ public class UserModelTest extends AbstractJaxrsTest {
 		StreamUtils.copyStream(input, output);
 
 		String content = new String(output.toByteArray());
-		UserModel exp = new UserModel("model01", "user01", "Some Title", content);
+		UserModel exp = new UserModel("model01", "user01", content);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

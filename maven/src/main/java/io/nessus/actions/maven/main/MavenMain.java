@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 import javax.net.ssl.SSLContext;
 
 import io.nessus.actions.core.NessusConfig;
+import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.maven.MavenApplication;
+import io.nessus.actions.maven.service.TaskExecutorService;
 import io.nessus.common.main.AbstractMain;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.rest.SSLContextBuilder;
@@ -25,6 +27,8 @@ public class MavenMain extends AbstractMain<NessusConfig, MavenOptions> {
 
     public MavenMain(NessusConfig config) throws IOException {
         super(config);
+		config.addService(new KeycloakService(config));
+		config.addService(new TaskExecutorService(config));
     }
 
     @Override

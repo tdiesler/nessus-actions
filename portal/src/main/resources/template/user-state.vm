@@ -7,9 +7,14 @@
     <table>
     <tr><td>Userame</td><td class="gray">$user.username</td></tr>
     <tr><td>Email</td><td class="gray">$user.email</td></tr>
+    <tr><td>Last Login</td><td class="gray">$DateUtils.format($user.lastLogin)</td></tr>
     <tr><td>Status</td><td class="gray">$user.status</td></tr>
     </table>
     
+    <a href="logout/act">Logout</a>&nbsp;
+    <a href="delete/act" style="color:red">Delete</a>
+
 </div>
+
 
 #parse( "template/footer.vm" )

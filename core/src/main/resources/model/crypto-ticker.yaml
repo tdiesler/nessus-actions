@@ -1,10 +1,8 @@
-name: Crypto Ticker
-
-runtime: eap
+title: Crypto Ticker
 
 from:
-   comp: camel/undertow@v1
-   with: http://127.0.0.1:8080/ticker
+   comp: camel/platform-http@v1
+   with: /ticker?httpMethodRestrict=GET
 
 steps:
 

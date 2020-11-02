@@ -1,5 +1,13 @@
+##################################################################
+# H2 
+#
+jdbcUrl: jdbc:h2:tcp://localhost:9092/fuse;schema=nessus
+jdbcUser: keycloak
+jdbcPassword: password
 
-# Keycloak endpoints 
+##################################################################
+# Keycloak
+#
 keycloakUrl: http://127.0.0.1:8000/auth
 keycloakTLSUrl: https://127.0.0.1:8443/auth
   
@@ -11,17 +19,20 @@ keycloakClient: myclient
 keycloakUser: admin
 keycloakPassword: admin
 
-# Maven endpoints 
+##################################################################
+# Maven
+#
 mavenUrl: http://127.0.0.1:8100/maven
 mavenTLSUrl: https://127.0.0.1:8443/maven
 
-# Jaxrs endpoints 
+##################################################################
+# Jaxrs
+#
 jaxrsUrl: http://127.0.0.1:8200/jaxrs
 jaxrsTLSUrl: https://127.0.0.1:8443/jaxrs
 
-# Potal endpoints
+##################################################################
+# Potal
+#
 portalUrl: http://127.0.0.1:8300/portal
 portalTLSUrl: https://127.0.0.1:8443/portal
-  
-# Use TLS locations 
-useTLS: false

@@ -21,6 +21,7 @@ package io.nessus.test.actions.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import javax.ws.rs.client.Entity;
@@ -38,18 +39,25 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.core.model.RouteModel;
+import io.nessus.actions.jaxrs.service.NoopMavenBuilderService;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
-import io.nessus.actions.jaxrs.type.UserModels;
+import io.nessus.actions.jaxrs.type.UserModelList;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 
 public class JaxrsModelTest extends AbstractJaxrsTest {
 
+	@Override
+	public void before() throws Exception {
+		super.before();
+		getConfig().addService(new NoopMavenBuilderService(getConfig()));
+	}
+
 	@Test
 	public void testModelLifecycle() throws Exception {
 
-		// Register User
+		// User Register
 		
 		UserTokens tokens = registerUser();
 		
@@ -59,21 +67,20 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
 		RouteModel model = RouteModel.read(input);
 
-		String title = model.getTitle();
 		String content = model.toString();
-		UserModelAdd modelAdd = new UserModelAdd(userId, title, content);
+		UserModelAdd modelAdd = new UserModelAdd(userId, content);
 		
 		// Create Model
 		
-		// PUT http://localhost:7080/jaxrs/api/user/{userId}/models
+		// PUT http://localhost:8200/jaxrs/api/user/{userId}/models
 		// 
 		// {
 		//	  "userId": "myuser",
 		//	  "content": "some model content", 
 		// }
 
-		String url = jaxrsUrl("/api/user/" + userId + "/models");
-		Response res = withClient(url, target -> target
+		URI uri = jaxrsUri("/api/user/" + userId + "/models");
+		Response res = withClient(uri, target -> target
 					.request(MediaType.APPLICATION_JSON)
 					.header("Authorization", "Bearer " + accessToken)
 					.put(Entity.json(modelAdd)));
@@ -89,26 +96,26 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		
 		// Get Models
 		
-		// GET http://localhost:7080/jaxrs/api/user/{userId}/models
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/models
 		//
 		
-		res = withClient(url, target -> target.request()
+		res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.get());
 	
 		assertStatus(res, Status.OK);
 		
-		UserModels userModels = res.readEntity(UserModels.class);
+		UserModelList userModels = res.readEntity(UserModelList.class);
 		Assert.assertEquals(userId, userModels.userId);
-		Assert.assertEquals(modelId, userModels.models.get(0).modelId);
+		Assert.assertNotNull(userModels.models.stream().filter(m -> m.getModelId().equals(modelId)).findAny().orElse(null));
 		
 		// Get Model
 		
-		// GET http://localhost:7080/jaxrs/api/user/{userId}/model/{modelId}
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		url = jaxrsUrl("/api/user/" + userId + "/model/" + modelId);
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
+		res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.get());
 	
@@ -121,14 +128,17 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 
 		// Update Model
 		
-		// POST http://localhost:7080/jaxrs/api/user/{userId}/model
+		// POST http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		UserModel modelUpdate = new UserModel(userModel)
-			.withTitle("Updated" + title);
+		RouteModel routeModel = userModel.getRouteModel();
+		routeModel = routeModel.withTitle("Updated " + userModel.getTitle());
 		
-		url = jaxrsUrl("/api/user/" + userId + "/model");
-		res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
+		UserModel modelUpdate = new UserModel(userModel)
+			.withContent(routeModel.toString());
+		
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
+		res = withClient(uri, target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
 				.post(Entity.json(modelUpdate)));
 	
@@ -136,26 +146,26 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 
 		// Get Model
 		
-		// GET http://localhost:7080/jaxrs/api/user/{userId}/model/{modelId}
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		url = jaxrsUrl("/api/user/" + userId + "/model/" + modelId);
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
+		res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.get());
 	
 		assertStatus(res, Status.OK);
 		
 		userModel = res.readEntity(UserModel.class);
-		Assert.assertTrue(userModel.title.startsWith("Updated"));
+		Assert.assertTrue(userModel.getTitle().startsWith("Updated"));
 		
 		// Delete Model
 		
-		// DELETE http://localhost:7080/jaxrs/api/user/{userId}/model/{modelId}
+		// DELETE http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		url = jaxrsUrl("/api/user/" + userId + "/model/" + modelId);
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
+		res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.delete());
 	
@@ -163,7 +173,7 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 
 		// Delete User
 		
-		deleteUSer(accessToken, userId);
+		userDelete(accessToken, userId);
 	}
 
 	private UserTokens registerUser() throws IOException, JsonParseException, JsonMappingException {
@@ -174,9 +184,9 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		UserRegister user = mapper.readValue(resUrl, UserRegister.class);
 		Assert.assertEquals("myuser@example.com", user.getEmail());
 		
-		// Register User
+		// User Register
 		
-		// PUT http://localhost:7080/tryit/api/users
+		// PUT http://localhost:8200/tryit/api/users
 		// 
 		// {
 		//	  "firstName": "My",
@@ -186,14 +196,14 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		//	  "password":  "mypass"
 		// }
 		
-		Response res = withClient(jaxrsUrl("/api/users"), 
+		Response res = withClient(jaxrsUri("/api/users"), 
 				target -> target.request().put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
 		
-		// Login
+		// User Login
 		
-		// POST http://localhost:7080/tryit/api/user/token
+		// POST http://localhost:8200/tryit/api/user/token
 		// Content-Type: application/x-www-form-urlencoded
 		//
 		// username: myuser 
@@ -203,7 +213,7 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		data.add("username", user.getUsername());
 		data.add("password", user.getPassword());
 		
-		res = withClient(jaxrsUrl("/api/users/login"), 
+		res = withClient(jaxrsUri("/api/users/login"), 
 				target -> target.request().post(Entity.form(data)));
 		
 		assertStatus(res, Status.OK);
@@ -212,14 +222,14 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		return tokens;
 	}
 
-	private void deleteUSer(String accessToken, String userId) {
+	private void userDelete(String accessToken, String userId) {
 		
 		// Delete
 		
-		// DELETE http://localhost:7080/tryit/api/user
+		// DELETE http://localhost:8200/tryit/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		Response res = withClient(jaxrsUrl("/api/user/" + userId), 
+		Response res = withClient(jaxrsUri("/api/user/" + userId), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());

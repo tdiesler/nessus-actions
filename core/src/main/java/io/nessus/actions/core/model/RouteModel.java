@@ -25,24 +25,14 @@ public class RouteModel {
 	
 	public static final String CAMEL_ROUTE_MODEL_RESOURCE_NAME = "camel-route-model.yaml";
 	
-	public enum TargetRuntime {
-		eap, wildfly, docker, standalone;
-
-		public boolean isWildFly() {
-			return this == eap || this == wildfly;
-		}
-	}
-	
 	private final String title;
-	private final TargetRuntime runtime;
 	private final List<Step> steps = new ArrayList<>();
 	
 	private FromStep fromStep;
 	
 	@ConstructorProperties({"title", "runtime"})
-	public RouteModel(String title, TargetRuntime runtime) {
+	public RouteModel(String title) {
 		this.title = title;
-		this.runtime = runtime;
 	}
 
 	public static RouteModel read(URL url) throws IOException {
@@ -54,9 +44,20 @@ public class RouteModel {
 		return mapper.readValue(input, RouteModel.class);
 	}
 	
-	public static RouteModel read(String content) throws IOException {
+	public static RouteModel read(String content) {
         ObjectMapper mapper = createObjectMapper();    		
-    	return mapper.readValue(content, RouteModel.class);
+    	try {
+			return mapper.readValue(content, RouteModel.class);
+		} catch (JsonProcessingException ex) {
+			throw CheckedExceptionWrapper.create(ex);
+		}
+	}
+
+	public RouteModel withTitle(String title) {
+		RouteModel other = new RouteModel(title);
+		other.withStep(fromStep);
+		steps.forEach(st -> other.withStep(st));
+		return other;
 	}
 
 	public RouteModel withStep(Step step) {
@@ -71,10 +72,6 @@ public class RouteModel {
 
 	public String getTitle() {
 		return title;
-	}
-
-	public TargetRuntime getRuntime() {
-		return runtime;
 	}
 
 	@JsonGetter("from")

@@ -11,13 +11,17 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_EMPTY)
-public class UserModels {
+public class UserModelList {
+	
+	public enum ModelRuntime {
+		standalone, docker, kubernetes, eap
+	}
 	
 	public final String userId;
 	public final List<UserModel> models = new ArrayList<>();
 	
 	@JsonCreator
-	public UserModels(
+	public UserModelList(
 		@JsonProperty(value = "userId", required = true) String userId, 
 		@JsonProperty(value = "models") List<UserModel> models) {
 		this.userId = userId;

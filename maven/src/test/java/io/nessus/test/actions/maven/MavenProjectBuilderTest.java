@@ -20,9 +20,13 @@
 package io.nessus.test.actions.maven;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericEntity;
@@ -39,10 +43,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.nessus.actions.core.maven.MavenProjectBuilder;
+import io.nessus.actions.core.types.MavenBuildHandle;
+import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
 import io.nessus.actions.core.utils.ApiUtils;
-import io.nessus.actions.maven.MavenBuildHandle;
+import io.nessus.common.utils.StreamUtils;
 
 public class MavenProjectBuilderTest extends AbstractMavenTest {
+
+	Client client = ClientBuilder.newClient();
 
 	@Test
 	public void testBuildProject() throws Exception {
@@ -54,10 +62,9 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 
 		// Verify maven project content
 		
-		String projName = uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1);
+		final String projName = uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1);
 		Assert.assertEquals("acme-ticker-1.0.0-project.tgz", projName);
 
-		projName = projName.substring(0, projName.length() - 4);
 		GenericArchive archive = ShrinkWrap.create(ZipImporter.class, projName)
 				.importFrom(new File(uri))
 				.as(GenericArchive.class);
@@ -65,23 +72,78 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 		Assert.assertNotNull(archive.get("src/main/resources/camel-route-model.yaml"));
 		Assert.assertNotNull(archive.get("pom.xml"));
 
-		// Schedule the maven build 
+		// Schedule Maven Build
+		
+		// POST http://localhost:8100/maven/api/build/schedule
+		// 
+		
+		String modelId = "1234-5678-0000-0000";
+		String projId = modelId + "/standalone";
 		
 		InputStream projZip = archive.as(ZipExporter.class)
 				.exportAsInputStream();
 		
 		MultipartFormDataOutput formData = new MultipartFormDataOutput();
-		formData.addFormData("projName", projName, MediaType.TEXT_PLAIN_TYPE);
+		formData.addFormData("projId", projId, MediaType.TEXT_PLAIN_TYPE);
 		formData.addFormData("projZip", projZip, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(formData) { };
 		
-		String url = ApiUtils.mavenUrl(getConfig(), "/api/build/schedule");
-		Response res = ClientBuilder.newClient().target(url).request()
+		uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
+		Response res = client.target(uri).request()
 			.post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
 		
 		ApiUtils.hasStatus(res, Status.OK);
 		
-		MavenBuildHandle buildHandle = res.readEntity(MavenBuildHandle.class);
-		Assert.assertTrue(new File(buildHandle.getHandle()).isFile());
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		BuildStatus status = handle.getStatus();
+
+		Assert.assertTrue(new File(handle.getLocation()).isFile());
+		Assert.assertEquals(BuildStatus.Scheduled, status);
+		
+		// Get Build Status
+		
+		// GET http://localhost:8100/maven/api/build/{projId}/status
+		//
+		
+		uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
+		
+		while (status != BuildStatus.Success && status != BuildStatus.Failure) {
+			
+			sleepSafe(500);
+			
+			res = client.target(uri).request().get();
+			
+			ApiUtils.hasStatus(res, Status.OK);
+			
+			handle = res.readEntity(MavenBuildHandle.class);
+			status = handle.getStatus();
+			
+			logInfo("{} => {}", handle.getId(), status);
+		}
+		
+		Assert.assertEquals(BuildStatus.Success, status);
+		
+		// Download the Target File
+		
+		// GET http://localhost:8100/maven/api/build/{projId}/download
+		//
+		
+		uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/download");
+		
+		res = client.target(uri).request().get();
+		
+		ApiUtils.hasStatus(res, Status.OK);
+		
+		Path fileName = Paths.get(handle.getLocation().getPath()).getFileName();
+		File targetFile = new File("target/" + fileName);
+		
+		InputStream ins = res.readEntity(InputStream.class);
+		try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+			StreamUtils.copyStream(ins, fos);
+		}
+		
+		logInfo("Downloaded: {}", targetFile);
+		
+		Assert.assertTrue(targetFile.isFile());
 	}
 }

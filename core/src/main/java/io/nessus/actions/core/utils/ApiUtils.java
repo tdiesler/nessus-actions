@@ -1,7 +1,10 @@
 package io.nessus.actions.core.utils;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.PrimitiveIterator.OfInt;
+import java.util.Random;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -79,24 +82,44 @@ public final class ApiUtils {
 		return errmsg;
 	}
 
-	public static String keycloakUrl(NessusConfig config, String path) {
+	public static String createIdentifier(String userId) {
+		String prefix = userId.substring(0, userId.indexOf('-'));
+		String result = String.format("%s-%s", prefix, createIdentifier(3));
+		return result;
+	}
+	
+	public static String createIdentifier(int blocks) {
+		int digits = 6;
+		String chars = "0123456789abcdef";
+		OfInt rndint = new Random().ints(0, chars.length()).iterator();
+		String result = "";
+		for (int i = 0; i < blocks; i++) {
+			result += "-";
+			for (int j = 0; j < digits; j++) {
+				result += chars.charAt(rndint.next());
+			}
+		}
+		return result.substring(1);
+	}
+	
+	public static URI keycloakUri(NessusConfig config, String path) {
 		String keycloakUrl = config.isUseTLS() ? config.getKeycloakTLSUrl() : config.getKeycloakUrl();
-		return keycloakUrl + path;
+		return URI.create(keycloakUrl + path);
 	}
 	
-	public static String mavenUrl(NessusConfig config, String path) {
+	public static URI mavenUri(NessusConfig config, String path) {
 		String jaxrsUrl = config.isUseTLS() ? config.getMavenTLSUrl() : config.getMavenUrl();
-		return jaxrsUrl + path;
+		return URI.create(jaxrsUrl + path);
 	}
 	
-	public static String jaxrsUrl(NessusConfig config, String path) {
+	public static URI jaxrsUri(NessusConfig config, String path) {
 		String jaxrsUrl = config.isUseTLS() ? config.getJaxrsTLSUrl() : config.getJaxrsUrl();
-		return jaxrsUrl + path;
+		return URI.create(jaxrsUrl + path);
 	}
 	
-	public static String portalUrl(NessusConfig config, String path) {
+	public static URI portalUri(NessusConfig config, String path) {
 		String jaxrsUrl = config.isUseTLS() ? config.getPortalTLSUrl() : config.getPortalUrl();
-		return jaxrsUrl + path;
+		return URI.create(jaxrsUrl + path);
 	}
 	
 	public static class ErrorMessage {

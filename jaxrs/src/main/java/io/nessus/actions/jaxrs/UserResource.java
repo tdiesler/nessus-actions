@@ -2,6 +2,8 @@ package io.nessus.actions.jaxrs;
 
 import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
+import java.net.URI;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,6 +16,7 @@ import io.nessus.actions.core.jaxrs.AbstractUserResource;
 import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.core.types.KeycloakUserInfo;
 import io.nessus.actions.core.utils.ApiUtils;
+import io.nessus.actions.jaxrs.service.UserStateService;
 import io.nessus.actions.jaxrs.type.UserState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -26,6 +29,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 @SecurityScheme(type = SecuritySchemeType.OPENIDCONNECT, scheme = "Bearer")
 public class UserResource extends AbstractUserResource {
 	
+	// User State
+	
+	// GET http://localhost:8200/jaxrs/api/user/state
+	// Authorization: "Bearer eyJhbGciOi..."
+	
 	@GET
 	@Path("/{userId}/state")
 	@Operation(summary = "Fetch the current state for the given user id")	           
@@ -33,25 +41,31 @@ public class UserResource extends AbstractUserResource {
 		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UserState.class)))
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	
-	public Response userStatus(@PathParam("userId") String userId) {
+	public Response getUserState(@PathParam("userId") String userId) {
 		
 		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
 		if (kcinfo == null) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		UserState userStatus = new UserState(kcinfo);
+		UserStateService usrsvc = getService(UserStateService.class);
+		UserState userState = usrsvc.getOrCreateUserState(kcinfo);
 		
-		return Response.ok(userStatus, MediaType.APPLICATION_JSON).build();
+		return Response.ok(userState, MediaType.APPLICATION_JSON).build();
 	}
 
+	// User Delete
+	
+	// DELETE http://localhost:8200/jaxrs/api/user
+	// Authorization: "Bearer eyJhbGciOi..."
+	
 	@DELETE
 	@Path("/{userId}")
 	@Operation(summary = "Delete the user with the given id")	           
 	@ApiResponse(responseCode = "204", description = "[No Content] Sucessfully delete the user in Keycloak.")
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	
-	public Response userDelete(@PathParam("userId") String userId) {
+	public Response deleteUser(@PathParam("userId") String userId) {
 		
 		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
 		if (kcinfo == null) {
@@ -63,8 +77,8 @@ public class UserResource extends AbstractUserResource {
 		String realmId = config.getKeycloakRealmId();
 		KeycloakService keycloak = getKeycloakService();
 		String masterToken = keycloak.getMasterAccessToken();
-		String url = ApiUtils.keycloakUrl(config, "/admin/realms/" + realmId + "/users/" + userId);
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, "/admin/realms/" + realmId + "/users/" + userId);
+		Response res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + masterToken)
 				.delete());
 		

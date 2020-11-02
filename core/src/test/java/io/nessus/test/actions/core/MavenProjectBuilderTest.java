@@ -33,7 +33,7 @@ public class MavenProjectBuilderTest {
 	public void buildMavenProject() throws Exception {
     	
 		URI uri = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
-			.routeModelFromClasspath("/crypto-ticker.yaml")
+			.routeModelFromClasspath("/model/crypto-ticker.yaml")
 			.generate()
 			.assemble();
 		

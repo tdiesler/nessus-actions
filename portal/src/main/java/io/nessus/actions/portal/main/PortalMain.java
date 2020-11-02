@@ -9,23 +9,20 @@ import javax.net.ssl.SSLContext;
 
 import io.nessus.actions.core.NessusConfig;
 import io.nessus.actions.core.service.KeycloakService;
-import io.nessus.actions.jaxrs.service.JaxrsService;
+import io.nessus.actions.portal.WebModelCreate;
+import io.nessus.actions.portal.WebModelDelete;
+import io.nessus.actions.portal.WebModelList;
+import io.nessus.actions.portal.WebModelUpdate;
 import io.nessus.actions.portal.WebRoot;
 import io.nessus.actions.portal.WebUserDelete;
 import io.nessus.actions.portal.WebUserHome;
 import io.nessus.actions.portal.WebUserLogin;
 import io.nessus.actions.portal.WebUserLogout;
-import io.nessus.actions.portal.WebUserModelCreate;
-import io.nessus.actions.portal.WebUserModelDelete;
-import io.nessus.actions.portal.WebUserModelUpdate;
-import io.nessus.actions.portal.WebUserModels;
 import io.nessus.actions.portal.WebUserState;
 import io.nessus.actions.portal.service.SessionService;
 import io.nessus.common.main.AbstractMain;
+import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.rest.SSLContextBuilder;
-import io.undertow.Undertow;
-import io.undertow.Undertow.Builder;
-import io.undertow.server.handlers.PathHandler;
 
 public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 
@@ -39,7 +36,6 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 
     public PortalMain(NessusConfig config) throws IOException {
         super(config);
-        config.addService(new JaxrsService(config));
         config.addService(new KeycloakService(config));
         config.addService(new SessionService(config));
     }
@@ -64,11 +60,15 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
         logInfo("***************************************************");
         logInfo();
         
-        Undertow server = createUndertowServer(withTLS);
+        JaxrsServer server = createJaxrsServer(withTLS);
         server.start();
     }
 
-	public Undertow createUndertowServer(boolean withTLS) throws Exception {
+	public JaxrsServer createJaxrsServer() throws Exception {
+		return createJaxrsServer(isTLSEnabled());
+	}
+	
+	private JaxrsServer createJaxrsServer(boolean withTLS) throws Exception {
 		
 		URL url = new URL(config.getPortalUrl());
 
@@ -78,27 +78,15 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 		String host = "0.0.0.0";
 		int port = url.getPort();
 		
-		PathHandler handler = new PathHandler();
-		handler.addPrefixPath("/portal", new WebRoot());
-		handler.addPrefixPath("/portal/user", new WebUserHome());
-		handler.addPrefixPath("/portal/user/login", new WebUserLogin());
-		handler.addPrefixPath("/portal/user/logout", new WebUserLogout());
-		handler.addPrefixPath("/portal/user/delete", new WebUserDelete());
-		handler.addPrefixPath("/portal/user/models", new WebUserModels());
-		handler.addPrefixPath("/portal/user/models/create", new WebUserModelCreate());
-		handler.addPrefixPath("/portal/user/model/update", new WebUserModelUpdate());
-		handler.addPrefixPath("/portal/user/model/delete", new WebUserModelDelete());
-		handler.addPrefixPath("/portal/user/state", new WebUserState());
+		JaxrsServer server = new JaxrsServer(getConfig())
+				.withHostname(host)
+				.withHttpPort(port);
 		
-		Builder builder = Undertow.builder()
-	         .addHttpListener(port, host, handler)
-	         .setHandler(handler);
-		
-		if (isTLSEnabled()) {
+		if (withTLS) {
 			
-			String alias = "nessus-actions-portal";
-			Path tlsCrt = Paths.get(config.getTLSCrt());
+			String alias = "nessus-actions-jaxrs";
 			Path tlsKey = Paths.get(config.getTLSKey());
+			Path tlsCrt = Paths.get(config.getTLSCrt());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
@@ -108,13 +96,23 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 			
 			SSLContext.setDefault(sslContext);
 			
-			URL tlsUrl = new URL(config.getPortalTLSUrl());
+			URL tlsUrl = new URL(config.getJaxrsTLSUrl());
 			int tlsPort = tlsUrl.getPort();
 			
-			builder.addHttpsListener(tlsPort, host, sslContext, handler);
+			server.withHttpsPort(tlsPort, sslContext);
 		}
 		
-		Undertow server = builder.build();
+		server.addPrefixPath("/portal", new WebRoot());
+		server.addPrefixPath("/portal/user", new WebUserHome());
+		server.addPrefixPath("/portal/user/login", new WebUserLogin());
+		server.addPrefixPath("/portal/user/logout", new WebUserLogout());
+		server.addPrefixPath("/portal/user/delete", new WebUserDelete());
+		server.addPrefixPath("/portal/user/models", new WebModelList());
+		server.addPrefixPath("/portal/user/models/create", new WebModelCreate());
+		server.addPrefixPath("/portal/user/model/update", new WebModelUpdate());
+		server.addPrefixPath("/portal/user/model/delete", new WebModelDelete());
+		server.addPrefixPath("/portal/user/state", new WebUserState());
+		
 		return server;
 	}
 	

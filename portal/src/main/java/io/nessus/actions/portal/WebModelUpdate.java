@@ -1,5 +1,7 @@
 package io.nessus.actions.portal;
 
+import java.net.URI;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -14,7 +16,7 @@ import io.nessus.actions.jaxrs.type.UserTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
-public class WebUserModelUpdate extends AbstractUserResource {
+public class WebModelUpdate extends AbstractUserResource {
 
 	@Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context, Session session) throws Exception {
@@ -27,15 +29,15 @@ public class WebUserModelUpdate extends AbstractUserResource {
 		
 		// Get Model
 		
-		// GET http://localhost:7080/jaxrs/api/user/{userId}/model/{modelId}
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		// 
 		// {
 		//	  "userId": "myuser",
 		//	  "content": "some model content", 
 		// }
 
-		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/model/" + modelId);
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/model/" + modelId);
+		Response res = withClient(uri, target -> target.request()
 				.header("Authorization", "Bearer " + accessToken)
 				.get());
 	
@@ -45,7 +47,7 @@ public class WebUserModelUpdate extends AbstractUserResource {
 		
 		context.put("model", userModel);
 		
-		return "template/user-model-update.vm";
+		return "template/model-update.vm";
 	}
 
 	@Override
@@ -57,18 +59,17 @@ public class WebUserModelUpdate extends AbstractUserResource {
 		
 		// Update Model
 		
-		// POST http://localhost:7080/jaxrs/api/user/{userId}/model
+		// POST http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
 		MultivaluedMap<String, String> reqprms = getRequestParameters(exchange);
 		String modelId = reqprms.getFirst("modelId");
-		String title = reqprms.getFirst("title");
 		String content = reqprms.getFirst("content");
 		
-		UserModel modelUpd = new UserModel(modelId, userId, title, content);
+		UserModel modelUpd = new UserModel(modelId, userId, content);
 
-		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/model");
-		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
+		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/model/" + modelId);
+		Response res = withClient(uri, target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
 				.post(Entity.json(modelUpd)));
 	

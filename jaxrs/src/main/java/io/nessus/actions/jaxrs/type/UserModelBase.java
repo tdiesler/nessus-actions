@@ -1,18 +1,19 @@
 package io.nessus.actions.jaxrs.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import io.nessus.actions.core.model.RouteModel;
 import io.nessus.common.AssertArg;
 
 public class UserModelBase {
 	
 	public final String userId;
-	public final String title;
 	public final String content;
+	public RouteModel routeModel;
 	
-	public UserModelBase(String userId, String title, String content) {
+	public UserModelBase(String userId, String content) {
 		AssertArg.notNull(userId, "Null userId");
-		AssertArg.notNull(title, "Null title");
 		this.userId = userId;
-		this.title = title;
 		this.content = content;
 	}
 
@@ -20,11 +21,20 @@ public class UserModelBase {
 		return userId;
 	}
 
+	@JsonIgnore
 	public String getTitle() {
-		return title;
+		return getRouteModel().getTitle();
 	}
 
 	public String getContent() {
 		return content;
+	}
+	
+	@JsonIgnore
+	public RouteModel getRouteModel() {
+		if (routeModel == null) {
+			routeModel = RouteModel.read(content);
+		}
+		return routeModel;
 	}
 }

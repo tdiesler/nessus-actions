@@ -1,5 +1,6 @@
 package io.nessus.actions.core.service;
 
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.function.Function;
 
@@ -19,11 +20,11 @@ public class AbstractService<T extends BasicConfig> extends AbstractBasicService
 		super(config);
 	}
 
-	public Response withClient(String uri, Function<WebTarget, Response> invoker) {
+	public Response withClient(URI uri, Function<WebTarget, Response> invoker) {
 		
 		ClientBuilder builder = ClientBuilder.newBuilder();
 		
-		if (uri.startsWith("https://")) {
+		if (uri.getScheme().equals("https")) {
 			try {
 				builder.sslContext(SSLContext.getDefault());
 			} catch (NoSuchAlgorithmException ex) {

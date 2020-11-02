@@ -196,23 +196,66 @@ font-style: italic;
   <div class="method-summary"></div>
   <h4><a href="#Default">Default</a></h4>
   <ul>
-  <li><a href="#addModel"><code><span class="http-method">put</span> /user/{userId}/models</code></a></li>
-  <li><a href="#deleteUserModel"><code><span class="http-method">delete</span> /user/{userId}/model/{modelId}</code></a></li>
-  <li><a href="#findUserModels"><code><span class="http-method">get</span> /user/{userId}/models</code></a></li>
-  <li><a href="#getUserModel"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}</code></a></li>
-  <li><a href="#updateUserModel"><code><span class="http-method">post</span> /user/{userId}/model</code></a></li>
-  <li><a href="#userDelete"><code><span class="http-method">delete</span> /user/{userId}</code></a></li>
+  <li><a href="#buildModel"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/build</code></a></li>
+  <li><a href="#createModel"><code><span class="http-method">put</span> /user/{userId}/models</code></a></li>
+  <li><a href="#deleteModel"><code><span class="http-method">delete</span> /user/{userId}/model/{modelId}</code></a></li>
+  <li><a href="#deleteUser"><code><span class="http-method">delete</span> /user/{userId}</code></a></li>
+  <li><a href="#downloadBuildTarget"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/download</code></a></li>
+  <li><a href="#getBuildStatus"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/status</code></a></li>
+  <li><a href="#getModel"><code><span class="http-method">get</span> /user/{userId}/model/{modelId}</code></a></li>
+  <li><a href="#getModels"><code><span class="http-method">get</span> /user/{userId}/models</code></a></li>
+  <li><a href="#getUserState"><code><span class="http-method">get</span> /user/{userId}/state</code></a></li>
+  <li><a href="#registerUser"><code><span class="http-method">put</span> /users</code></a></li>
+  <li><a href="#updateModel"><code><span class="http-method">post</span> /user/{userId}/model/{modelId}</code></a></li>
   <li><a href="#userLogin"><code><span class="http-method">post</span> /users/login</code></a></li>
-  <li><a href="#userRegister"><code><span class="http-method">put</span> /users</code></a></li>
-  <li><a href="#userStatus"><code><span class="http-method">get</span> /user/{userId}/state</code></a></li>
   </ul>
 
   <h1><a name="Default">Default</a></h1>
-  <div class="method"><a name="addModel"/>
+  <div class="method"><a name="buildModel"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/build</code></pre></div>
+    <div class="method-summary">Schedule the build process for the model. (<span class="nickname">buildModel</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">modelId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">runtime (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    [OK] Successfully scheduled the model build.
+        <a href="#"></a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided access token was not valid.
+        <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    [Not Found] The model for the given id could not be found.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="createModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="put"><code class="huge"><span class="http-method">put</span> /user/{userId}/models</code></pre></div>
-    <div class="method-summary">Add a new integration model (<span class="nickname">addModel</span>)</div>
+    <div class="method-summary">Create a new integration model (<span class="nickname">createModel</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
@@ -251,7 +294,6 @@ font-style: italic;
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
   "modelId" : "modelId",
-  "title" : "title",
   "userId" : "userId",
   "content" : "content"
 }</code></pre>
@@ -265,18 +307,18 @@ font-style: italic;
 
     <h3 class="field-label">Responses</h3>
     <h4 class="field-label">201</h4>
-    [Created] Model was successfully added.
+    [Created] Model was successfully created.
         <a href="#UserModel">UserModel</a>
     <h4 class="field-label">401</h4>
     [Unauthorized] If the provided access token was not valid.
         <a href="#"></a>
   </div> <!-- method -->
   <hr/>
-  <div class="method"><a name="deleteUserModel"/>
+  <div class="method"><a name="deleteModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="delete"><code class="huge"><span class="http-method">delete</span> /user/{userId}/model/{modelId}</code></pre></div>
-    <div class="method-summary">Delete the model with the given id. (<span class="nickname">deleteUserModel</span>)</div>
+    <div class="method-summary">Delete the model with the given id. (<span class="nickname">deleteModel</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
@@ -307,11 +349,11 @@ font-style: italic;
         <a href="#"></a>
   </div> <!-- method -->
   <hr/>
-  <div class="method"><a name="findUserModels"/>
+  <div class="method"><a name="deleteUser"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/models</code></pre></div>
-    <div class="method-summary">Get the list of the given user's model ids. (<span class="nickname">findUserModels</span>)</div>
+    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /user/{userId}</code></pre></div>
+    <div class="method-summary">Delete the user with the given id (<span class="nickname">deleteUser</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
@@ -326,9 +368,92 @@ font-style: italic;
 
 
 
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">204</h4>
+    [No Content] Sucessfully delete the user in Keycloak.
+        <a href="#"></a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided access token was not valid.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="downloadBuildTarget"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/download</code></pre></div>
+    <div class="method-summary">Download the build target (<span class="nickname">downloadBuildTarget</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">modelId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">runtime (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/octet-stream</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    [OK] Found the requested build target.
+        <a href="#"></a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided credentials were not valid.
+        <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    [Not Found] The target file was not found.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getBuildStatus"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/model/{modelId}/{runtime}/status</code></pre></div>
+    <div class="method-summary">Get the current build status (<span class="nickname">getBuildStatus</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">modelId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">runtime (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
     <h3 class="field-label">Return type</h3>
     <div class="return-type">
-      <a href="#UserModels">UserModels</a>
+      <a href="#MavenBuildHandle">MavenBuildHandle</a>
       
     </div>
 
@@ -337,18 +462,9 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
-  "models" : [ {
-    "modelId" : "modelId",
-    "title" : "title",
-    "userId" : "userId",
-    "content" : "content"
-  }, {
-    "modelId" : "modelId",
-    "title" : "title",
-    "userId" : "userId",
-    "content" : "content"
-  } ],
-  "userId" : "userId"
+  "location" : "https://openapi-generator.tech",
+  "id" : "id",
+  "status" : "Scheduled"
 }</code></pre>
 
     <h3 class="field-label">Produces</h3>
@@ -360,18 +476,21 @@ font-style: italic;
 
     <h3 class="field-label">Responses</h3>
     <h4 class="field-label">200</h4>
-    [OK] List of model ids.
-        <a href="#UserModels">UserModels</a>
+    [OK] Found the status for the requested project.
+        <a href="#MavenBuildHandle">MavenBuildHandle</a>
     <h4 class="field-label">401</h4>
-    [Unauthorized] If the provided access token was not valid.
+    [Unauthorized] If the provided credentials were not valid.
+        <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    [Not Found] The project for the given id was not found.
         <a href="#"></a>
   </div> <!-- method -->
   <hr/>
-  <div class="method"><a name="getUserModel"/>
+  <div class="method"><a name="getModel"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
     <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/model/{modelId}</code></pre></div>
-    <div class="method-summary">Get the model for the given id. (<span class="nickname">getUserModel</span>)</div>
+    <div class="method-summary">Get the model for the given id. (<span class="nickname">getModel</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
@@ -400,7 +519,6 @@ font-style: italic;
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
   "modelId" : "modelId",
-  "title" : "title",
   "userId" : "userId",
   "content" : "content"
 }</code></pre>
@@ -416,24 +534,179 @@ font-style: italic;
     <h4 class="field-label">200</h4>
     [OK] Model for the given id could be accessed.
         <a href="#UserModel">UserModel</a>
-    <h4 class="field-label">404</h4>
-    [Not Found] The model for the given id could not be found.
-        <a href="#"></a>
     <h4 class="field-label">401</h4>
     [Unauthorized] If the provided access token was not valid.
         <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    [Not Found] The model for the given id could not be found.
+        <a href="#"></a>
   </div> <!-- method -->
   <hr/>
-  <div class="method"><a name="updateUserModel"/>
+  <div class="method"><a name="getModels"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
-    <pre class="post"><code class="huge"><span class="http-method">post</span> /user/{userId}/model</code></pre></div>
-    <div class="method-summary">Update the given model. (<span class="nickname">updateUserModel</span>)</div>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/models</code></pre></div>
+    <div class="method-summary">Get the list of the given user's model ids. (<span class="nickname">getModels</span>)</div>
     <div class="method-notes"></div>
 
     <h3 class="field-label">Path parameters</h3>
     <div class="field-items">
       <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#UserModelList">UserModelList</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "models" : [ {
+    "modelId" : "modelId",
+    "userId" : "userId",
+    "content" : "content"
+  }, {
+    "modelId" : "modelId",
+    "userId" : "userId",
+    "content" : "content"
+  } ],
+  "userId" : "userId"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    [OK] List of user model definitions.
+        <a href="#UserModelList">UserModelList</a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided access token was not valid.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="getUserState"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/state</code></pre></div>
+    <div class="method-summary">Fetch the current state for the given user id (<span class="nickname">getUserState</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#UserState">UserState</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "firstName" : "firstName",
+  "lastLogin" : "2000-01-23T04:56:07.000+00:00",
+  "lastName" : "lastName",
+  "id" : "id",
+  "logins" : 0,
+  "email" : "email",
+  "status" : "status",
+  "username" : "username"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    [OK] Found the requested user state.
+        <a href="#UserState">UserState</a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided access token was not valid.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="registerUser"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="put"><code class="huge"><span class="http-method">put</span> /users</code></pre></div>
+    <div class="method-summary">Register a new user with Keycloak (<span class="nickname">registerUser</span>)</div>
+    <div class="method-notes"></div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">UserRegister <a href="#UserRegister">UserRegister</a> (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+
+
+
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">201</h4>
+    [Created] User was successfully created to Keycloak.
+        <a href="#"></a>
+    <h4 class="field-label">409</h4>
+    [Conflict] If the user already exists in Keycloak.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="updateModel"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /user/{userId}/model/{modelId}</code></pre></div>
+    <div class="method-summary">Update the given model. (<span class="nickname">updateModel</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">userId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">modelId (required)</div>
 
       <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
     </div>  <!-- field-items -->
@@ -463,39 +736,6 @@ font-style: italic;
     <h3 class="field-label">Responses</h3>
     <h4 class="field-label">200</h4>
     [OK] Successfully updated the model.
-        <a href="#"></a>
-    <h4 class="field-label">401</h4>
-    [Unauthorized] If the provided access token was not valid.
-        <a href="#"></a>
-  </div> <!-- method -->
-  <hr/>
-  <div class="method"><a name="userDelete"/>
-    <div class="method-path">
-    <a class="up" href="#__Methods">Up</a>
-    <pre class="delete"><code class="huge"><span class="http-method">delete</span> /user/{userId}</code></pre></div>
-    <div class="method-summary">Delete the user with the given id (<span class="nickname">userDelete</span>)</div>
-    <div class="method-notes"></div>
-
-    <h3 class="field-label">Path parameters</h3>
-    <div class="field-items">
-      <div class="param">userId (required)</div>
-
-      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
-    </div>  <!-- field-items -->
-
-
-
-
-
-
-
-    <!--Todo: process Response Object and its headers, schema, examples -->
-
-
-
-    <h3 class="field-label">Responses</h3>
-    <h4 class="field-label">204</h4>
-    [No Content] Sucessfully delete the user in Keycloak.
         <a href="#"></a>
     <h4 class="field-label">401</h4>
     [Unauthorized] If the provided access token was not valid.
@@ -560,109 +800,16 @@ font-style: italic;
         <a href="#"></a>
   </div> <!-- method -->
   <hr/>
-  <div class="method"><a name="userRegister"/>
-    <div class="method-path">
-    <a class="up" href="#__Methods">Up</a>
-    <pre class="put"><code class="huge"><span class="http-method">put</span> /users</code></pre></div>
-    <div class="method-summary">Register a new user with Keycloak (<span class="nickname">userRegister</span>)</div>
-    <div class="method-notes"></div>
-
-
-    <h3 class="field-label">Consumes</h3>
-    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
-    <ul>
-      <li><code>application/json</code></li>
-    </ul>
-
-    <h3 class="field-label">Request body</h3>
-    <div class="field-items">
-      <div class="param">UserRegister <a href="#UserRegister">UserRegister</a> (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
-
-    </div>  <!-- field-items -->
-
-
-
-
-
-    <!--Todo: process Response Object and its headers, schema, examples -->
-
-
-
-    <h3 class="field-label">Responses</h3>
-    <h4 class="field-label">201</h4>
-    [Created] User was successfully created to Keycloak.
-        <a href="#"></a>
-    <h4 class="field-label">409</h4>
-    [Conflict] If the user already exists in Keycloak.
-        <a href="#"></a>
-  </div> <!-- method -->
-  <hr/>
-  <div class="method"><a name="userStatus"/>
-    <div class="method-path">
-    <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /user/{userId}/state</code></pre></div>
-    <div class="method-summary">Fetch the current state for the given user id (<span class="nickname">userStatus</span>)</div>
-    <div class="method-notes"></div>
-
-    <h3 class="field-label">Path parameters</h3>
-    <div class="field-items">
-      <div class="param">userId (required)</div>
-
-      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
-    </div>  <!-- field-items -->
-
-
-
-
-
-
-    <h3 class="field-label">Return type</h3>
-    <div class="return-type">
-      <a href="#UserState">UserState</a>
-      
-    </div>
-
-    <!--Todo: process Response Object and its headers, schema, examples -->
-
-    <h3 class="field-label">Example data</h3>
-    <div class="example-data-content-type">Content-Type: application/json</div>
-    <pre class="example"><code>{
-  "emailVerified" : true,
-  "firstName" : "firstName",
-  "lastName" : "lastName",
-  "id" : "id",
-  "email" : "email",
-  "status" : "status",
-  "username" : "username"
-}</code></pre>
-
-    <h3 class="field-label">Produces</h3>
-    This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
-    <ul>
-      <li><code>application/json</code></li>
-    </ul>
-
-    <h3 class="field-label">Responses</h3>
-    <h4 class="field-label">200</h4>
-    [OK] Found the requested user state.
-        <a href="#UserState">UserState</a>
-    <h4 class="field-label">401</h4>
-    [Unauthorized] If the provided access token was not valid.
-        <a href="#"></a>
-  </div> <!-- method -->
-  <hr/>
 
   <h2><a name="__Models">Models</a></h2>
   [ Jump to <a href="#__Methods">Methods</a> ]
 
   <h3>Table of Contents</h3>
   <ol>
+    <li><a href="#MavenBuildHandle"><code>MavenBuildHandle</code> - </a></li>
     <li><a href="#UserModel"><code>UserModel</code> - </a></li>
     <li><a href="#UserModelAdd"><code>UserModelAdd</code> - </a></li>
-    <li><a href="#UserModels"><code>UserModels</code> - </a></li>
+    <li><a href="#UserModelList"><code>UserModelList</code> - </a></li>
     <li><a href="#UserRegister"><code>UserRegister</code> - </a></li>
     <li><a href="#UserState"><code>UserState</code> - </a></li>
     <li><a href="#UserTokens"><code>UserTokens</code> - </a></li>
@@ -670,12 +817,22 @@ font-style: italic;
   </ol>
 
   <div class="model">
+    <h3><a name="MavenBuildHandle"><code>MavenBuildHandle</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">id </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">location </div><div class="param-desc"><span class="param-type"><a href="#URI">URI</a></span>  format: uri</div>
+<div class="param">status </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+        <div class="param-enum-header">Enum:</div>
+        <div class="param-enum">Scheduled</div><div class="param-enum">Running</div><div class="param-enum">Success</div><div class="param-enum">Failure</div><div class="param-enum">Removed</div><div class="param-enum">NotFound</div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
     <h3><a name="UserModel"><code>UserModel</code> - </a> <a class="up" href="#__Models">Up</a></h3>
     <div class='model-description'></div>
     <div class="field-items">
       <div class="param">content (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">modelId </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
-<div class="param">title </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">userId </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->
   </div>
@@ -684,12 +841,11 @@ font-style: italic;
     <div class='model-description'></div>
     <div class="field-items">
       <div class="param">content </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
-<div class="param">title </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">userId </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->
   </div>
   <div class="model">
-    <h3><a name="UserModels"><code>UserModels</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <h3><a name="UserModelList"><code>UserModelList</code> - </a> <a class="up" href="#__Models">Up</a></h3>
     <div class='model-description'></div>
     <div class="field-items">
       <div class="param">models (optional)</div><div class="param-desc"><span class="param-type"><a href="#UserModel">array[UserModel]</a></span>  </div>
@@ -712,10 +868,11 @@ font-style: italic;
     <div class='model-description'></div>
     <div class="field-items">
       <div class="param">email </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
-<div class="param">emailVerified </div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span>  </div>
 <div class="param">firstName </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">id </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">lastLogin </div><div class="param-desc"><span class="param-type"><a href="#DateTime">Date</a></span>  format: date-time</div>
 <div class="param">lastName </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">logins (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span>  format: int32</div>
 <div class="param">status </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
 <div class="param">username </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
     </div>  <!-- field-items -->

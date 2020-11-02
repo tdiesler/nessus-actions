@@ -16,31 +16,26 @@ public class UserModel extends UserModelBase {
 	public UserModel(
 		@JsonProperty(value = "modelId", required = true) String modelId, 
 		@JsonProperty(value = "userId", required = true)  String userId, 
-		@JsonProperty(value = "title", required = true) String title, 
 		@JsonProperty(value = "content") String content) {
-		super(userId, title, content);
+		super(userId, content);
 		this.modelId = modelId;
 	}
 
 	public UserModel(UserModelAdd mod) {
-		super(mod.userId, mod.title, mod.content);
+		super(mod.userId, mod.content);
 	}
 	
 	public UserModel(UserModel mod) {
-		super(mod.userId, mod.title, mod.content);
+		super(mod.userId, mod.content);
 		this.modelId = mod.modelId;
 	}
 	
 	public UserModel withModelId(String modelId) {
-		return new UserModel(modelId, userId, title, content);
-	}
-	
-	public UserModel withTitle(String title) {
-		return new UserModel(modelId, userId, title, content);
+		return new UserModel(modelId, userId, content);
 	}
 	
 	public UserModel withContent(String content) {
-		return new UserModel(modelId, userId, title, content);
+		return new UserModel(modelId, userId, content);
 	}
 
 	public String getModelId() {

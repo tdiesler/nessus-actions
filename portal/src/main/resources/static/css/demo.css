@@ -9,8 +9,8 @@ a {
     color: #137cb9
 }
 
-a.gray {
-    color: gray;
+a.grey {
+    color: grey;
 }
 
 h1 {
@@ -28,7 +28,7 @@ th {
 	text-align: left;
     font-weight: normal;
     font-size: 14px;
-    color: gray;
+    color: grey;
 }
 
 tr {
@@ -39,12 +39,12 @@ td {
     font-size: 14px;
 }
 
-tr.gray {
-    color: gray;
+tr.grey {
+    color: grey;
 }
 
-td.gray {
-    color: gray;
+td.grey {
+    color: grey;
 }
 
 li {
@@ -81,5 +81,5 @@ body {
    padding: 5px 5px;
    text-align: left;
    font-size: 12px;
-   color: gray;
+   color: grey;
 }

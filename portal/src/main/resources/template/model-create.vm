@@ -5,15 +5,14 @@
     <h1>User Model Create</h1>
     
     <table>
-    <form method="post" action="create/act">
-    <tr><td valign="top">Title</td><td><input name="title" type="text" value="$model.title"/></td></tr>
+    <form id="frmModelCreate" method="post" action="create/act">
     <tr><td valign="top">Content</td><td><textarea name="content" rows="40" cols="70">$model.content</textarea></td></tr>
-    <tr><td>&nbsp;</td><td><input type="submit" value="create"/></td></tr>
+    <tr><td>&nbsp;</td><td><a href="javascript:{}" onclick="document.getElementById('frmModelCreate').submit()">Create</a></td></tr>
     </form>
     </table>
     
     <p/>
-    <a href="../models">Back to list</a>
+    <a href="../models"><= Back</a>
 
 </div>
 

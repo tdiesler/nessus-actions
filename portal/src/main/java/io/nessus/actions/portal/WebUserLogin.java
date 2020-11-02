@@ -1,5 +1,6 @@
 package io.nessus.actions.portal;
 
+import java.net.URI;
 import java.net.URL;
 
 import javax.ws.rs.client.Entity;
@@ -55,8 +56,8 @@ public class WebUserLogin extends AbstractWebResource {
 
 	private void doLogin(HttpServerExchange exchange, MultivaluedMap<String, String> qparams) throws Exception {
 		
-		String url = ApiUtils.jaxrsUrl(config, "/api/users/login");
-		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_FORM_URLENCODED)
+		URI uri = ApiUtils.jaxrsUri(config, "/api/users/login");
+		Response res = withClient(uri, target -> target.request(MediaType.APPLICATION_FORM_URLENCODED)
 				.post(Entity.form(qparams)));
 		
 		assertStatus(res, Status.OK);
@@ -81,8 +82,8 @@ public class WebUserLogin extends AbstractWebResource {
 		UserRegister user = new UserRegister(username, firstName, lastName, email, password);
 		AssertArg.isEqual(password, retype, "Password does not match");
 		
-		String url = ApiUtils.jaxrsUrl(config, "/api/users");
-		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
+		URI uri = ApiUtils.jaxrsUri(config, "/api/users");
+		Response res = withClient(uri, target -> target.request(MediaType.APPLICATION_JSON)
 				.put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED);

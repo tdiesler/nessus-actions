@@ -1,0 +1,144 @@
+openapi: 3.0.1
+info:
+  title: Fuse TryIt - Maven API
+  version: 1.0.0
+externalDocs:
+  url: https://github.com/tdiesler/nessus-actions
+paths:
+  /build/schedule:
+    post:
+      summary: Schedule a maven project build
+      operationId: scheduleMavenBuild
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipartFormDataInput'
+      responses:
+        "200":
+          description: "[OK] Accepted the project for build."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MavenBuildHandle'
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+  /build/{majorId}/{minorId}/download:
+    get:
+      summary: Download the build target
+      operationId: downloadBuildTarget
+      parameters:
+      - name: majorId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: minorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the requested build target."
+          content:
+            application/octet-stream: {}
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+        "404":
+          description: "[Not Found] The target file was not found."
+  /build/{majorId}/{minorId}/status:
+    get:
+      summary: Get the current build status
+      operationId: getBuildStatus
+      parameters:
+      - name: majorId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: minorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the status for the requested project."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MavenBuildHandle'
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+        "404":
+          description: "[Not Found] The project for the given id was not found."
+components:
+  schemas:
+    InputPart:
+      type: object
+      properties:
+        bodyAsString:
+          type: string
+        contentTypeFromMessage:
+          type: boolean
+        headers:
+          type: object
+          properties:
+            empty:
+              type: boolean
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        mediaType:
+          type: object
+          properties:
+            parameters:
+              type: object
+              additionalProperties:
+                type: string
+            subtype:
+              type: string
+            type:
+              type: string
+            wildcardSubtype:
+              type: boolean
+            wildcardType:
+              type: boolean
+    MavenBuildHandle:
+      required:
+      - id
+      - location
+      - status
+      type: object
+      properties:
+        id:
+          type: string
+        location:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum:
+          - Scheduled
+          - Running
+          - Success
+          - Failure
+          - Removed
+          - NotFound
+    MultipartFormDataInput:
+      type: object
+      properties:
+        formDataMap:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/InputPart'
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InputPart'
+        preamble:
+          type: string

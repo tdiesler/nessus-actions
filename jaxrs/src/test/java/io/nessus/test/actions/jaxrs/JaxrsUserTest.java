@@ -19,6 +19,7 @@
  */
 package io.nessus.test.actions.jaxrs;
 
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,9 +74,9 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		UserRegister user = mapper.readValue(resUrl, UserRegister.class);
 		Assert.assertEquals("myuser@example.com", user.getEmail());
 		
-		// Register
+		// User Register
 		
-		// PUT http://localhost:7080/jaxrs/api/users
+		// PUT http://localhost:8200/jaxrs/api/users
 		// 
 		// {
 		//	  "firstName": "My",
@@ -85,15 +86,15 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		//	  "password":  "mypass"
 		// }
 		
-		String url = jaxrsUrl("/api/users");
-		Response res = withClient(url, target -> target.request()
+		URI uri = jaxrsUri("/api/users");
+		Response res = withClient(uri, target -> target.request()
 				.put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
 		
-		// Login
+		// User Login
 		
-		// POST http://localhost:7080/jaxrs/api/user/token
+		// POST http://localhost:8200/jaxrs/api/user/token
 		// Content-Type: application/x-www-form-urlencoded
 		//
 		// username: myuser 
@@ -103,8 +104,8 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		data.add("username", user.getUsername());
 		data.add("password", user.getPassword());
 		
-		url = jaxrsUrl("/api/users/login");
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/users/login");
+		res = withClient(uri, target -> target.request()
 				.post(Entity.form(data)));
 		
 		assertStatus(res, Status.OK);
@@ -113,17 +114,17 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		String refreshToken = tokens.refreshToken;
 		String userId = tokens.userId;
 		
-		// State
+		// User State
 		
-		// GET http://localhost:7080/jaxrs/api/user/state
+		// GET http://localhost:8200/jaxrs/api/user/state
 		// Authorization: "Bearer eyJhbGciOi..."
 		
 		KeycloakService kcsrv = getService(KeycloakService.class);
 		String accessToken = kcsrv.refreshAccessToken(refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		url = jaxrsUrl("/api/user/" + userId + "/state");
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/user/" + userId + "/state");
+		res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
@@ -132,13 +133,13 @@ public class JaxrsUserTest extends AbstractJaxrsTest {
 		UserState userInfo = res.readEntity(UserState.class);
 		Assert.assertEquals("myuser@example.com", userInfo.getEmail());
 		
-		// Delete
+		// User Delete
 		
-		// DELETE http://localhost:7080/jaxrs/api/user
+		// DELETE http://localhost:8200/jaxrs/api/user
 		// Authorization: "Bearer eyJhbGciOi..."
 		
-		url = jaxrsUrl("/api/user/" + userId);
-		res = withClient(url, target -> target.request()
+		uri = jaxrsUri("/api/user/" + userId);
+		res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());
 		

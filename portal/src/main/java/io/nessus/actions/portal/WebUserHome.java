@@ -12,10 +12,10 @@ public class WebUserHome extends AbstractUserResource {
 	@Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context, Session session) throws Exception {
 		
-		UserState userStatus = getAttribute(session, UserState.class);
-		AssertState.notNull(userStatus, "Null userStatus");
+		UserState userState = getAttribute(session, UserState.class);
+		AssertState.notNull(userState, "Null userStatus");
 		
-    	context.put("user", userStatus);
+    	context.put("user", userState);
     	
         return "template/user-home.vm";
 	}

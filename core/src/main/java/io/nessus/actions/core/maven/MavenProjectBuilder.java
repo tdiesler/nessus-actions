@@ -49,6 +49,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
 import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.core.model.ToStep;
@@ -187,6 +188,24 @@ public class MavenProjectBuilder {
 			InputStream ins = getClass().getResourceAsStream("/etc/" + res);
 			File outFile = basedir.resolve(res).toFile();
 			outFile.getParentFile().mkdirs();
+			try (OutputStream fos = new FileOutputStream(outFile)) {
+				StreamUtils.copyStream(ins, fos);
+			}
+		}
+		
+		// [TODO] Remove these hard coded snapshots
+		List<Artifact> libs = Arrays.asList(
+				new DefaultArtifact("io.nessus.actions:nessus-actions-core:1.0.0-SNAPSHOT"));
+		
+		for (Artifact lib : libs) {
+			String groupId = lib.getGroupId();
+			String artifactId = lib.getArtifactId();
+			String version = lib.getVersion();
+			File outFile = basedir.resolve(String.format("lib/%s-%s.jar", artifactId, version)).toFile();
+			outFile.getParentFile().mkdirs();
+			InputStream ins = Maven.resolver().resolve(String.format("%s:%s:%s", groupId, artifactId, version))
+				.withoutTransitivity()
+				.asSingleInputStream();
 			try (OutputStream fos = new FileOutputStream(outFile)) {
 				StreamUtils.copyStream(ins, fos);
 			}

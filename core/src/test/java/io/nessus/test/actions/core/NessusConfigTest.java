@@ -27,9 +27,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.nessus.actions.core.NessusConfig;
-import io.nessus.common.testing.AbstractTest;
 
-public class NessusConfigTest extends AbstractTest<NessusConfig> {
+public class NessusConfigTest extends AbstractCoreTest {
 
 	@Test
 	public void testConfig() throws Exception {

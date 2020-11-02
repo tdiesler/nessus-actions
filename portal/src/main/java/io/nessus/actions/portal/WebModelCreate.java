@@ -1,6 +1,7 @@
 package io.nessus.actions.portal;
 
 import java.io.InputStream;
+import java.net.URI;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -17,7 +18,7 @@ import io.nessus.actions.jaxrs.type.UserTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 
-public class WebUserModelCreate extends AbstractUserResource {
+public class WebModelCreate extends AbstractUserResource {
 
 	@Override
 	protected String handlePageRequest(HttpServerExchange exchange, VelocityContext context, Session session) throws Exception {
@@ -28,13 +29,12 @@ public class WebUserModelCreate extends AbstractUserResource {
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
 		RouteModel model = RouteModel.read(input);
 
-		String title = model.getTitle();
 		String content = model.toString();
-		UserModelAdd modelAdd = new UserModelAdd(userId, title, content);
+		UserModelAdd modelAdd = new UserModelAdd(userId, content);
 		
 		context.put("model", modelAdd);
 		
-		return "template/user-model-create.vm";
+		return "template/model-create.vm";
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class WebUserModelCreate extends AbstractUserResource {
 		
 		// Create Model
 		
-		// PUT http://localhost:7080/jaxrs/api/user/{userId}/models
+		// PUT http://localhost:8200/jaxrs/api/user/{userId}/models
 		// 
 		// {
 		//	  "userId": "myuser",
@@ -54,13 +54,12 @@ public class WebUserModelCreate extends AbstractUserResource {
 		// }
 
 		MultivaluedMap<String, String> reqprms = getRequestParameters(exchange);
-		String title = reqprms.getFirst("title");
 		String content = reqprms.getFirst("content");
 		
-		UserModelAdd modelAdd = new UserModelAdd(userId, title, content);
+		UserModelAdd modelAdd = new UserModelAdd(userId, content);
 		
-		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/models");
-		Response res = withClient(url, target -> target
+		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/models");
+		Response res = withClient(uri, target -> target
 					.request(MediaType.APPLICATION_JSON)
 					.header("Authorization", "Bearer " + accessToken)
 					.put(Entity.json(modelAdd)));

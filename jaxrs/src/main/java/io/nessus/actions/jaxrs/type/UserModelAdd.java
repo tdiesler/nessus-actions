@@ -11,8 +11,7 @@ public class UserModelAdd extends UserModelBase {
 	@JsonCreator
 	public UserModelAdd(
 		@JsonProperty(value = "userId", required = true) String userId, 
-		@JsonProperty(value = "title", required = true) String title, 
 		@JsonProperty(value = "content", required = true) String content) {
-		super(userId, title, content);
+		super(userId, content);
 	}
 }

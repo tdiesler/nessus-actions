@@ -5,13 +5,8 @@
     <h1>User Home</h1>
     
     <ul>
-        <li><a href="models">My Models</a></li>
-        
         <li><a href="state">My Status</a></li>
-        
-        <li><a href="logout/act">Logout</a></li>
-        
-        <li><a href="delete/act">Delete Account</a></li>
+        <li><a href="models">My Models</a></li>
     </ul>    
     
 </div>

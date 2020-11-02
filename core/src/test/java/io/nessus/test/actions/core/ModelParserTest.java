@@ -27,16 +27,13 @@ import io.nessus.actions.core.model.FromStep;
 import io.nessus.actions.core.model.MarshalStep;
 import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.core.model.ToStep;
-import io.nessus.actions.core.model.RouteModel.TargetRuntime;
-import io.nessus.common.BasicConfig;
-import io.nessus.common.testing.AbstractTest;
 
-public class ModelParserTest extends AbstractTest<BasicConfig> {
+public class ModelParserTest extends AbstractCoreTest {
     
     @Test
     public void writeModel() throws Exception {
     	
-		RouteModel expModel = new RouteModel("Crypto Ticker", TargetRuntime.eap)
+		RouteModel expModel = new RouteModel("Crypto Ticker")
 				.withStep(new FromStep("camel/undertow@v1", "http://0.0.0.0:8080/ticker")
 					.withParams("{currencyPair=BTC/USDT}"))
 				.withStep(new ToStep("camel/xchange@v1", "binance")

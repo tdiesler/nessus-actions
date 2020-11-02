@@ -8,7 +8,7 @@ paths:
   /user/{userId}:
     delete:
       summary: Delete the user with the given id
-      operationId: userDelete
+      operationId: deleteUser
       parameters:
       - name: userId
         in: path
@@ -20,30 +20,10 @@ paths:
           description: "[No Content] Sucessfully delete the user in Keycloak."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
-  /user/{userId}/model:
-    post:
-      summary: Update the given model.
-      operationId: updateUserModel
-      parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserModel'
-      responses:
-        "200":
-          description: "[OK] Successfully updated the model."
-        "401":
-          description: "[Unauthorized] If the provided access token was not valid."
   /user/{userId}/model/{modelId}:
     get:
       summary: Get the model for the given id.
-      operationId: getUserModel
+      operationId: getModel
       parameters:
       - name: userId
         in: path
@@ -62,13 +42,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserModel'
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
         "404":
           description: "[Not Found] The model for the given id could not be found."
+    post:
+      summary: Update the given model.
+      operationId: updateModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserModel'
+      responses:
+        "200":
+          description: "[OK] Successfully updated the model."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
     delete:
       summary: Delete the model with the given id.
-      operationId: deleteUserModel
+      operationId: deleteModel
       parameters:
       - name: userId
         in: path
@@ -85,10 +89,97 @@ paths:
           description: "[No Content] Successfully deleted the model."
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
+  /user/{userId}/model/{modelId}/{runtime}/build:
+    get:
+      summary: Schedule the build process for the model.
+      operationId: buildModel
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: runtime
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Successfully scheduled the model build."
+        "401":
+          description: "[Unauthorized] If the provided access token was not valid."
+        "404":
+          description: "[Not Found] The model for the given id could not be found."
+  /user/{userId}/model/{modelId}/{runtime}/download:
+    get:
+      summary: Download the build target
+      operationId: downloadBuildTarget
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: runtime
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the requested build target."
+          content:
+            application/octet-stream: {}
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+        "404":
+          description: "[Not Found] The target file was not found."
+  /user/{userId}/model/{modelId}/{runtime}/status:
+    get:
+      summary: Get the current build status
+      operationId: getBuildStatus
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: modelId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: runtime
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the status for the requested project."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MavenBuildHandle'
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+        "404":
+          description: "[Not Found] The project for the given id was not found."
   /user/{userId}/models:
     get:
       summary: Get the list of the given user's model ids.
-      operationId: findUserModels
+      operationId: getModels
       parameters:
       - name: userId
         in: path
@@ -97,16 +188,16 @@ paths:
           type: string
       responses:
         "200":
-          description: "[OK] List of model ids."
+          description: "[OK] List of user model definitions."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserModels'
+                $ref: '#/components/schemas/UserModelList'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
     put:
-      summary: Add a new integration model
-      operationId: addModel
+      summary: Create a new integration model
+      operationId: createModel
       parameters:
       - name: userId
         in: path
@@ -120,7 +211,7 @@ paths:
               $ref: '#/components/schemas/UserModelAdd'
       responses:
         "201":
-          description: "[Created] Model was successfully added."
+          description: "[Created] Model was successfully created."
           content:
             application/json:
               schema:
@@ -130,7 +221,7 @@ paths:
   /user/{userId}/state:
     get:
       summary: Fetch the current state for the given user id
-      operationId: userStatus
+      operationId: getUserState
       parameters:
       - name: userId
         in: path
@@ -149,7 +240,7 @@ paths:
   /users:
     put:
       summary: Register a new user with Keycloak
-      operationId: userRegister
+      operationId: registerUser
       requestBody:
         content:
           application/json:
@@ -188,10 +279,30 @@ paths:
           description: "[Unauthorized] If the provided credentials were not valid."
 components:
   schemas:
+    MavenBuildHandle:
+      required:
+      - id
+      - location
+      - status
+      type: object
+      properties:
+        id:
+          type: string
+        location:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum:
+          - Scheduled
+          - Running
+          - Success
+          - Failure
+          - Removed
+          - NotFound
     UserModel:
       required:
       - modelId
-      - title
       - userId
       type: object
       properties:
@@ -199,24 +310,19 @@ components:
           type: string
         modelId:
           type: string
-        title:
-          type: string
         userId:
           type: string
     UserModelAdd:
       required:
       - content
-      - title
       - userId
       type: object
       properties:
         content:
           type: string
-        title:
-          type: string
         userId:
           type: string
-    UserModels:
+    UserModelList:
       required:
       - userId
       type: object
@@ -249,9 +355,9 @@ components:
     UserState:
       required:
       - email
-      - emailVerified
       - firstName
       - id
+      - lastLogin
       - lastName
       - status
       - username
@@ -259,14 +365,18 @@ components:
       properties:
         email:
           type: string
-        emailVerified:
-          type: boolean
         firstName:
           type: string
         id:
           type: string
+        lastLogin:
+          type: string
+          format: date-time
         lastName:
           type: string
+        logins:
+          type: integer
+          format: int32
         status:
           type: string
         username:

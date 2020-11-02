@@ -1,5 +1,7 @@
 FROM @docker.maven.image.name@
 
-#COPY /opt/jboss/tools/ /opt/jboss/tools/
+COPY bin /nessus-maven/bin
+COPY lib /nessus-maven/lib
+COPY config /nessus-maven/config
 
-#ENTRYPOINT ["/opt/jboss/tools/docker-entrypoint.sh"]
+ENTRYPOINT ["/nessus-maven/bin/run.sh"]

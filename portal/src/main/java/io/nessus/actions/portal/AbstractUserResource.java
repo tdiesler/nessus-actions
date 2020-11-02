@@ -2,6 +2,8 @@ package io.nessus.actions.portal;
 
 import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -65,16 +67,16 @@ abstract class AbstractUserResource extends AbstractWebResource {
 		
 		// Update the user status
 		
-		String url = ApiUtils.jaxrsUrl(config, "/api/user/" + userId + "/state");
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/state");
+		Response res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
 		if (!hasStatus(res, Status.OK))
 			return false;
 		
-		UserState userStatus = res.readEntity(UserState.class);
-		setAttribute(session, userStatus);
+		UserState userState = res.readEntity(UserState.class);
+		setAttribute(session, userState);
     	
 		return true;
 	}

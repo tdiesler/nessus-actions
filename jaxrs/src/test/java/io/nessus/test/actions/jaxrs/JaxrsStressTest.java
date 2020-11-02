@@ -101,7 +101,7 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		
 		// Register
 		
-		Response res = withClient(jaxrsUrl("/api/users"), 
+		Response res = withClient(jaxrsUri("/api/users"), 
 				target -> target.request().put(Entity.json(user)));
 		
 		assertStatus(res, Status.CREATED, Status.CONFLICT);
@@ -112,7 +112,7 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		reqmap.add("username", user.getUsername());
 		reqmap.add("password", user.getPassword());
 		
-		res = withClient(jaxrsUrl("/api/users/login"), 
+		res = withClient(jaxrsUri("/api/users/login"), 
 				target -> target.request().post(Entity.form(reqmap)));
 		
 		assertStatus(res, Status.OK);
@@ -127,19 +127,19 @@ public class JaxrsStressTest extends AbstractJaxrsTest {
 		String accessToken = kcsrv.refreshAccessToken(refreshToken);
 		Assert.assertNotNull("Null access token", accessToken);
 		
-		res = withClient(jaxrsUrl("/api/user/" + userId + "/state"), 
+		res = withClient(jaxrsUri("/api/user/" + userId + "/state"), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
 		assertStatus(res, Status.OK);
 		
-		UserState userStatus = res.readEntity(UserState.class);
-		Assert.assertEquals(user.getEmail(), userStatus.getEmail());
+		UserState userState = res.readEntity(UserState.class);
+		Assert.assertEquals(user.getEmail(), userState.getEmail());
 		
 		// Delete
 		
-		res = withClient(jaxrsUrl("/api/user/" + userId), 
+		res = withClient(jaxrsUri("/api/user/" + userId), 
 				target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.delete());

@@ -1,5 +1,6 @@
 package io.nessus.actions.core.jaxrs;
 
+import java.net.URI;
 import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public abstract class AbstractResource extends ConfigSupport<NessusConfig> {
 		return accessToken;
 	}
 
-	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
+	protected Response withClient(URI uri, Function<WebTarget, Response> invoker) {
 		KeycloakService keycloak = getService(KeycloakService.class);
 		return keycloak.withClient(uri, invoker);
 	}

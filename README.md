@@ -88,10 +88,10 @@ Containers communiacte with the outside world via TLS (i.e. https). For inter-co
 TLS and use plain http on the network that we create here.
 
 ```
-docker network create kcnet
+docker network create nessus
 ```
 
-### Running an H2 database instance
+### Running H2
 
 ```
 docker rm -f h2
@@ -99,9 +99,9 @@ docker run --detach \
     --name h2 \
     -p 9092:9092 \
     -v h2vol:/var/h2db \
-    --network kcnet \
-    -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/keycloak \
-    -e JDBC_URL=jdbc:h2:/var/h2db/keycloak \
+    --network nessus \
+    -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/fuse \
+    -e JDBC_URL="jdbc:h2:/var/h2db/fuse;init=create schema if not exists nessus\;create schema if not exists keycloak" \
     -e JDBC_USER=keycloak \
     -e JDBC_PASSWORD=password \
     nessusio/nessus-h2
@@ -124,7 +124,9 @@ docker rm -f keycloak
 docker run --detach \
     --name keycloak \
     -p 8000:8080 \
-    --network kcnet \
+    --network nessus \
+    -e DB_DATABASE=fuse \
+    -e DB_SCHEMA=keycloak \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_IMPORT=/tmp/keycloak/myrealm.json \
@@ -140,6 +142,26 @@ and verify that you can login to the admin console
 http://localhost:8180/auth/admin
 ```
 
+### Running Maven
+
+Then, you can spin up a the Maven project builder like this ...
+
+```
+docker volume rm mvnm2
+docker volume rm mvnws
+
+docker rm -f maven
+docker run --detach \
+    --name maven \
+    -p 8100:8100 \
+    --network nessus \
+    -v mvnm2:/root/.m2 \
+    -v mvnws:/var/nessus/workspace/maven \
+    nessusio/maven 
+
+docker logs -f maven
+```
+
 ### Running the JAXRS API server
 
 Then, you can spin up a the API server like this ...
@@ -148,8 +170,8 @@ Then, you can spin up a the API server like this ...
 docker rm -f jaxrs
 docker run --detach \
     --name jaxrs \
-    -p 8280:8280 \
-    --network kcnet \
+    -p 8200:8200 \
+    --network nessus \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \
@@ -168,8 +190,8 @@ Then, you can spin up a the TryIt GUI like this ...
 docker rm -f trygui
 docker run --detach \
     --name trygui \
-    -p 8380:8080 \
-    --network kcnet \
+    -p 8300:8300 \
+    --network nessus \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \

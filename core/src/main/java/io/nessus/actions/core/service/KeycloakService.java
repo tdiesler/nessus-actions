@@ -3,6 +3,7 @@ package io.nessus.actions.core.service;
 import static io.nessus.actions.core.utils.KeycloakUtils.keycloakRealmPath;
 import static io.nessus.actions.core.utils.KeycloakUtils.keycloakRealmTokenPath;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,8 +61,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		data.add("refresh_token", refreshToken);
 		data.add("grant_type", "refresh_token");
 		
-		String url = keycloakUrl(keycloakRealmTokenPath("master"));
-		Response res = withClient(url, target -> target.request().post(Entity.form(data)));
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmTokenPath("master"));
+		Response res = withClient(uri, target -> target.request().post(Entity.form(data)));
 		
 		if (!ApiUtils.hasStatus(res, Status.OK)) {
 			return null;
@@ -100,8 +101,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		data.add("password", masterPassword);
 		data.add("grant_type", "password");
 		
-		String url = keycloakUrl(keycloakRealmTokenPath("master"));
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmTokenPath("master"));
+		Response res = withClient(uri, target -> target.request()
 				.post(Entity.form(data)));
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
@@ -137,8 +138,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		data.add("refresh_token", refreshToken);
 		data.add("grant_type", "refresh_token");
 		
-		String url = keycloakUrl(keycloakRealmTokenPath(realmId));
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmTokenPath(realmId));
+		Response res = withClient(uri, target -> target.request()
 				.post(Entity.form(data)));
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
@@ -161,8 +162,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 			
 			String accessToken = getMasterAccessToken();
 			
-			String url = keycloakUrl(String.format("/admin/realms/%s/clients?clientId=%s", realmId, clientId));
-			Response res = withClient(url, target -> target.request()
+			URI uri = ApiUtils.keycloakUri(config, String.format("/admin/realms/%s/clients?clientId=%s", realmId, clientId));
+			Response res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken).get());
 			
 			JsonNode node = ApiUtils.readJsonNode(res);
@@ -171,8 +172,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 
 			// GET the client secret
 			
-			url = keycloakUrl(String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id));
-			res = withClient(url, target -> target.request()
+			uri = ApiUtils.keycloakUri(config, String.format("/admin/realms/%s/clients/%s/client-secret", realmId, id));
+			res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken).get());
 			
 			if (!ApiUtils.hasStatus(res, Status.OK))
@@ -187,7 +188,7 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 				
 				// POST to update the client secret
 				
-				res = withClient(url, target -> target.request()
+				res = withClient(uri, target -> target.request()
 							.header("Authorization", "Bearer " + accessToken)
 							.post(null));
 				
@@ -219,8 +220,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		data.add("password", password);
 		data.add("grant_type", "password");
 		
-		String url = keycloakUrl(keycloakRealmTokenPath(realmId));
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmTokenPath(realmId));
+		Response res = withClient(uri, target -> target.request()
 				.post(Entity.form(data)));
 		
 		ApiUtils.hasStatus(res, Status.OK);
@@ -232,8 +233,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		
 		String realmId = config.getKeycloakRealmId();
 
-		String url = keycloakUrl(keycloakRealmPath(realmId, "/protocol/openid-connect/userinfo"));
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmPath(realmId, "/protocol/openid-connect/userinfo"));
+		Response res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 		
@@ -258,8 +259,8 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		reqmap.add("client_secret", clientSecret);
 		reqmap.add("token", accessToken);
 		
-		String url = keycloakUrl(keycloakRealmTokenPath(realmId, "/introspect"));
-		Response res = withClient(url, target -> target.request()
+		URI uri = ApiUtils.keycloakUri(config, keycloakRealmTokenPath(realmId, "/introspect"));
+		Response res = withClient(uri, target -> target.request()
 				.post(Entity.form(reqmap)));
 		
 		if (!ApiUtils.hasStatus(res, Status.OK)) {
@@ -275,9 +276,5 @@ public class KeycloakService extends AbstractService<NessusConfig> {
 		}
 		
 		return res;
-	}
-
-	private String keycloakUrl(String path) {
-		return ApiUtils.keycloakUrl(config, path);
 	}
 }

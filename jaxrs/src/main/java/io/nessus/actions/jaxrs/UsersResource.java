@@ -2,6 +2,8 @@ package io.nessus.actions.jaxrs;
 
 import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
+import java.net.URI;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -17,6 +19,7 @@ import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.core.types.KeycloakTokens;
 import io.nessus.actions.core.types.KeycloakUserInfo;
 import io.nessus.actions.core.utils.ApiUtils;
+import io.nessus.actions.jaxrs.service.UserStateService;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,13 +31,25 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 @Path("/users")
 public class UsersResource extends AbstractResource {
 	
+	// User Register
+	
+	// PUT http://localhost:8200/jaxrs/api/users
+	// 
+	// {
+	//	  "firstName": "My",
+	//	  "lastName":  "User", 
+	//	  "email":	   "myuser@example.com",
+	//	  "username":  "myuser", 
+	//	  "password":  "mypass"
+	// }
+	
 	@PUT
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Operation(summary = "Register a new user with Keycloak")	           
 	@ApiResponse(responseCode = "201", description = "[Created] User was successfully created to Keycloak.")
 	@ApiResponse(responseCode = "409", description = "[Conflict] If the user already exists in Keycloak.")
 	
-	public Response userRegister(UserRegister user) {
+	public Response registerUser(UserRegister user) {
 		
 		logInfo("Register: {}", user.getEmail());
 		
@@ -44,8 +59,8 @@ public class UsersResource extends AbstractResource {
 		
 		// Create the user record
 		
-		String url = ApiUtils.keycloakUrl(config, "/admin/realms/" + realmId + "/users");
-		Response res = withClient(url, target -> target.request(MediaType.APPLICATION_JSON)
+		URI uri = ApiUtils.keycloakUri(config, "/admin/realms/" + realmId + "/users");
+		Response res = withClient(uri, target -> target.request(MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)
 				.post(Entity.json(user.toKeycloakUserRegister())));
 		
@@ -54,6 +69,14 @@ public class UsersResource extends AbstractResource {
 		return res;
 	}
 
+	// User Login
+	
+	// POST http://localhost:8200/jaxrs/api/user/token
+	// Content-Type: application/x-www-form-urlencoded
+	//
+	// username: myuser 
+	// password: mypass
+	
 	@POST
 	@Path("/login")
 	@Consumes(value = MediaType.APPLICATION_FORM_URLENCODED)
@@ -87,6 +110,9 @@ public class UsersResource extends AbstractResource {
 		
 		KeycloakUserInfo kcinfo = res.readEntity(KeycloakUserInfo.class);
 		UserTokens userTokens = new UserTokens(kcinfo.subject, accessToken, refreshToken);
+		
+		UserStateService usrsvc = getService(UserStateService.class);
+		usrsvc.userLogin(kcinfo);
 		
 		return Response.ok(userTokens, MediaType.APPLICATION_JSON).build();
 	}

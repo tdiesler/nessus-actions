@@ -22,6 +22,7 @@ package io.nessus.test.actions.jaxrs;
 import static io.nessus.actions.core.utils.ApiUtils.hasStatus;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -30,7 +31,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.jboss.resteasy.plugins.server.undertow.UndertowJaxrsServer;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,6 +48,7 @@ abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 
 	@Before
 	public void before() throws Exception {
+		super.before();
 		if (server == null) {
 			server = createJaxrsServer();
 			if (server != null) {
@@ -64,11 +65,6 @@ abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 		}
 	}
 
-	@After
-	public void after() throws Exception {
-		// do nothing
-	}
-
 	@Override
 	protected NessusConfig createConfig() {
 		NessusConfig config = NessusConfig.createConfig();
@@ -81,7 +77,7 @@ abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 		return main.createJaxrsServer();
 	}
 
-	protected Response withClient(String uri, Function<WebTarget, Response> invoker) {
+	protected Response withClient(URI uri, Function<WebTarget, Response> invoker) {
 		KeycloakService keycloak = getService(KeycloakService.class);
 		return keycloak.withClient(uri, invoker);
 	}
@@ -94,11 +90,11 @@ abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 		}
 	}
 
-	protected String jaxrsUrl(String path) {
-		return ApiUtils.jaxrsUrl(getConfig(), path);
+	protected URI jaxrsUri(String path) {
+		return ApiUtils.jaxrsUri(getConfig(), path);
 	}
 
-	protected String keycloakUrl(String path) {
-		return ApiUtils.keycloakUrl(getConfig(), path);
+	protected URI keycloakUri(String path) {
+		return ApiUtils.keycloakUri(getConfig(), path);
 	}
 }

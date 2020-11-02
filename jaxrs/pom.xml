@@ -40,6 +40,10 @@
             <artifactId>nessus-common-rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.nessus.h2</groupId>
+            <artifactId>nessus-h2-server</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-core</artifactId>
         </dependency>
