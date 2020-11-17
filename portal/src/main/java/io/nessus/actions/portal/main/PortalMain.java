@@ -9,6 +9,7 @@ import javax.net.ssl.SSLContext;
 
 import io.nessus.actions.core.NessusConfig;
 import io.nessus.actions.core.service.KeycloakService;
+import io.nessus.actions.portal.WebHome;
 import io.nessus.actions.portal.WebModelCreate;
 import io.nessus.actions.portal.WebModelDelete;
 import io.nessus.actions.portal.WebModelList;
@@ -102,7 +103,8 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 			server.withHttpsPort(tlsPort, sslContext);
 		}
 		
-		server.addPrefixPath("/portal", new WebRoot());
+		server.addPrefixPath("/", new WebRoot());
+		server.addPrefixPath("/portal", new WebHome());
 		server.addPrefixPath("/portal/user", new WebUserHome());
 		server.addPrefixPath("/portal/user/login", new WebUserLogin());
 		server.addPrefixPath("/portal/user/logout", new WebUserLogout());

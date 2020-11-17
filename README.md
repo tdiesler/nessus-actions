@@ -139,7 +139,7 @@ docker logs -f keycloak
 and verify that you can login to the admin console
 
 ```
-http://localhost:8180/auth/admin
+http://localhost:8000/auth/admin
 ```
 
 ### Running Maven

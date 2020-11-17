@@ -44,7 +44,7 @@ import io.undertow.util.StatusCodes;
 
 public abstract class AbstractWebResource extends AbstractResource implements HttpHandler {
 	
-	protected final HttpHandler httpHandler;
+	protected final ResourceHandler resourceHandler;
     
 	protected AbstractWebResource() {
 
@@ -55,13 +55,11 @@ public abstract class AbstractWebResource extends AbstractResource implements Ht
 		}
 		
 		ClassLoader loader = WebRoot.class.getClassLoader();
-		httpHandler = new ResourceHandler(new ClassPathResourceManager(loader));
+		resourceHandler = new ResourceHandler(new ClassPathResourceManager(loader));
 	}
 
 	@Override
 	public void handleRequest(HttpServerExchange exchange) throws Exception {
-		
-		// Remove the root context
 		
 		String reqPath = exchange.getRequestPath();
 		String relPath = exchange.getRelativePath();
@@ -72,14 +70,14 @@ public abstract class AbstractWebResource extends AbstractResource implements Ht
 
         // Redirect home
         
-        if (reqPath.length() <= "/portal/".length()) {
-        	new WebHome().handlePageRequest(exchange, context);
+        if (reqPath.equals("/")) {
+        	new RedirectHandler("/portal").handleRequest(exchange);
         	return;
         }
         
         // Static content
         
-        if (relPath.startsWith("/static")) {
+        if (relPath.startsWith("/static") || reqPath.equals("/favicon.ico")) {
         	staticContent(exchange);
         	return;
         }
@@ -194,7 +192,7 @@ public abstract class AbstractWebResource extends AbstractResource implements Ht
 	}
 	
 	protected void staticContent(HttpServerExchange exchange) throws Exception {
-		httpHandler.handleRequest(exchange);
+		resourceHandler.handleRequest(exchange);
 	}
 
 	protected void assertStatus(Response res, Status... exp) {

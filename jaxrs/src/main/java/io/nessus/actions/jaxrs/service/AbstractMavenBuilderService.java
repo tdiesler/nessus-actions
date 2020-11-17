@@ -1,6 +1,7 @@
 package io.nessus.actions.jaxrs.service;
 
 import io.nessus.actions.core.NessusConfig;
+import io.nessus.common.service.Service;
 
 abstract class AbstractMavenBuilderService extends AbstractJaxrsService implements MavenBuilderService {
 
@@ -9,7 +10,8 @@ abstract class AbstractMavenBuilderService extends AbstractJaxrsService implemen
 	}
 
 	@Override
-	public String getType() {
-		return MavenBuilderService.class.getName();
+	@SuppressWarnings("unchecked")
+	public <T extends Service> Class<T> getType() {
+		return (Class<T>) MavenBuilderService.class;
 	}
 }
