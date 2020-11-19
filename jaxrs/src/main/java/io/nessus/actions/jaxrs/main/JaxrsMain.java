@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
@@ -16,6 +17,7 @@ import io.nessus.actions.jaxrs.service.UserStateService;
 import io.nessus.common.main.AbstractMain;
 import io.nessus.common.rest.JaxrsServer;
 import io.nessus.common.rest.SSLContextBuilder;
+import io.nessus.h2.H2Config;
 
 public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 
@@ -39,6 +41,12 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
     protected JaxrsOptions createOptions() {
         return new JaxrsOptions();
     }
+
+	@Override
+	protected void prepare(Map<String, String> mapping, JaxrsOptions options) {
+		mapping.putAll(H2Config.PROPERTY_MAPPING);
+		super.prepare(mapping, options);
+	}
 
 	@Override
     protected void doStart(JaxrsOptions options) throws Exception {

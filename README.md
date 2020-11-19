@@ -27,27 +27,35 @@ on how to setup Kubernetes on CentOS are [here](https://github.com/tdiesler/ness
 NAMESPACE=nessus
 kubectl create namespace $NAMESPACE
 
+CURRENT_CONTEXT=kubernetes-admin@kubernetes
+kubectl config set contexts.$CURRENT_CONTEXT.namespace $NAMESPACE
+kubectl config view
+ 
 # Delete all pods, service, etc in this app
-kubectl -n $NAMESPACE delete pod,svc -l app=nessus
+kubectl delete pod,svc --all
 
 # Apply the last stable configuration
-kubectl -n $NAMESPACE apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/secret.yaml
-kubectl -n $NAMESPACE apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/nessus.yaml
+kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/secret.yaml
+kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/nessus.yaml
 
-kubectl -n $NAMESPACE get pod,svc
+kubectl get pod,svc
+
 # NAME           READY   STATUS    RESTARTS   AGE
-# pod/h2         1/1     Running   0          2m3s
-# pod/jaxrs      1/1     Running   0          2m3s
-# pod/keycloak   1/1     Running   0          2m3s
-# pod/portal     1/1     Running   0          2m3s
+# pod/h2         1/1     Running   0          22s
+# pod/jaxrs      1/1     Running   0          22s
+# pod/keycloak   1/1     Running   0          22s
+# pod/maven      1/1     Running   0          22s
+# pod/portal     1/1     Running   0          21s
 
 # NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-# service/h2-http          NodePort    10.104.214.182   <none>        9092:30092/TCP   2m3s
-# service/jaxrs-http       ClusterIP   10.101.201.71    <none>        8180/TCP         2m3s
-# service/jaxrs-https      NodePort    10.100.83.174    <none>        8443:31443/TCP   2m3s
-# service/keycloak-http    ClusterIP   10.110.111.149   <none>        8080/TCP         2m3s
-# service/keycloak-https   NodePort    10.108.35.102    <none>        8443:30443/TCP   2m3s
-# service/portal-https     NodePort    10.100.37.29     <none>        8443:32443/TCP   2m2s
+# service/h2-http          NodePort    10.106.103.191   <none>        9092:30092/TCP   22s
+# service/jaxrs-http       ClusterIP   10.100.66.39     <none>        8200/TCP         22s
+# service/jaxrs-https      NodePort    10.98.93.171     <none>        8443:30243/TCP   22s
+# service/keycloak-http    ClusterIP   10.110.206.228   <none>        8000/TCP         22s
+# service/keycloak-https   NodePort    10.101.221.48    <none>        8443:30043/TCP   22s
+# service/maven-http       ClusterIP   10.108.225.229   <none>        8100/TCP         22s
+# service/maven-https      NodePort    10.100.108.156   <none>        8443:30143/TCP   22s
+# service/portal-https     NodePort    10.106.232.255   <none>        8443:30343/TCP   21s
 ```
 
 ### Access to the Portal
@@ -101,10 +109,10 @@ docker run --detach \
     -v h2vol:/var/h2db \
     --network nessus \
     -e JDBC_SERVER_URL=jdbc:h2:tcp://localhost:9092/fuse \
-    -e JDBC_URL="jdbc:h2:/var/h2db/fuse;init=create schema if not exists nessus\;create schema if not exists keycloak" \
+    -e JDBC_URL="jdbc:h2:file:/var/h2db/fuse;init=create schema if not exists nessus\;create schema if not exists keycloak" \
     -e JDBC_USER=keycloak \
     -e JDBC_PASSWORD=password \
-    nessusio/nessus-h2
+    nessusio/nessus-h2:1.2.3
 
 docker logs -f h2
 ```
@@ -157,7 +165,7 @@ docker run --detach \
     --network nessus \
     -v mvnm2:/root/.m2 \
     -v mvnws:/var/nessus/workspace/maven \
-    nessusio/maven 
+    nessusio/nessus-actions-maven 
 
 docker logs -f maven
 ```
@@ -172,41 +180,39 @@ docker run --detach \
     --name jaxrs \
     -p 8200:8200 \
     --network nessus \
+    -e JDBC_URL=jdbc:h2:tcp://h2:9092/fuse\;schema=nessus \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \
+    -e MAVEN_URL=http://maven:8100/maven \
     nessusio/nessus-actions-jaxrs
 
 docker logs -f jaxrs
-
-docker exec jaxrs tail -fn 1000 jaxrs/debug.log
 ```
 
-### Running the GUI server
+### Running the Portal
 
-Then, you can spin up a the TryIt GUI like this ...
+Then, you can spin up a the Portal like this ...
 
 ```
-docker rm -f trygui
+docker rm -f portal
 docker run --detach \
-    --name trygui \
+    --name portal \
     -p 8300:8300 \
     --network nessus \
     -e KEYCLOAK_USER=$KEYCLOAK_USER \
     -e KEYCLOAK_PASSWORD=$KEYCLOAK_PASSWORD \
     -e KEYCLOAK_URL=http://keycloak:8080/auth \
-    -e JAXRS_API_URL=http://jaxrs:8280/tryit \
-    nessusio/nessus-actions-gui
+    -e JAXRS_URL=http://jaxrs:8200/jaxrs \
+    nessusio/nessus-actions-portal
 
-docker logs -f trygui
-
-docker exec trygui tail -fn 1000 trygui/debug.log
+docker logs -f portal
 ```
 
 and connect to it
 
 ```
-http://localhost:8080/portal
+http://localhost:8300/portal
 ```
 
 Enjoy!

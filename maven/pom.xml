@@ -17,7 +17,7 @@
     <properties>
         <version.maven.image>3.6.3-jdk-8</version.maven.image>
         <docker.maven.image.name>maven:${version.maven.image}</docker.maven.image.name>
-        <docker.image.name>nessusio/maven</docker.image.name>
+        <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <docker.image.version>latest</docker.image.version>
         <skipKeycloak>false</skipKeycloak>

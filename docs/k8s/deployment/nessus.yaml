@@ -15,12 +15,12 @@ metadata:
 spec:
   containers:
   - name: h2
-    image: nessusio/nessus-h2
+    image: nessusio/nessus-h2:1.2.3
     env:
       - name: JDBC_SERVER_URL
-        value: jdbc:h2:tcp://localhost:9092/nessus
+        value: jdbc:h2:tcp:localhost:9092/fuse
       - name: JDBC_URL
-        value: jdbc:h2:/var/h2db/nessus;init=create schema if not exists keycloak
+        value: jdbc:h2:file:/var/h2db/fuse;init=create schema if not exists nessus\;create schema if not exists keycloak
       - name: JDBC_USER
         value: keycloak
       - name: JDBC_PASSWORD
@@ -71,7 +71,9 @@ spec:
     - name: DB_ADDR
       value: $(H2_HTTP_SERVICE_HOST)
     - name: DB_DATABASE
-      value: nessus
+      value: fuse
+    - name: DB_SCHEMA
+      value: keycloak
     - name: KEYCLOAK_USER
       value: admin
     - name: KEYCLOAK_PASSWORD
@@ -104,7 +106,6 @@ spec:
   ports:
   - name: http
     port: 8080
-  type: ClusterIP    
 
 # Keycloak HTTPS Service 
 ---
@@ -121,7 +122,58 @@ spec:
   ports:
   - name: https
     port: 8443
-    nodePort: 30443
+    nodePort: 30043
+  type: NodePort    
+
+# Maven Pod #######################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: maven
+  labels:
+    app: nessus
+    pod: maven
+spec:
+  containers:
+  - name: maven
+    image: nessusio/nessus-actions-maven
+    ports:
+    - containerPort: 8100
+    - containerPort: 8443
+
+# Maven HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maven-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: maven
+  ports:
+  - name: http
+    port: 8100
+
+# Maven HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maven-https
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: maven
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 30143
   type: NodePort    
 
 # Jaxrs API Pod #######################################################################################################
@@ -138,14 +190,18 @@ spec:
   - name: jaxrs
     image: nessusio/nessus-actions-jaxrs
     env:
+    - name: JDBC_URL
+      value: jdbc:h2:tcp://$(H2_HTTP_SERVICE_HOST):$(H2_HTTP_SERVICE_PORT)/fuse;schema=nessus
     - name: KEYCLOAK_USER
       value: admin
     - name: KEYCLOAK_PASSWORD
       value: admin
     - name: KEYCLOAK_URL
-      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):8080/auth
+      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):$(KEYCLOAK_HTTP_SERVICE_PORT)/auth
+    - name: MAVEN_URL
+      value: http://$(MAVEN_HTTP_SERVICE_HOST):$(MAVEN_HTTP_SERVICE_PORT)/maven
     ports:
-    - containerPort: 8180
+    - containerPort: 8200
     - containerPort: 8443
     volumeMounts:
     - name: tls
@@ -169,8 +225,7 @@ spec:
     pod: jaxrs
   ports:
   - name: http
-    port: 8180
-  type: ClusterIP    
+    port: 8200
 
 # Jaxrs HTTPS Service 
 ---
@@ -187,7 +242,7 @@ spec:
   ports:
   - name: https
     port: 8443
-    nodePort: 31443
+    nodePort: 30243
   type: NodePort    
 
 # Portal Pod #######################################################################################################
@@ -205,13 +260,15 @@ spec:
     image: nessusio/nessus-actions-portal
     env:
     - name: JAXRS_URL
-      value: http://$(JAXRS_HTTP_SERVICE_HOST):8180/jaxrs
+      value: http://$(JAXRS_HTTP_SERVICE_HOST):$(JAXRS_HTTP_SERVICE_PORT)/jaxrs
     - name: KEYCLOAK_USER
       value: admin
     - name: KEYCLOAK_PASSWORD
       value: admin
     - name: KEYCLOAK_URL
-      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):8080/auth
+      value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):$(KEYCLOAK_HTTP_SERVICE_PORT)/auth
+    - name: MAVEN_URL
+      value: http://$(MAVEN_HTTP_SERVICE_HOST):$(MAVEN_HTTP_SERVICE_PORT)/maven
     ports:
     - containerPort: 8443
     volumeMounts:
@@ -237,5 +294,5 @@ spec:
   ports:
   - name: https
     port: 8443
-    nodePort: 32443
+    nodePort: 30343
   type: NodePort
