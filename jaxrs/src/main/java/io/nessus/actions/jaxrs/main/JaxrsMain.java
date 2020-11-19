@@ -65,7 +65,7 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
         
         JaxrsServer server = createJaxrsServer(withTLS);
         server.start();
-    }
+	}
 
 	public JaxrsServer createJaxrsServer() throws Exception {
 		return createJaxrsServer(isTLSEnabled());
@@ -87,14 +87,15 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 		
 		if (withTLS) {
 			
-			String alias = "nessus-actions-jaxrs";
-			Path tlsKey = Paths.get(config.getTLSKey());
-			Path tlsCrt = Paths.get(config.getTLSCrt());
+			Path pemPath = Paths.get("/etc/x509/https/jboss-org.pem");
+			Path crtPath = Paths.get(config.getTLSCrt());
+			Path keyPath = Paths.get(config.getTLSKey());
 			
 			SSLContext sslContext = new SSLContextBuilder()
 					.keystorePath(Paths.get("/tmp/keystore.jks"))
-					.addCertificate(alias, tlsCrt)
-					.addPrivateKey(alias, tlsKey)
+					.addPem("jboss-org", pemPath)
+					.addCertificate("jaxrs", crtPath)
+					.addPrivateKey("jaxrs", keyPath)
 					.build();
 			
 			SSLContext.setDefault(sslContext);

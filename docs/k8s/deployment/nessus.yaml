@@ -3,7 +3,24 @@
 # kubectl create namespace $NAMESPACE
 #
 
-# H2 Database Pod #####################################################################################################
+# H2 ##################################################################################################################
+
+# H2 Persistent Volume Claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: h2pvc
+  labels:
+    app: nessus
+    pvc: h2pvc
+spec:
+  accessModes: [ ReadWriteMany ]
+  resources:
+    requests:
+      storage: 1G
+
+# H2 Database Pod
 ---
 apiVersion: v1
 kind: Pod
@@ -32,7 +49,8 @@ spec:
       mountPath: /var/h2db
   volumes:
   - name: h2vol
-    emptyDir: {} 
+    persistentVolumeClaim:
+      claimName: h2pvc
 
 # H2 HTTP Service 
 ---

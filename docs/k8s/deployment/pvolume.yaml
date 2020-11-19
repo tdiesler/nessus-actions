@@ -1,0 +1,17 @@
+#
+# H2 Persistent Volume #####################################################################################################
+#
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes
+#
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: h2pv
+spec:
+  capacity:
+    storage: 1G
+  accessModes: [ ReadWriteMany ]
+  hostPath:
+    path: /var/k8s/pv/h2db
+    type: Directory

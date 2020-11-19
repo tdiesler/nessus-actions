@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM azul/zulu-openjdk-centos:8
 
 COPY bin /nessus-jaxrs/bin
 COPY lib /nessus-jaxrs/lib

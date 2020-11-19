@@ -49,7 +49,11 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
+import org.jboss.shrinkwrap.resolver.api.maven.repository.MavenRemoteRepositories;
+import org.jboss.shrinkwrap.resolver.api.maven.repository.MavenRemoteRepository;
+import org.jboss.shrinkwrap.resolver.api.maven.repository.MavenUpdatePolicy;
 
 import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.core.model.ToStep;
@@ -196,16 +200,32 @@ public class MavenProjectBuilder {
 		// [TODO] Remove these hard coded snapshots
 		List<Artifact> libs = Arrays.asList(
 				new DefaultArtifact("io.nessus.actions:nessus-actions-core:1.0.0-SNAPSHOT"));
-		
+
+		ConfigurableMavenResolverSystem resolver = Maven.configureResolver();
+
+		boolean hasSnapshotDependencies = libs.stream()
+			.filter(lib -> lib.getVersion().endsWith("-SNAPSHOT"))
+			.count() > 0L;
+			
+		if (hasSnapshotDependencies) {
+			MavenRemoteRepository snapshotsRepo = MavenRemoteRepositories.createRemoteRepository("jboss-snapshots-repository", 
+					"https://repository.jboss.org/nexus/content/repositories/snapshots", "default");
+			snapshotsRepo.setUpdatePolicy(MavenUpdatePolicy.UPDATE_POLICY_ALWAYS);
+			resolver.withRemoteRepo(snapshotsRepo);
+		}	
+
 		for (Artifact lib : libs) {
 			String groupId = lib.getGroupId();
 			String artifactId = lib.getArtifactId();
 			String version = lib.getVersion();
+			
 			File outFile = basedir.resolve(String.format("lib/%s-%s.jar", artifactId, version)).toFile();
 			outFile.getParentFile().mkdirs();
-			InputStream ins = Maven.resolver().resolve(String.format("%s:%s:%s", groupId, artifactId, version))
+			
+			InputStream ins = resolver.resolve(String.format("%s:%s:%s", groupId, artifactId, version))
 				.withoutTransitivity()
 				.asSingleInputStream();
+			
 			try (OutputStream fos = new FileOutputStream(outFile)) {
 				StreamUtils.copyStream(ins, fos);
 			}

@@ -37,13 +37,7 @@
             <outputDirectory>/</outputDirectory>
             <directory>${basedir}/etc</directory>
             <includes>
-                <include>config/**</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <outputDirectory>/</outputDirectory>
-            <directory>${basedir}/etc</directory>
-            <includes>
+                <include>config/</include>
                 <include>Dockerfile</include>
             </includes>
             <filtered>true</filtered>

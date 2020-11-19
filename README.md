@@ -24,6 +24,7 @@ on how to setup Kubernetes on CentOS are [here](https://github.com/tdiesler/ness
 ### Create Pods and Services
 
 ```
+# Create the namespace
 NAMESPACE=nessus
 kubectl create namespace $NAMESPACE
 
@@ -31,14 +32,20 @@ CURRENT_CONTEXT=kubernetes-admin@kubernetes
 kubectl config set contexts.$CURRENT_CONTEXT.namespace $NAMESPACE
 kubectl config view
  
-# Delete all pods, service, etc in this app
+# Delete this app
 kubectl delete pod,svc --all
 
-# Apply the last stable configuration
+# Create Secrets & Persistent Volumes
 kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/secret.yaml
+kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/pvolume.yaml
+
+# Apply the last stable configuration
 kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/nessus.yaml
 
-kubectl get pod,svc
+kubectl get pv,pod,svc
+
+# NAME                    CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM          STORAGECLASS   REASON   AGE
+# persistentvolume/h2pv   1G         RWX            Retain           Bound    nessus/h2pvc                           56s
 
 # NAME           READY   STATUS    RESTARTS   AGE
 # pod/h2         1/1     Running   0          22s
