@@ -166,7 +166,7 @@ public class MavenBuildResource extends AbstractResource {
 
 	// Get Build Status
 	
-	// GET http://localhost:8100/maven/api/build/{projId}/status
+	// GET http://localhost:8100/maven/api/build/{majorId}/{minorId}/status
 	//
 	
 	@GET
@@ -190,7 +190,7 @@ public class MavenBuildResource extends AbstractResource {
 
 	// Download the Target File
 	
-	// GET http://localhost:8100/maven/api/build/{projId}/download
+	// GET http://localhost:8100/maven/api/build/{majorId}/{minorId}/download
 	//
 	
 	@GET
@@ -248,6 +248,7 @@ public class MavenBuildResource extends AbstractResource {
 		MavenBuildHandle handle = new MavenBuildHandle(projId, uri, status);
 		return handle;
 	}
+	
 	private BuildStatus readBuildStatus(String projId) {
 		File statusFile = getWorkspace(projId).resolve("build-status").toFile();
 		if (!statusFile.isFile()) return BuildStatus.NotFound;

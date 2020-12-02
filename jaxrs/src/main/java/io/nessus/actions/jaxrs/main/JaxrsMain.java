@@ -46,6 +46,14 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 	protected void prepare(Map<String, String> mapping, JaxrsOptions options) {
 		mapping.putAll(H2Config.PROPERTY_MAPPING);
 		super.prepare(mapping, options);
+		
+		logDebug("System Properties");
+		logDebug("-----------------");
+		System.getProperties().entrySet().stream()
+			.sorted((e1, e2) -> e1.getKey().toString().compareTo(e2.getKey().toString()))
+			.forEach(en -> {
+				logDebug("{}={}", en.getKey(), en.getValue());
+			});
 	}
 
 	@Override
@@ -87,15 +95,18 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 		
 		if (withTLS) {
 			
-			Path pemPath = Paths.get("/etc/x509/https/jboss-org.pem");
+			Path keystorePath = Paths.get(System.getProperty("java.home") + "/lib/security/cacerts");
+			if (!keystorePath.toFile().exists()) {
+				keystorePath = Paths.get("/tmp/keystore.jks");
+			}
+				
 			Path crtPath = Paths.get(config.getTLSCrt());
 			Path keyPath = Paths.get(config.getTLSKey());
 			
 			SSLContext sslContext = new SSLContextBuilder()
-					.keystorePath(Paths.get("/tmp/keystore.jks"))
-					.addPem("jboss-org", pemPath)
 					.addCertificate("jaxrs", crtPath)
 					.addPrivateKey("jaxrs", keyPath)
+					.keystorePath(keystorePath)
 					.build();
 			
 			SSLContext.setDefault(sslContext);

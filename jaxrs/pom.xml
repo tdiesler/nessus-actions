@@ -19,6 +19,7 @@
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <docker.image.version>latest</docker.image.version>
         <skipKeycloak>false</skipKeycloak>
+        <skipMaven>false</skipMaven>
         <useTLS>false</useTLS>
     </properties>
 
@@ -198,12 +199,31 @@
                                     </bind>
                                 </volumes>
 								<wait>
-								  <http>
-								    <url>http://localhost:8080/auth</url>
-								  </http>
-								  <time>120000</time>
+									<http>
+										<url>http://localhost:8080/auth</url>
+									</http>
+									<time>120000</time>
 								</wait>
                                 <skip>${skipKeycloak}</skip>
+                            </run>
+                        </image>
+                        <image>
+                            <name>nessusio/nessus-actions-maven</name>
+                            <run>
+                                <ports>
+                                    <port>8100:8100</port>
+                                </ports>
+                                <volumes>
+                                    <bind>
+                                        <volume>${user.home}/.m2:/root/.m2</volume>
+                                        <volume>${basedir}/target/workspace/maven:/var/nessus/workspace/maven</volume>
+                                    </bind>
+                                </volumes>
+								<wait>
+									<log>Starting JaxrsServer</log>
+									<time>60000</time>
+								</wait>
+                                <skip>${skipMaven}</skip>
                             </run>
                         </image>
                         <image>
@@ -266,6 +286,9 @@
                                 <image>
                                     <name>nessusio/keycloak</name>
                                 </image>
+                                <image>
+                                    <name>nessusio/nessus-actions-maven</name>
+                                </image>
                             </images>
                         </configuration>
                     </execution>
@@ -279,6 +302,9 @@
                             <images>
                                 <image>
                                     <name>nessusio/keycloak</name>
+                                </image>
+                                <image>
+                                    <name>nessusio/nessus-actions-maven</name>
                                 </image>
                             </images>
                         </configuration>

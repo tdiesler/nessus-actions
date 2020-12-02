@@ -95,10 +95,10 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 		ApiUtils.hasStatus(res, Status.OK);
 		
 		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
-		BuildStatus status = handle.getStatus();
+		BuildStatus buildStatus = handle.getStatus();
 
 		Assert.assertTrue(new File(handle.getLocation()).isFile());
-		Assert.assertEquals(BuildStatus.Scheduled, status);
+		Assert.assertEquals(BuildStatus.Scheduled, buildStatus);
 		
 		// Get Build Status
 		
@@ -107,7 +107,7 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 		
 		uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
 		
-		while (status != BuildStatus.Success && status != BuildStatus.Failure) {
+		while (buildStatus != BuildStatus.Success && buildStatus != BuildStatus.Failure) {
 			
 			sleepSafe(500);
 			
@@ -116,12 +116,12 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 			ApiUtils.hasStatus(res, Status.OK);
 			
 			handle = res.readEntity(MavenBuildHandle.class);
-			status = handle.getStatus();
+			buildStatus = handle.getStatus();
 			
-			logInfo("{} => {}", handle.getId(), status);
+			logInfo("{} => {}", handle.getId(), buildStatus);
 		}
 		
-		Assert.assertEquals(BuildStatus.Success, status);
+		Assert.assertEquals(BuildStatus.Success, buildStatus);
 		
 		// Download the Target File
 		

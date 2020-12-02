@@ -89,14 +89,6 @@ public class ModelResource extends AbstractUserResource {
 		UserModelService models = getService(UserModelService.class);
 		userModel = models.updateModel(userModel);
 		
-		/*
-		MavenBuilderService maven = getService(MavenBuilderService.class);
-		Response res = maven.buildModelWithMaven(kcinfo, userModel);
-		
-		if (!ApiUtils.hasStatus(res, Status.OK))
-			return res;
-		*/
-		
 		return Response.status(Status.OK).build();
 	}
 	
@@ -154,7 +146,7 @@ public class ModelResource extends AbstractUserResource {
 		}
 
 		MavenBuilderService maven = getService(MavenBuilderService.class);
-		Response res = maven.buildModelWithMaven(kcinfo, userModel, runtime);
+		Response res = maven.buildModelWithMaven(kcinfo.username, userModel, runtime);
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;
@@ -164,7 +156,7 @@ public class ModelResource extends AbstractUserResource {
 
 	// Get Build Status
 	
-	// GET http://localhost:8100/maven/api/build/{projId}/status
+	// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/status
 	//
 	
 	@GET
@@ -177,9 +169,25 @@ public class ModelResource extends AbstractUserResource {
 	
 	public Response getBuildStatus(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") String runtime) {
 
-		String projId = modelId + "/" + runtime;
-		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
-		return Response.seeOther(uri).build();
+		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
+		if (kcinfo == null) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+
+		UserModelService models = getService(UserModelService.class);
+		UserModel userModel = models.findModel(modelId);
+		if (userModel == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+
+		MavenBuilderService maven = getService(MavenBuilderService.class);
+		Response res = maven.getModelBuildStatus(kcinfo.username, userModel, runtime);
+		
+		if (!ApiUtils.hasStatus(res, Status.OK))
+			return res;
+		
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		return Response.ok(handle, MediaType.APPLICATION_JSON).build();
 	}
 
 	// Download the Target File

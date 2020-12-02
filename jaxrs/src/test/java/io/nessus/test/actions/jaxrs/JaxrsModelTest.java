@@ -39,7 +39,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.core.model.RouteModel;
-import io.nessus.actions.jaxrs.service.NoopMavenBuilderService;
+import io.nessus.actions.core.types.MavenBuildHandle;
+import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
+import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.actions.jaxrs.type.UserModelAdd;
 import io.nessus.actions.jaxrs.type.UserModelList;
@@ -47,12 +49,6 @@ import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 
 public class JaxrsModelTest extends AbstractJaxrsTest {
-
-	@Override
-	public void before() throws Exception {
-		super.before();
-		getConfig().addService(new NoopMavenBuilderService(getConfig()));
-	}
 
 	@Test
 	public void testModelLifecycle() throws Exception {
@@ -159,6 +155,52 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		userModel = res.readEntity(UserModel.class);
 		Assert.assertTrue(userModel.getTitle().startsWith("Updated"));
 		
+		// Build Model
+		
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/build
+		//
+
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId + "/standalone/build");
+		res = withClient(uri, target -> target.request()
+				.header("Authorization", "Bearer " + accessToken)
+				.get());
+		
+		assertStatus(res, Status.OK);
+
+		// Get Build Status
+		
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/status
+		//
+		
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId + "/standalone/status");
+		res = withClient(uri, target -> target.request()
+				.header("Authorization", "Bearer " + accessToken)
+				.get());
+		
+		assertStatus(res, Status.OK);
+		
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		BuildStatus buildStatus = handle.getStatus();
+		
+		while (buildStatus != BuildStatus.Success && buildStatus != BuildStatus.Failure) {
+			
+			sleepSafe(500);
+			
+			res = withClient(uri, target -> target.request()
+					.header("Authorization", "Bearer " + accessToken)
+					.get());
+			
+			ApiUtils.hasStatus(res, Status.OK);
+			
+			handle = res.readEntity(MavenBuildHandle.class);
+			buildStatus = handle.getStatus();
+			
+			logInfo("{} => {}", handle.getId(), buildStatus);
+		}
+
+		Assert.assertEquals(BuildStatus.Success, buildStatus);
+		assertStatus(res, Status.OK);
+
 		// Delete Model
 		
 		// DELETE http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}

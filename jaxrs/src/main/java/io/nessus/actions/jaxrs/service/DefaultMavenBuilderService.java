@@ -13,7 +13,6 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 
 import io.nessus.actions.core.NessusConfig;
 import io.nessus.actions.core.maven.MavenProjectBuilder;
-import io.nessus.actions.core.types.KeycloakUserInfo;
 import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.type.UserModel;
 import io.nessus.common.CheckedExceptionWrapper;
@@ -25,9 +24,9 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 	}
 
 	@Override
-	public Response buildModelWithMaven(KeycloakUserInfo kcinfo, UserModel userModel, String runtime) {
+	public Response buildModelWithMaven(String username, UserModel userModel, String runtime) {
 		
-		String groupId = "io." + kcinfo.username;
+		String groupId = "io." + username;
 		String artifactId = userModel.getTitle().replace(' ', '-').toLowerCase();
 		
 		try {
@@ -56,5 +55,17 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 		} catch (Exception ex) {
 			throw CheckedExceptionWrapper.create(ex);
 		}
+	}
+
+	@Override
+	public Response getModelBuildStatus(String username, UserModel userModel, String runtime) {
+		
+		String majorId = userModel.modelId;
+		String projId = majorId + "/" + runtime;
+		
+		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
+		Response res = ClientBuilder.newClient().target(uri).request().get();
+		
+		return res;
 	}
 }

@@ -149,6 +149,7 @@ public class WebModelList extends AbstractUserResource {
 			
 			if (res.getStatus() == 303) {
 				String location = res.getHeaderString("Location");
+				logInfo("Redirecting to: {}", location);
 		        new RedirectHandler(location).handleRequest(exchange);
 		        return;
 			}
