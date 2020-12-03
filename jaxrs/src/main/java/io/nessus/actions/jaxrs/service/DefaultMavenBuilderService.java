@@ -68,4 +68,16 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 		
 		return res;
 	}
+
+	@Override
+	public Response getModelTargetDownload(String username, UserModel userModel, String runtime) {
+		
+		String majorId = userModel.modelId;
+		String projId = majorId + "/" + runtime;
+		
+		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/download");
+		Response res = ClientBuilder.newClient().target(uri).request().get();
+		
+		return res;
+	}
 }

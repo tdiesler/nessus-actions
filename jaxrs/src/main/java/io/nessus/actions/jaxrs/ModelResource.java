@@ -1,6 +1,8 @@
 package io.nessus.actions.jaxrs;
 
-import java.net.URI;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Paths;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -15,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 import io.nessus.actions.core.jaxrs.AbstractUserResource;
 import io.nessus.actions.core.types.KeycloakUserInfo;
 import io.nessus.actions.core.types.MavenBuildHandle;
+import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
 import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.service.MavenBuilderService;
 import io.nessus.actions.jaxrs.service.UserModelService;
@@ -192,7 +195,7 @@ public class ModelResource extends AbstractUserResource {
 
 	// Download the Target File
 	
-	// GET http://localhost:8100/maven/api/build/{projId}/download
+	// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/download
 	//
 	
 	@GET
@@ -205,8 +208,39 @@ public class ModelResource extends AbstractUserResource {
 	
 	public Response downloadBuildTarget(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") String runtime) {
 
-		String projId = modelId + "/" + runtime;
-		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/download");
-		return Response.seeOther(uri).build();
+		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
+		if (kcinfo == null) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+
+		UserModelService models = getService(UserModelService.class);
+		UserModel userModel = models.findModel(modelId);
+		if (userModel == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+
+		MavenBuilderService maven = getService(MavenBuilderService.class);
+		Response res = maven.getModelBuildStatus(kcinfo.username, userModel, runtime);
+		
+		if (!ApiUtils.hasStatus(res, Status.OK))
+			return res;
+		
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		if (handle.getStatus() != BuildStatus.Success) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		res = maven.getModelTargetDownload(kcinfo.username, userModel, runtime);
+		
+		if (!ApiUtils.hasStatus(res, Status.OK))
+			return res;
+		
+		File targetFile = Paths.get(handle.getLocation()).toFile();
+		InputStream inputStream = res.readEntity(InputStream.class);
+		res = Response.ok(inputStream)
+				.header("Content-Disposition", "attachment;filename=" + targetFile.getName())
+				.build();
+		
+		return res;
 	}
 }

@@ -11,4 +11,5 @@ public interface MavenBuilderService extends Service {
 
 	Response getModelBuildStatus(String username, UserModel userModel, String runtime);
 
+	Response getModelTargetDownload(String username, UserModel userModel, String runtime);
 }

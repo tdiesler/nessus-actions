@@ -19,6 +19,8 @@
  */
 package io.nessus.test.actions.jaxrs;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -47,6 +49,7 @@ import io.nessus.actions.jaxrs.type.UserModelAdd;
 import io.nessus.actions.jaxrs.type.UserModelList;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
+import io.nessus.common.utils.StreamUtils;
 
 public class JaxrsModelTest extends AbstractJaxrsTest {
 
@@ -200,6 +203,34 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 
 		Assert.assertEquals(BuildStatus.Success, buildStatus);
 		assertStatus(res, Status.OK);
+
+		// Download the Target File
+		
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/download
+		//
+		
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId + "/standalone/download");
+		res = withClient(uri, target -> target.request()
+				.header("Authorization", "Bearer " + accessToken)
+				.get());
+		
+		assertStatus(res, Status.OK);
+
+		String contentDisposition = res.getHeaderString("Content-Disposition");
+		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
+
+		int fnameIdx = contentDisposition.indexOf('=');
+		String fileName = contentDisposition.substring(fnameIdx);
+		File targetFile = new File("target/" + fileName);
+		
+		InputStream ins = res.readEntity(InputStream.class);
+		try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+			StreamUtils.copyStream(ins, fos);
+		}
+		
+		logInfo("Downloaded: {}", targetFile);
+		
+		Assert.assertTrue(targetFile.isFile());
 
 		// Delete Model
 		

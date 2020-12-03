@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -134,7 +132,11 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 		
 		ApiUtils.hasStatus(res, Status.OK);
 		
-		Path fileName = Paths.get(handle.getLocation().getPath()).getFileName();
+		String contentDisposition = res.getHeaderString("Content-Disposition");
+		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
+
+		int fnameIdx = contentDisposition.indexOf('=');
+		String fileName = contentDisposition.substring(fnameIdx);
 		File targetFile = new File("target/" + fileName);
 		
 		InputStream ins = res.readEntity(InputStream.class);
