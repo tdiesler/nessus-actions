@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class MavenBuildHandle {
 	
 	public enum BuildStatus {
-		Scheduled, Running, Success, Failure, Removed, NotFound
+		Scheduled, Running, Success, Failure, NotFound
 	}
 	
 	private final String id;
@@ -33,7 +33,8 @@ public class MavenBuildHandle {
 		return location;
 	}
 
-	public BuildStatus getStatus() {
+	@JsonProperty(value = "status")
+	public BuildStatus getBuildStatus() {
 		return status;
 	}
 

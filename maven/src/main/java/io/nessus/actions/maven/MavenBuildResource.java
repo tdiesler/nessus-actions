@@ -181,7 +181,7 @@ public class MavenBuildResource extends AbstractResource {
 
 		String projId = majorId + "/" + minorId;
 		MavenBuildHandle handle = getMavenBuildHandle(projId);
-		if (handle.getStatus() == BuildStatus.NotFound) {
+		if (handle.getBuildStatus() == BuildStatus.NotFound) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		
@@ -205,7 +205,7 @@ public class MavenBuildResource extends AbstractResource {
 
 		String projId = majorId + "/" + minorId;
 		MavenBuildHandle handle = getMavenBuildHandle(projId);
-		if (handle.getStatus() == BuildStatus.NotFound)
+		if (handle.getBuildStatus() == BuildStatus.NotFound)
 			return Response.status(Status.NOT_FOUND).build();
 		
 		String runtime = projId.substring(projId.indexOf('/') + 1);

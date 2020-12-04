@@ -2,7 +2,7 @@
 
 <div style="float:left;">
 
-    <h1>User Model Create</h1>
+    <h1>Model Create</h1>
     
     <table>
     <form id="frmModelCreate" method="post" action="create/act">

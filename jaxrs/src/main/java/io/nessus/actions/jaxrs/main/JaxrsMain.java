@@ -12,7 +12,7 @@ import io.nessus.actions.core.NessusConfig;
 import io.nessus.actions.core.service.KeycloakService;
 import io.nessus.actions.jaxrs.JaxrsApplication;
 import io.nessus.actions.jaxrs.service.DefaultMavenBuilderService;
-import io.nessus.actions.jaxrs.service.UserModelService;
+import io.nessus.actions.jaxrs.service.ModelService;
 import io.nessus.actions.jaxrs.service.UserStateService;
 import io.nessus.common.main.AbstractMain;
 import io.nessus.common.rest.JaxrsServer;
@@ -33,7 +33,7 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
         super(config);
 		config.addService(new DefaultMavenBuilderService(config));
 		config.addService(new KeycloakService(config));
-		config.addService(new UserModelService(config));
+		config.addService(new ModelService(config));
 		config.addService(new UserStateService(config));
     }
 

@@ -41,7 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserModel'
+                $ref: '#/components/schemas/Model'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
         "404":
@@ -64,7 +64,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserModel'
+              $ref: '#/components/schemas/Model'
       responses:
         "200":
           description: "[OK] Successfully updated the model."
@@ -109,9 +109,17 @@ paths:
         required: true
         schema:
           type: string
+          enum:
+          - standalone
+          - docker
+          - javaee
       responses:
         "200":
           description: "[OK] Successfully scheduled the model build."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MavenBuildHandle'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
         "404":
@@ -136,6 +144,10 @@ paths:
         required: true
         schema:
           type: string
+          enum:
+          - standalone
+          - docker
+          - javaee
       responses:
         "200":
           description: "[OK] Found the requested build target."
@@ -165,6 +177,10 @@ paths:
         required: true
         schema:
           type: string
+          enum:
+          - standalone
+          - docker
+          - javaee
       responses:
         "200":
           description: "[OK] Found the status for the requested project."
@@ -178,8 +194,8 @@ paths:
           description: "[Not Found] The project for the given id was not found."
   /user/{userId}/models:
     get:
-      summary: Get the list of the given user's model ids.
-      operationId: getModels
+      summary: Get the list models associated with a given user.
+      operationId: getUserModels
       parameters:
       - name: userId
         in: path
@@ -192,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserModelList'
+                $ref: '#/components/schemas/ModelList'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
     put:
@@ -208,14 +224,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserModelAdd'
+              $ref: '#/components/schemas/ModelAdd'
       responses:
         "201":
           description: "[Created] Model was successfully created."
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserModel'
+                $ref: '#/components/schemas/Model'
         "401":
           description: "[Unauthorized] If the provided access token was not valid."
   /user/{userId}/state:
@@ -283,7 +299,6 @@ components:
       required:
       - id
       - location
-      - status
       type: object
       properties:
         id:
@@ -298,9 +313,8 @@ components:
           - Running
           - Success
           - Failure
-          - Removed
           - NotFound
-    UserModel:
+    Model:
       required:
       - modelId
       - userId
@@ -310,9 +324,13 @@ components:
           type: string
         modelId:
           type: string
+        states:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelState'
         userId:
           type: string
-    UserModelAdd:
+    ModelAdd:
       required:
       - content
       - userId
@@ -322,7 +340,7 @@ components:
           type: string
         userId:
           type: string
-    UserModelList:
+    ModelList:
       required:
       - userId
       type: object
@@ -330,9 +348,26 @@ components:
         models:
           type: array
           items:
-            $ref: '#/components/schemas/UserModel'
+            $ref: '#/components/schemas/Model'
         userId:
           type: string
+    ModelState:
+      type: object
+      properties:
+        runtime:
+          type: string
+          enum:
+          - standalone
+          - docker
+          - javaee
+        status:
+          type: string
+          enum:
+          - Scheduled
+          - Running
+          - Success
+          - Failure
+          - NotFound
     UserRegister:
       required:
       - email

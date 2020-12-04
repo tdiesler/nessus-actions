@@ -13,17 +13,17 @@ import javax.ws.rs.core.Response.Status;
 
 import io.nessus.actions.core.jaxrs.AbstractUserResource;
 import io.nessus.actions.core.types.KeycloakUserInfo;
-import io.nessus.actions.jaxrs.service.UserModelService;
-import io.nessus.actions.jaxrs.type.UserModel;
-import io.nessus.actions.jaxrs.type.UserModelAdd;
-import io.nessus.actions.jaxrs.type.UserModelList;
+import io.nessus.actions.jaxrs.service.ModelService;
+import io.nessus.actions.jaxrs.type.Model;
+import io.nessus.actions.jaxrs.type.ModelAdd;
+import io.nessus.actions.jaxrs.type.ModelList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Path("/user/{userId}/models")
-public class ModelsResource extends AbstractUserResource {
+public class ModelListResource extends AbstractUserResource {
 	
 	// Create Model
 	
@@ -38,10 +38,10 @@ public class ModelsResource extends AbstractUserResource {
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Operation(summary = "Create a new integration model")
 	@ApiResponse(responseCode = "201", description = "[Created] Model was successfully created.", 
-		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UserModel.class)))
+		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Model.class)))
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	
-	public Response createModel(@PathParam("userId") String userId, UserModelAdd modelAdd) {
+	public Response createModel(@PathParam("userId") String userId, ModelAdd modelAdd) {
 		
 		logInfo("Create model: {}", modelAdd);
 		
@@ -55,24 +55,24 @@ public class ModelsResource extends AbstractUserResource {
 			return null;
 		}
 		
-		UserModelService models = getService(UserModelService.class);
-		UserModel userModel = models.createModel(modelAdd);
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.createModel(modelAdd);
 		
-		return Response.status(Status.CREATED).type(MediaType.APPLICATION_JSON).entity(userModel).build();
+		return Response.status(Status.CREATED).type(MediaType.APPLICATION_JSON).entity(model).build();
 	}
 
-	// Get Models
+	// Get Models associated with a given user
 	
 	// GET http://localhost:8200/jaxrs/api/user/{userId}/models
 	//
 	
 	@GET
-	@Operation(summary = "Get the list of the given user's model ids.")
+	@Operation(summary = "Get the list models associated with a given user.")
 	@ApiResponse(responseCode = "200", description = "[OK] List of user model definitions.",
-		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UserModelList.class)))
+		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = ModelList.class)))
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	
-	public Response getModels(@PathParam("userId") String userId) {
+	public Response getUserModels(@PathParam("userId") String userId) {
 		
 		logInfo("Get models for user: {}", userId);
 		
@@ -81,10 +81,10 @@ public class ModelsResource extends AbstractUserResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		UserModelService mdlsrv = getService(UserModelService.class);
-		List<UserModel> models = mdlsrv.findUserModels(userId);
+		ModelService mdlsrv = getService(ModelService.class);
+		List<Model> models = mdlsrv.findModels(userId);
 		
-		UserModelList userModels = new UserModelList(userId, models);
+		ModelList userModels = new ModelList(userId, models);
 		
 		return Response.ok().type(MediaType.APPLICATION_JSON).entity(userModels).build();
 	}

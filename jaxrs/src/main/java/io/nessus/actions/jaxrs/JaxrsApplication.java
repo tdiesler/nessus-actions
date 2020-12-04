@@ -24,7 +24,7 @@ public class JaxrsApplication extends AbstractApplication {
 		
 		ConnectionFactory factory = new ConnectionFactory(config);
 		try (Connection con = factory.createConnection(Duration.ofSeconds(20))) {
-			DBUtils.createDatabase(con, "initdb.sql");
+			DBUtils.createDatabase(con, "createdb.sql");
 		}
 	}
 	
@@ -32,8 +32,8 @@ public class JaxrsApplication extends AbstractApplication {
 	public Set<Class<?>> getClasses() {
 		Set<Class<?>> classes = new HashSet<>();
 		classes.add(ModelResource.class);
-		classes.add(ModelsResource.class);
-		classes.add(UsersResource.class);
+		classes.add(ModelListResource.class);
+		classes.add(UserListResource.class);
 		classes.add(UserResource.class);
 		return Collections.unmodifiableSet(classes);
 	}

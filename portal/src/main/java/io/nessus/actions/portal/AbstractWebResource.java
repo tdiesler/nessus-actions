@@ -94,8 +94,11 @@ public abstract class AbstractWebResource extends AbstractResource implements Ht
             	
             	// Actions should always redirect
             	
-            	int status = exchange.getStatusCode();
-            	AssertState.isEqual(StatusCodes.FOUND, status, "Expected redirect after: " + reqPath);
+            	if (!exchange.isDispatched()) {
+                	int status = exchange.getStatusCode();
+                	AssertState.isEqual(StatusCodes.FOUND, status, "Expected redirect after: " + reqPath);
+            	}
+            	
             	return;
             	
             } else {

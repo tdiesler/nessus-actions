@@ -13,6 +13,7 @@ import io.nessus.actions.portal.WebHome;
 import io.nessus.actions.portal.WebModelCreate;
 import io.nessus.actions.portal.WebModelDelete;
 import io.nessus.actions.portal.WebModelList;
+import io.nessus.actions.portal.WebModelRuntime;
 import io.nessus.actions.portal.WebModelUpdate;
 import io.nessus.actions.portal.WebRoot;
 import io.nessus.actions.portal.WebUserDelete;
@@ -111,8 +112,9 @@ public class PortalMain extends AbstractMain<NessusConfig, PortalOptions> {
 		server.addPrefixPath("/portal/user/delete", new WebUserDelete());
 		server.addPrefixPath("/portal/user/models", new WebModelList());
 		server.addPrefixPath("/portal/user/models/create", new WebModelCreate());
-		server.addPrefixPath("/portal/user/model/update", new WebModelUpdate());
 		server.addPrefixPath("/portal/user/model/delete", new WebModelDelete());
+		server.addPrefixPath("/portal/user/model/update", new WebModelUpdate());
+		server.addPrefixPath("/portal/user/model/runtime", new WebModelRuntime());
 		server.addPrefixPath("/portal/user/state", new WebUserState());
 		
 		return server;

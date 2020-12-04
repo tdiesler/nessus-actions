@@ -20,8 +20,9 @@ import io.nessus.actions.core.types.MavenBuildHandle;
 import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
 import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.actions.jaxrs.service.MavenBuilderService;
-import io.nessus.actions.jaxrs.service.UserModelService;
-import io.nessus.actions.jaxrs.type.UserModel;
+import io.nessus.actions.jaxrs.service.ModelService;
+import io.nessus.actions.jaxrs.type.Model;
+import io.nessus.actions.jaxrs.type.Model.TargetRuntime;
 import io.nessus.common.AssertState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -43,7 +44,7 @@ public class ModelResource extends AbstractUserResource {
 	@Path("/{modelId}")
 	@Operation(summary = "Get the model for the given id.")
 	@ApiResponse(responseCode = "200", description = "[OK] Model for the given id could be accessed.",
-		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = UserModel.class)))
+		content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = Model.class)))
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	@ApiResponse(responseCode = "404", description = "[Not Found] The model for the given id could not be found.")
 	
@@ -56,14 +57,14 @@ public class ModelResource extends AbstractUserResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		UserModelService models = getService(UserModelService.class);
-		UserModel userModel = models.findModel(modelId);
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.findModel(modelId);
 		
-		if (userModel == null) {
+		if (model == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		
-		return Response.ok().type(MediaType.APPLICATION_JSON).entity(userModel).build();
+		return Response.ok().type(MediaType.APPLICATION_JSON).entity(model).build();
 	}
 	
 	// Update Model
@@ -78,19 +79,19 @@ public class ModelResource extends AbstractUserResource {
 	@ApiResponse(responseCode = "200", description = "[OK] Successfully updated the model.")
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	
-	public Response updateModel(@PathParam("userId") String userId, @PathParam("modelId") String modelId, UserModel userModel) {
+	public Response updateModel(@PathParam("userId") String userId, @PathParam("modelId") String modelId, Model model) {
 		
-		logInfo("Update model: {}", userModel.modelId);
+		logInfo("Update model: {}", model.getModelId());
 		
 		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
 		if (kcinfo == null) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		AssertState.isEqual(modelId, userModel.modelId);
+		AssertState.isEqual(modelId, model.getModelId());
 		
-		UserModelService models = getService(UserModelService.class);
-		userModel = models.updateModel(userModel);
+		ModelService mdlsrv = getService(ModelService.class);
+		model = mdlsrv.updateModel(model);
 		
 		return Response.status(Status.OK).build();
 	}
@@ -115,8 +116,8 @@ public class ModelResource extends AbstractUserResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 		
-		UserModelService models = getService(UserModelService.class);
-		models.deleteModel(modelId);
+		ModelService mdlsrv = getService(ModelService.class);
+		mdlsrv.deleteModel(modelId);
 		
 		return Response.status(Status.NO_CONTENT).build();
 	}
@@ -129,11 +130,12 @@ public class ModelResource extends AbstractUserResource {
 	@GET
 	@Path("/{modelId}/{runtime}/build")
 	@Operation(summary = "Schedule the build process for the model.")
-	@ApiResponse(responseCode = "200", description = "[OK] Successfully scheduled the model build.")
+	@ApiResponse(responseCode = "200", description = "[OK] Successfully scheduled the model build.",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MavenBuildHandle.class)))
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided access token was not valid.")
 	@ApiResponse(responseCode = "404", description = "[Not Found] The model for the given id could not be found.")
 	
-	public Response buildModel(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") String runtime) {
+	public Response buildModel(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") TargetRuntime runtime) {
 
 		logInfo("Schedule model build: {}", modelId);
 		
@@ -142,19 +144,20 @@ public class ModelResource extends AbstractUserResource {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 
-		UserModelService models = getService(UserModelService.class);
-		UserModel userModel = models.findModel(modelId);
-		if (userModel == null) {
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.findModel(modelId);
+		if (model == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 
 		MavenBuilderService maven = getService(MavenBuilderService.class);
-		Response res = maven.buildModelWithMaven(kcinfo.username, userModel, runtime);
+		Response res = maven.buildModelWithMaven(kcinfo.username, model, runtime);
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;
 		
-		return Response.status(Status.OK).build();
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		return Response.ok(handle, MediaType.APPLICATION_JSON).build();
 	}
 
 	// Get Build Status
@@ -170,21 +173,21 @@ public class ModelResource extends AbstractUserResource {
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided credentials were not valid.")
 	@ApiResponse(responseCode = "404", description = "[Not Found] The project for the given id was not found.")
 	
-	public Response getBuildStatus(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") String runtime) {
+	public Response getBuildStatus(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") TargetRuntime runtime) {
 
 		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
 		if (kcinfo == null) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 
-		UserModelService models = getService(UserModelService.class);
-		UserModel userModel = models.findModel(modelId);
-		if (userModel == null) {
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.findModel(modelId);
+		if (model == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 
 		MavenBuilderService maven = getService(MavenBuilderService.class);
-		Response res = maven.getModelBuildStatus(kcinfo.username, userModel, runtime);
+		Response res = maven.getModelBuildStatus(kcinfo.username, model, runtime);
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;
@@ -206,31 +209,31 @@ public class ModelResource extends AbstractUserResource {
 	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided credentials were not valid.")
 	@ApiResponse(responseCode = "404", description = "[Not Found] The target file was not found.")
 	
-	public Response downloadBuildTarget(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") String runtime) {
+	public Response downloadBuildTarget(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") TargetRuntime runtime) {
 
 		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
 		if (kcinfo == null) {
 			return Response.status(Status.UNAUTHORIZED).build();
 		}
 
-		UserModelService models = getService(UserModelService.class);
-		UserModel userModel = models.findModel(modelId);
-		if (userModel == null) {
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.findModel(modelId);
+		if (model == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 
 		MavenBuilderService maven = getService(MavenBuilderService.class);
-		Response res = maven.getModelBuildStatus(kcinfo.username, userModel, runtime);
+		Response res = maven.getModelBuildStatus(kcinfo.username, model, runtime);
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;
 		
 		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
-		if (handle.getStatus() != BuildStatus.Success) {
+		if (handle.getBuildStatus() != BuildStatus.Success) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 		
-		res = maven.getModelTargetDownload(kcinfo.username, userModel, runtime);
+		res = maven.getModelTargetDownload(kcinfo.username, model, runtime);
 		
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;

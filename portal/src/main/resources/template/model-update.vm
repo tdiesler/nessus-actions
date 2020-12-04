@@ -2,16 +2,16 @@
 
 <div style="float:left;">
 
-    <h1>User Model Update</h1>
+    <h1>Model Update</h1>
     
     <table>
     <form id="frmModelUpdate" method="post" action="update/act">
     <input name="modelId" type="hidden" value="$model.modelId"/>
     <tr><td valign="top">Content</td><td><textarea name="content" rows="40" cols="70">$model.content</textarea></td></tr>
-    <tr><td>&nbsp;</td>
+    <tr>
+        <td>&nbsp;</td>
         <td>
-        <a href="javascript:{}" onclick="document.getElementById('frmModelUpdate').submit()">Update</a>&nbsp;
-        <a href="../model/delete/act?modelId=$model.modelId">Delete</a>
+            <a href="javascript:{}" onclick="document.getElementById('frmModelUpdate').submit()">Update</a>&nbsp;
         </td>
     </tr>
     </form>

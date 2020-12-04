@@ -29,7 +29,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @Path("/users")
-public class UsersResource extends AbstractResource {
+public class UserListResource extends AbstractResource {
 	
 	// User Register
 	

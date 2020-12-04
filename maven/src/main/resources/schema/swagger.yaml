@@ -110,7 +110,6 @@ components:
       required:
       - id
       - location
-      - status
       type: object
       properties:
         id:
@@ -125,7 +124,6 @@ components:
           - Running
           - Success
           - Failure
-          - Removed
           - NotFound
     MultipartFormDataInput:
       type: object

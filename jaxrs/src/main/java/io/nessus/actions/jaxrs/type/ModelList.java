@@ -11,19 +11,19 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_EMPTY)
-public class UserModelList {
+public class ModelList {
 	
 	public enum ModelRuntime {
 		standalone, docker, kubernetes, eap
 	}
 	
-	public final String userId;
-	public final List<UserModel> models = new ArrayList<>();
+	private final String userId;
+	private final List<Model> models = new ArrayList<>();
 	
 	@JsonCreator
-	public UserModelList(
+	public ModelList(
 		@JsonProperty(value = "userId", required = true) String userId, 
-		@JsonProperty(value = "models") List<UserModel> models) {
+		@JsonProperty(value = "models") List<Model> models) {
 		this.userId = userId;
 		if (models != null)
 			this.models.addAll(models);
@@ -43,7 +43,7 @@ public class UserModelList {
 		return userId;
 	}
 
-	public List<UserModel> getModels() {
+	public List<Model> getModels() {
 		return Collections.unmodifiableList(models);
 	}
 }

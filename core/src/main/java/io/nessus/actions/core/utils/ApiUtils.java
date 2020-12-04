@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.nessus.actions.core.NessusConfig;
 import io.nessus.common.AssertArg;
+import io.nessus.common.AssertState;
 import io.nessus.common.CheckedExceptionWrapper;
 
 public final class ApiUtils {
@@ -47,6 +48,10 @@ public final class ApiUtils {
 		}
 	}
 
+	public static void assertStatus(Response res, Status... exp) {
+		AssertState.isTrue(hasStatus(res, exp));
+	}
+	
 	public static boolean hasStatus(Response res, Status... exp) {
 		AssertArg.notNull(exp, "Null expected");
 		

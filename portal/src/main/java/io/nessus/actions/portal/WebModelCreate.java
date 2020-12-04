@@ -13,7 +13,7 @@ import org.apache.velocity.VelocityContext;
 
 import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.core.utils.ApiUtils;
-import io.nessus.actions.jaxrs.type.UserModelAdd;
+import io.nessus.actions.jaxrs.type.ModelAdd;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
@@ -30,7 +30,7 @@ public class WebModelCreate extends AbstractUserResource {
 		RouteModel model = RouteModel.read(input);
 
 		String content = model.toString();
-		UserModelAdd modelAdd = new UserModelAdd(userId, content);
+		ModelAdd modelAdd = new ModelAdd(userId, content);
 		
 		context.put("model", modelAdd);
 		
@@ -56,7 +56,7 @@ public class WebModelCreate extends AbstractUserResource {
 		MultivaluedMap<String, String> reqprms = getRequestParameters(exchange);
 		String content = reqprms.getFirst("content");
 		
-		UserModelAdd modelAdd = new UserModelAdd(userId, content);
+		ModelAdd modelAdd = new ModelAdd(userId, content);
 		
 		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/models");
 		Response res = withClient(uri, target -> target

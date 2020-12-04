@@ -1,4 +1,5 @@
 /*
+DROP TABLE IF EXISTS Nessus.UserModelState;
 DROP TABLE IF EXISTS Nessus.UserModel;
 DROP TABLE IF EXISTS Nessus.UserState;
 */
@@ -19,6 +20,14 @@ CREATE TABLE IF NOT EXISTS Nessus.UserModel (
   content CLOB, 
   PRIMARY KEY (modelId),
   FOREIGN KEY (userId) REFERENCES Nessus.UserState (userId) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Nessus.UserModelState ( 
+  modelId VARCHAR(48) NOT NULL,
+  runtime VARCHAR(12) NOT NULL,
+  status VARCHAR(12) NOT NULL,
+  PRIMARY KEY (modelId, runtime),
+  FOREIGN KEY (modelId) REFERENCES Nessus.UserModel (modelId) ON DELETE CASCADE
 );
 
 /**************  DO NOT DROP TABLES BELOW *************/

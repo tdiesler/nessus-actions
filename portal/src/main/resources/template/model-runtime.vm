@@ -1,0 +1,36 @@
+#parse( "template/header.vm" )
+
+<div style="float:left;">
+
+    <h1>$runtime.display()</h1>
+    
+    <pre style="color:grey; border:1px solid grey; padding: 10px">$model.content</pre>    
+    
+    #set( $buildStatus = $model.getModelState($runtime).buildStatus )
+    #set( $enableBuild = $buildStatus != "Scheduled" && $buildStatus != "Running" )
+    
+    <p class="xsgrey">BuildStatus: $buildStatus</p>
+    
+    <table>
+    <tr>
+    #if ( $enableBuild )
+        <td><a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=build">build</a></td>
+    #else
+        <td class="grey">build</td>
+    #end
+    
+    #if ( $buildStatus == "Success" )
+        <td><a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">download</a></td>
+    #else
+        <td class="grey">download</td>
+    #end
+    </tr>
+    </table>
+    
+    <p/>
+    
+    <a href="../models"><= Back</a>
+
+</div>
+
+#parse( "template/footer.vm" )

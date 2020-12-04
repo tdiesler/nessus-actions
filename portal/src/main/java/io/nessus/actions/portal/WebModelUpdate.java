@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.velocity.VelocityContext;
 
 import io.nessus.actions.core.utils.ApiUtils;
-import io.nessus.actions.jaxrs.type.UserModel;
+import io.nessus.actions.jaxrs.type.Model;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
@@ -30,11 +30,6 @@ public class WebModelUpdate extends AbstractUserResource {
 		// Get Model
 		
 		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
-		// 
-		// {
-		//	  "userId": "myuser",
-		//	  "content": "some model content", 
-		// }
 
 		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/model/" + modelId);
 		Response res = withClient(uri, target -> target.request()
@@ -43,9 +38,9 @@ public class WebModelUpdate extends AbstractUserResource {
 	
 		assertStatus(res, Status.OK);
 		
-		UserModel userModel = res.readEntity(UserModel.class);
+		Model model = res.readEntity(Model.class);
 		
-		context.put("model", userModel);
+		context.put("model", model);
 		
 		return "template/model-update.vm";
 	}
@@ -66,7 +61,7 @@ public class WebModelUpdate extends AbstractUserResource {
 		String modelId = reqprms.getFirst("modelId");
 		String content = reqprms.getFirst("content");
 		
-		UserModel modelUpd = new UserModel(modelId, userId, content);
+		Model modelUpd = new Model(modelId, userId, content, null);
 
 		URI uri = ApiUtils.jaxrsUri(config, "/api/user/" + userId + "/model/" + modelId);
 		Response res = withClient(uri, target -> target.request(MediaType.APPLICATION_JSON)

@@ -44,9 +44,11 @@ import io.nessus.actions.core.model.RouteModel;
 import io.nessus.actions.core.types.MavenBuildHandle;
 import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
 import io.nessus.actions.core.utils.ApiUtils;
-import io.nessus.actions.jaxrs.type.UserModel;
-import io.nessus.actions.jaxrs.type.UserModelAdd;
-import io.nessus.actions.jaxrs.type.UserModelList;
+import io.nessus.actions.jaxrs.type.Model;
+import io.nessus.actions.jaxrs.type.Model.ModelState;
+import io.nessus.actions.jaxrs.type.Model.TargetRuntime;
+import io.nessus.actions.jaxrs.type.ModelAdd;
+import io.nessus.actions.jaxrs.type.ModelList;
 import io.nessus.actions.jaxrs.type.UserRegister;
 import io.nessus.actions.jaxrs.type.UserTokens;
 import io.nessus.common.utils.StreamUtils;
@@ -64,10 +66,10 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		String userId = tokens.userId;
 		
 		InputStream input = getClass().getResourceAsStream("/model/crypto-ticker.yaml");
-		RouteModel model = RouteModel.read(input);
+		RouteModel routeModel = RouteModel.read(input);
 
-		String content = model.toString();
-		UserModelAdd modelAdd = new UserModelAdd(userId, content);
+		String content = routeModel.toString();
+		ModelAdd modelAdd = new ModelAdd(userId, content);
 		
 		// Create Model
 		
@@ -86,11 +88,11 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		
 		assertStatus(res, Status.CREATED);
 		
-		UserModel userModel = res.readEntity(UserModel.class);
-		String modelId = userModel.modelId;
+		Model model = res.readEntity(Model.class);
+		String modelId = model.getModelId();
 		
-		Assert.assertEquals(userId, userModel.userId);
-		Assert.assertEquals(content, userModel.content);
+		Assert.assertEquals(userId, model.userId);
+		Assert.assertEquals(content, model.content);
 		Assert.assertNotNull(modelId);
 		
 		// Get Models
@@ -104,9 +106,9 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 	
 		assertStatus(res, Status.OK);
 		
-		UserModelList userModels = res.readEntity(UserModelList.class);
-		Assert.assertEquals(userId, userModels.userId);
-		Assert.assertNotNull(userModels.models.stream().filter(m -> m.getModelId().equals(modelId)).findAny().orElse(null));
+		ModelList models = res.readEntity(ModelList.class);
+		Assert.assertEquals(userId, models.getUserId());
+		Assert.assertNotNull(models.getModels().stream().filter(m -> m.getModelId().equals(modelId)).findAny().orElse(null));
 		
 		// Get Model
 		
@@ -120,9 +122,9 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 	
 		assertStatus(res, Status.OK);
 		
-		userModel = res.readEntity(UserModel.class);
-		Assert.assertEquals(userId, userModel.userId);
-		Assert.assertEquals(content, userModel.content);
+		model = res.readEntity(Model.class);
+		Assert.assertEquals(userId, model.userId);
+		Assert.assertEquals(content, model.content);
 		Assert.assertNotNull(modelId);
 
 		// Update Model
@@ -130,10 +132,10 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		// POST http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
 		//
 		
-		RouteModel routeModel = userModel.getRouteModel();
-		routeModel = routeModel.withTitle("Updated " + userModel.getTitle());
+		routeModel = model.getRouteModel();
+		routeModel = routeModel.withTitle("Updated " + model.getTitle());
 		
-		UserModel modelUpdate = new UserModel(userModel)
+		Model modelUpdate = new Model(model)
 			.withContent(routeModel.toString());
 		
 		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
@@ -155,8 +157,8 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 	
 		assertStatus(res, Status.OK);
 		
-		userModel = res.readEntity(UserModel.class);
-		Assert.assertTrue(userModel.getTitle().startsWith("Updated"));
+		model = res.readEntity(Model.class);
+		Assert.assertTrue(model.getTitle().startsWith("Updated"));
 		
 		// Build Model
 		
@@ -170,6 +172,11 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		
 		assertStatus(res, Status.OK);
 
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		BuildStatus buildStatus = handle.getBuildStatus();
+		
+		Assert.assertEquals(BuildStatus.Scheduled, buildStatus);
+		
 		// Get Build Status
 		
 		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/status
@@ -182,28 +189,42 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		
 		assertStatus(res, Status.OK);
 		
-		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
-		BuildStatus buildStatus = handle.getStatus();
+		handle = res.readEntity(MavenBuildHandle.class);
+		buildStatus = handle.getBuildStatus();
 		
-		while (buildStatus != BuildStatus.Success && buildStatus != BuildStatus.Failure) {
+		while (buildStatus == BuildStatus.Scheduled || buildStatus == BuildStatus.Running) {
 			
-			sleepSafe(500);
+			sleepSafe(2500);
 			
 			res = withClient(uri, target -> target.request()
 					.header("Authorization", "Bearer " + accessToken)
 					.get());
 			
-			ApiUtils.hasStatus(res, Status.OK);
+			ApiUtils.assertStatus(res, Status.OK);
 			
 			handle = res.readEntity(MavenBuildHandle.class);
-			buildStatus = handle.getStatus();
-			
-			logInfo("{} => {}", handle.getId(), buildStatus);
+			buildStatus = handle.getBuildStatus();
 		}
 
 		Assert.assertEquals(BuildStatus.Success, buildStatus);
 		assertStatus(res, Status.OK);
 
+		// Get Model again to verify associated state
+		
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}
+		//
+		
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId);
+		res = withClient(uri, target -> target.request()
+				.header("Authorization", "Bearer " + accessToken)
+				.get());
+	
+		assertStatus(res, Status.OK);
+		
+		model = res.readEntity(Model.class);
+		ModelState modelState = model.getModelState(TargetRuntime.standalone);
+		Assert.assertEquals(BuildStatus.Success, modelState.getBuildStatus());
+		
 		// Download the Target File
 		
 		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/download

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.nessus.actions.core.model.RouteModel;
 import io.nessus.common.AssertArg;
 
-public class UserModelBase {
+public class ModelBase {
 	
 	public final String userId;
 	public final String content;
-	public RouteModel routeModel;
 	
-	public UserModelBase(String userId, String content) {
+	private RouteModel routeModel;
+	
+	public ModelBase(String userId, String content) {
 		AssertArg.notNull(userId, "Null userId");
 		this.userId = userId;
 		this.content = content;

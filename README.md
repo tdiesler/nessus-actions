@@ -162,9 +162,6 @@ http://localhost:8000/auth/admin
 Then, you can spin up a the Maven project builder like this ...
 
 ```
-docker volume rm mvnm2
-docker volume rm mvnws
-
 docker rm -f maven
 docker run --detach \
     --name maven \

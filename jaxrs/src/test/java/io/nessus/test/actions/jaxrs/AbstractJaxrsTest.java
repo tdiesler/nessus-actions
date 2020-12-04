@@ -78,8 +78,8 @@ abstract class AbstractJaxrsTest extends AbstractTest<NessusConfig> {
 	}
 
 	protected Response withClient(URI uri, Function<WebTarget, Response> invoker) {
-		KeycloakService keycloak = getService(KeycloakService.class);
-		return keycloak.withClient(uri, invoker);
+		KeycloakService anysrv = getService(KeycloakService.class);
+		return anysrv.withClient(uri, invoker);
 	}
 
 	protected void assertStatus(Response res, Status... exp) {

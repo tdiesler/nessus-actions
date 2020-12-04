@@ -21,6 +21,8 @@ package io.nessus.test.actions.jaxrs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,10 +30,13 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import io.nessus.actions.jaxrs.type.UserModel;
+import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
+import io.nessus.actions.jaxrs.type.Model;
+import io.nessus.actions.jaxrs.type.Model.ModelState;
+import io.nessus.actions.jaxrs.type.Model.TargetRuntime;
 import io.nessus.common.utils.StreamUtils;
 
-public class UserModelTest extends AbstractJaxrsTest {
+public class ModelTest extends AbstractJaxrsTest {
 
 	@Test
 	public void testConfig() throws Exception {
@@ -41,14 +46,15 @@ public class UserModelTest extends AbstractJaxrsTest {
 		StreamUtils.copyStream(input, output);
 
 		String content = new String(output.toByteArray());
-		UserModel exp = new UserModel("model01", "user01", content);
+		List<ModelState> states = Arrays.asList(new ModelState(TargetRuntime.standalone, BuildStatus.Success));
+		Model exp = new Model("model01", "user01", content, states);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		String expstr = writer.writeValueAsString(exp);
 		logInfo("{}", expstr);
 		
-		UserModel was = mapper.readValue(expstr, UserModel.class);
+		Model was = mapper.readValue(expstr, Model.class);
 		String wasstr = writer.writeValueAsString(was);
 		logInfo("{}", wasstr);
 		

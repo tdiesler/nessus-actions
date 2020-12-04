@@ -46,7 +46,7 @@ import io.nessus.actions.core.types.MavenBuildHandle.BuildStatus;
 import io.nessus.actions.core.utils.ApiUtils;
 import io.nessus.common.utils.StreamUtils;
 
-public class MavenProjectBuilderTest extends AbstractMavenTest {
+public class MavenBuildTest extends AbstractMavenTest {
 
 	Client client = ClientBuilder.newClient();
 
@@ -93,7 +93,7 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 		ApiUtils.hasStatus(res, Status.OK);
 		
 		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
-		BuildStatus buildStatus = handle.getStatus();
+		BuildStatus buildStatus = handle.getBuildStatus();
 
 		Assert.assertTrue(new File(handle.getLocation()).isFile());
 		Assert.assertEquals(BuildStatus.Scheduled, buildStatus);
@@ -114,7 +114,7 @@ public class MavenProjectBuilderTest extends AbstractMavenTest {
 			ApiUtils.hasStatus(res, Status.OK);
 			
 			handle = res.readEntity(MavenBuildHandle.class);
-			buildStatus = handle.getStatus();
+			buildStatus = handle.getBuildStatus();
 			
 			logInfo("{} => {}", handle.getId(), buildStatus);
 		}

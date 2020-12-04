@@ -3,93 +3,37 @@
 
 <div style="float:left;">
 
-    <h1>User Models</h1>
+    <h1>Models</h1>
 
     <table>
-        #foreach( $m in $userModels.models )
+        #foreach( $m in $models.models )
         <tr valign="top">
             <td><a href="model/update?modelId=$m.modelId">$m.title</a></td>
             <td>&nbsp;</td>
             <td>
-                
-                #set( $standaloneStatus = "" )
-                #set( $standaloneStatus = $buildStatusMap.get("$m.modelId/standalone") )
-                
-                #set( $dockerStatus = "" )
-                #set( $dockerStatus = $buildStatusMap.get("$m.modelId/docker") )
-
-                #set( $eapStatus = "" )
-                #set( $eapStatus = $buildStatusMap.get("$m.modelId/eap") )
-                
-                #set( $buildEnabled = $standaloneStatus == "" || $standaloneStatus == "Success" )
-                #set( $buildEnabled = $buildEnabled && ($dockerStatus == "" || $dockerStatus == "Success") )
-                #set( $buildEnabled = $buildEnabled && ($eapStatus == "" || $eapStatus == "Success") )
-                
-                <form id="frmBuild" method="post" action="models/act">
-                    <input name="action" type="hidden" value="build"/>
+                <form id="frmRuntime" action="model/runtime">
                     <input name="modelId" type="hidden" value="$m.modelId"/>
-                    <select name="runtime" #if( !$buildEnabled ) disabled #end>
-                      <option value="standalone">standalone</option>
-                      <option value="docker">docker</option>
-                      <option value="eap">eap</option>
+                    <select name="runtime">
+                      <option value="standalone">Standalone</option>
+                      <option value="docker">Docker</option>
+                      <option value="javaee">JavaEE</option>
                     </select>
                 </form>
-            </td>
-            <td>
-                #if( $buildEnabled )
-                    <a href="javascript:{}" onclick="document.getElementById('frmBuild').submit()">build</a>
-                #else
-                    <span style="color: grey">$standaloneStatus $dockerStatus $eapStatus</span>
-                #end
             </td>
             <td>&nbsp;</td>
             <td>
-                <form id="frmDownload" method="post" action="models/act">
-                    <input name="action" type="hidden" value="download"/>
-                    <input name="modelId" type="hidden" value="$m.modelId"/>
-                    <select name="runtime">
-                      <option value="standalone">standalone</option>
-                      <option value="docker">docker</option>
-                      <option value="eap">eap</option>
-                    </select>
-                </form>
+                <a href="javascript:{}" onclick="document.getElementById('frmRuntime').submit()">details</a>
             </td>
-            <td><a href="javascript:{}" onclick="document.getElementById('frmDownload').submit()">download</a></td>
             <td>&nbsp;</td>
             <td>
-                <form id="frmPublish" method="post" action="models/act">
-                    <input name="action" type="hidden" value="publish"/>
-                    <input name="modelId" type="hidden" value="$m.modelId"/>
-                    <select name="runtime">
-                      <option value=""></option>
-                      <option value="kubernetes">kubernetes</option>
-                      <option value="docker">docker</option>
-                      <option value="eap">eap</option>
-                    </select>
-                </form>
+                <a href="model/delete/act?modelId=$m.modelId">delete</a>
             </td>
-            <td><a href="javascript:{}" onclick="document.getElementById('frmPublish').submit()">publish</a></td>
         </tr>
         #end
     </table>    
-    
     <p/>
     <a href="models/create">Create</a>
-
-
-<p/>
-<style>
-.xsgrey {
-    color: grey; 
-    font-size: x-small;
-}
-</style>
-<p class="xsgrey">Maven Build Status</p>
-<table>    
-#foreach( $en in $buildStatusMap.entrySet() )
-    <tr><td class="xsgrey">$en.key</td><td class="xsgrey">$en.value</td>
-#end
-</table>    
+    
 </div>
 
     

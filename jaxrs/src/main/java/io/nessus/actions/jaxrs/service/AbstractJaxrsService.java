@@ -25,4 +25,12 @@ class AbstractJaxrsService extends AbstractService<NessusConfig> {
 			throw CheckedExceptionWrapper.create(ex);
 		}
 	}
+
+    protected void sleepSafe(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+    }
 }
