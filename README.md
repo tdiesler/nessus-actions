@@ -28,19 +28,19 @@ on how to setup Kubernetes on CentOS are [here](https://github.com/tdiesler/ness
 NAMESPACE=nessus
 kubectl create namespace $NAMESPACE
 
-CURRENT_CONTEXT=kubernetes-admin@kubernetes
+CURRENT_CONTEXT=docker-desktop
 kubectl config set contexts.$CURRENT_CONTEXT.namespace $NAMESPACE
 kubectl config view
  
 # Delete this app
-kubectl delete pod,svc --all
+kubectl delete pod,svc,pvc --all
 
 # Create Secrets & Persistent Volumes
-kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/secret.yaml
-kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/pvolume.yaml
+kubectl apply -f docs/k8s/deployment/keycloak-secret.yaml
+kubectl apply -f docs/k8s/deployment/keycloak-pvolume.yaml
 
 # Apply the last stable configuration
-kubectl apply -f https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/nessus.yaml
+kubectl apply -f docs/k8s/deployment/nessus.yaml
 
 kubectl get pv,pod,svc
 
@@ -67,12 +67,12 @@ kubectl get pv,pod,svc
 
 ### Access to the Portal
 
-Access to the [protal](https://136.244.111.173:32443/portal) is not restriced. Anyone can register
+Access to the [protal](https://127.0.0.1:30343/portal) is not restriced. Anyone can register
 and try out what we currently have.
 
 ### Access to the REST API
 
-Access to the [REST API](https://136.244.111.173:31443/api) is not restriced. Anyone can access the 
+Access to the [REST API](https://127.0.0.1:30243/api) is not restriced. Anyone can access the 
 full functional scope just like the portal above, which is just another Jaxrs client.
 
 The OpenAPI schema is published here: [TODO]
@@ -130,7 +130,7 @@ First, you'd want to spin up a [Keycloak](https://www.keycloak.org/getting-start
 
 ```
 # Download the default application realm
-curl --create-dirs -o /tmp/keycloak/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/myrealm.json
+curl --create-dirs -so /tmp/keycloak/myrealm.json https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/myrealm.json
 
 KEYCLOAK_USER=admin
 KEYCLOAK_PASSWORD=admin

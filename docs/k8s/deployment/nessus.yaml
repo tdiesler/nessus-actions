@@ -123,7 +123,8 @@ spec:
     pod: keycloak
   ports:
   - name: http
-    port: 8080
+    port: 8000
+    targetPort: 8080
 
 # Keycloak HTTPS Service 
 ---
