@@ -22,7 +22,7 @@
             </td>
             <td>&nbsp;</td>
             <td>
-                <a href="javascript:{}" onclick="document.getElementById('frmRuntime').submit()">details</a>
+                <a href="javascript:{}" onclick="document.getElementById('frmRuntime').submit()">select</a>
             </td>
             <td>&nbsp;</td>
             <td>

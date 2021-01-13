@@ -2,6 +2,7 @@ package io.nessus.actions.maven;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -53,6 +54,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 public class MavenBuildResource extends AbstractResource {
 	
 	private static final int MAVEN_WORKER_POOL_SIZE = 1;
+	private static final String BUILD_SOURCES_SUFFIX = "maven-project.tgz";
+	private static final String BUILD_TARGET_SUFFIX = "runner.jar";
 
 	private static ExecutorService executorService;
 	
@@ -93,7 +96,8 @@ public class MavenBuildResource extends AbstractResource {
 		InputPart projZipPart = projZipParts.get(0);
 		
 		String projId;
-		URI pomXmlUri = null;
+		Path workspace;
+		Path srcTargetPath;
 		
 		try {
 			
@@ -101,14 +105,24 @@ public class MavenBuildResource extends AbstractResource {
 			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 			projId = br.readLine();
 			
-			Path workspace = getWorkspace(projId);
+			workspace = getWorkspace(projId);
 			FileUtils.recursiveDelete(workspace);
 			workspace.toFile().mkdirs();
 			
-			logInfo("Storing project in workspace: {}", workspace);
+			String minorId = projId.substring(projId.lastIndexOf('/') + 1);
+			srcTargetPath = workspace.resolve(minorId + "-" + BUILD_SOURCES_SUFFIX);
+			logInfo("Storing project sources in: {}", srcTargetPath);
+			
+			try (InputStream srcInputStream = projZipPart.getBody(InputStream.class, null)) {
+				try (OutputStream outs = new FileOutputStream(srcTargetPath.toFile())) {
+					StreamUtils.copyStream(srcInputStream, outs);
+				}
+			}
+			
+			logInfo("Expanding project project sources to: {}", workspace);
 			
 			Map<ArchivePath, Node> content = ShrinkWrap.create(ZipImporter.class)
-					.importFrom(projZipPart.getBody(InputStream.class, null))
+					.importFrom(new FileInputStream(srcTargetPath.toFile()))
 					.as(GenericArchive.class)
 					.getContent();
 			
@@ -124,19 +138,17 @@ public class MavenBuildResource extends AbstractResource {
 						StreamUtils.copyStream(asset.openStream(), outs);
 						logInfo("{} => {}", path, asset);
 					}
-					if (path.equals("pom.xml")) {
-						pomXmlUri = assetPath.toUri();
-					}
 				}
 			}
-
-			AssertState.notNull(pomXmlUri, "Null pom.xml");
 			
 		} catch (IOException ex) {
 			throw CheckedExceptionWrapper.create(ex);
 		}
 		
-		MavenBuildHandle handle = new MavenBuildHandle(projId, pomXmlUri, BuildStatus.Scheduled);
+		Path pomXml = workspace.resolve("pom.xml");
+		AssertState.notNull(pomXml, "Null pom.xml");
+		
+		MavenBuildHandle handle = new MavenBuildHandle(projId, srcTargetPath.toUri(), null, BuildStatus.Scheduled);
 		writeBuildStatus(projId, BuildStatus.Scheduled);
 		
 		getExecutorService().submit(() -> {
@@ -144,8 +156,7 @@ public class MavenBuildResource extends AbstractResource {
 			try {
 				
 				ProcessBuilder builder = new ProcessBuilder();
-				String pomPath = handle.getLocation().getPath();
-			    builder.command(findMvn(), "clean", "package", "-f", pomPath);
+			    builder.command(findMvn(), "clean", "package", "-f", pomXml.toString());
 			    
 				Process process = builder.start();
 				
@@ -204,10 +215,6 @@ public class MavenBuildResource extends AbstractResource {
 	public Response downloadBuildTarget(@PathParam("majorId") String majorId, @PathParam("minorId") String minorId) {
 
 		String projId = majorId + "/" + minorId;
-		MavenBuildHandle handle = getMavenBuildHandle(projId);
-		if (handle.getBuildStatus() == BuildStatus.NotFound)
-			return Response.status(Status.NOT_FOUND).build();
-		
 		String runtime = projId.substring(projId.indexOf('/') + 1);
 		
 		List<String> supported = Arrays.asList("standalone");
@@ -219,14 +226,66 @@ public class MavenBuildResource extends AbstractResource {
 			
 			File buildDir = getWorkspace(projId).resolve("target").toFile();
 			File targetFile = Arrays.asList(buildDir.listFiles()).stream()
-				.filter(f -> f.getName().endsWith("-runner.jar"))
+				.filter(f -> f.getName().endsWith(BUILD_TARGET_SUFFIX))
 				.findAny().orElse(null);
 			
-			if (targetFile == null)
+			if (targetFile == null) {
+				logInfo("Target download not found for: {}", projId);
 				return Response.status(Status.NOT_FOUND).build();
+			}
+			
+			String contentDisposition = "attachment;filename=" + targetFile.getName();
+			logInfo("Sending with Content-Disposition: {}", contentDisposition);
 			
 			res = Response.ok(targetFile)
-				.header("Content-Disposition", "attachment;filename=" + targetFile.getName())
+				.header("Content-Disposition", contentDisposition)
+				.build();
+		}
+		
+		AssertState.notNull(res, "Null response");
+		
+		return res;
+	}
+
+	// Download the Project sources
+	
+	// GET http://localhost:8100/maven/api/build/{majorId}/{minorId}/sources
+	//
+	
+	@GET
+	@javax.ws.rs.Path("/{majorId}/{minorId}/sources")
+	@Operation(summary = "Download the project sources")	
+	@ApiResponse(responseCode = "200", description = "[OK] Found the requested project sources.",
+			content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM))
+	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided credentials were not valid.")
+	@ApiResponse(responseCode = "404", description = "[Not Found] The project source file was not found.")
+	
+	public Response downloadProjectSources(@PathParam("majorId") String majorId, @PathParam("minorId") String minorId) {
+
+		String projId = majorId + "/" + minorId;
+		String runtime = projId.substring(projId.indexOf('/') + 1);
+		
+		List<String> supported = Arrays.asList("standalone");
+		AssertState.isTrue(supported.contains(runtime), "Supported runtimes are: " + supported);
+		
+		Response res = null;
+		
+		if (runtime.equals("standalone")) {
+			
+			Path workspace = getWorkspace(projId);
+			Path srcTargetPath = workspace.resolve(minorId + "-" + BUILD_SOURCES_SUFFIX);
+
+			File srcTargetFile = srcTargetPath.toFile();
+			if (!srcTargetFile.isFile()) {
+				logInfo("Source download not found for: {}", projId);
+				return Response.status(Status.NOT_FOUND).build();
+			}
+			
+			String contentDisposition = "attachment;filename=" + srcTargetFile.getName();
+			logInfo("Sending with Content-Disposition: {}", contentDisposition);
+			
+			res = Response.ok(srcTargetFile)
+				.header("Content-Disposition", contentDisposition)
 				.build();
 		}
 		
@@ -236,16 +295,28 @@ public class MavenBuildResource extends AbstractResource {
 	}
 
 	private MavenBuildHandle getMavenBuildHandle(String projId) {
+		
+		URI targetUri = null;
+		URI sourceUri = null;
+		
+		Path workspace = getWorkspace(projId);
 		BuildStatus status = readBuildStatus(projId);
-		URI uri = getWorkspace(projId).resolve("pom.xml").toUri();
+		
 		if (status == BuildStatus.Success) {
-			File buildDir = getWorkspace(projId).resolve("target").toFile();
-			File targetFile = Arrays.asList(buildDir.listFiles()).stream()
-				.filter(f -> f.getName().endsWith("-runner.jar"))
-				.findAny().orElse(null);
-			uri = targetFile != null ? targetFile.toURI() : uri;
+			
+			File buildDir = workspace.resolve("target").toFile();
+			targetUri = Arrays.asList(buildDir.listFiles()).stream()
+					.filter(f -> f.getName().endsWith(BUILD_TARGET_SUFFIX))
+					.map(file -> file.toURI())
+					.findAny().orElse(null);
+			
+			sourceUri = Arrays.asList(workspace.toFile().listFiles()).stream()
+					.filter(f -> f.getName().endsWith(BUILD_SOURCES_SUFFIX))
+					.map(file -> file.toURI())
+					.findAny().orElse(null);
 		}
-		MavenBuildHandle handle = new MavenBuildHandle(projId, uri, status);
+		
+		MavenBuildHandle handle = new MavenBuildHandle(projId, sourceUri, targetUri, status);
 		return handle;
 	}
 	

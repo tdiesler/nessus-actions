@@ -174,6 +174,21 @@ docker run --detach \
 docker logs -f maven
 ```
 
+### Running the Docker Registry
+
+Then, you can spin up a the Maven project builder like this ...
+
+```
+docker rm -f registry
+docker run --detach \
+    --name registry \
+    -p 5000:5000 \
+    --network nessus \
+    registry:2
+
+docker logs -f registry
+```
+
 ### Running the JAXRS API server
 
 Then, you can spin up a the API server like this ...

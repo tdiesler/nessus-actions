@@ -95,7 +95,7 @@ public class MavenBuildTest extends AbstractMavenTest {
 		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
 		BuildStatus buildStatus = handle.getBuildStatus();
 
-		Assert.assertTrue(new File(handle.getLocation()).isFile());
+		Assert.assertTrue(new File(handle.getBuildSources()).isFile());
 		Assert.assertEquals(BuildStatus.Scheduled, buildStatus);
 		
 		// Get Build Status
@@ -135,11 +135,38 @@ public class MavenBuildTest extends AbstractMavenTest {
 		String contentDisposition = res.getHeaderString("Content-Disposition");
 		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
 
-		int fnameIdx = contentDisposition.indexOf('=');
+		int fnameIdx = contentDisposition.indexOf('=') + 1;
 		String fileName = contentDisposition.substring(fnameIdx);
 		File targetFile = new File("target/" + fileName);
 		
 		InputStream ins = res.readEntity(InputStream.class);
+		try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+			StreamUtils.copyStream(ins, fos);
+		}
+		
+		logInfo("Downloaded: {}", targetFile);
+		
+		Assert.assertTrue(targetFile.isFile());
+		
+		// Download the project sources
+		
+		// GET http://localhost:8100/maven/api/build/{projId}/sources
+		//
+		
+		uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/sources");
+		
+		res = client.target(uri).request().get();
+		
+		ApiUtils.hasStatus(res, Status.OK);
+		
+		contentDisposition = res.getHeaderString("Content-Disposition");
+		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
+
+		fnameIdx = contentDisposition.indexOf('=') + 1;
+		fileName = contentDisposition.substring(fnameIdx);
+		targetFile = new File("target/" + fileName);
+		
+		ins = res.readEntity(InputStream.class);
 		try (FileOutputStream fos = new FileOutputStream(targetFile)) {
 			StreamUtils.copyStream(ins, fos);
 		}

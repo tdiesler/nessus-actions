@@ -1,8 +1,6 @@
 package io.nessus.actions.jaxrs;
 
-import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -238,10 +236,62 @@ public class ModelResource extends AbstractUserResource {
 		if (!ApiUtils.hasStatus(res, Status.OK))
 			return res;
 		
-		File targetFile = Paths.get(handle.getLocation()).toFile();
+		String contentDisposition = res.getHeaderString("Content-Disposition");
 		InputStream inputStream = res.readEntity(InputStream.class);
 		res = Response.ok(inputStream)
-				.header("Content-Disposition", "attachment;filename=" + targetFile.getName())
+				.header("Content-Disposition", contentDisposition)
+				.build();
+		
+		return res;
+	}
+
+
+	// Download the Project sources
+	
+	// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/sources
+	//
+	
+	@GET
+	@Path("/{modelId}/{runtime}/sources")
+	@Operation(summary = "Download the project sources")	
+	@ApiResponse(responseCode = "200", description = "[OK] Found the requested project sources.",
+			content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM))
+	@ApiResponse(responseCode = "401", description = "[Unauthorized] If the provided credentials were not valid.")
+	@ApiResponse(responseCode = "404", description = "[Not Found] The project source file was not found.")
+	
+	public Response downloadProjectSources(@PathParam("userId") String userId, @PathParam("modelId") String modelId, @PathParam("runtime") TargetRuntime runtime) {
+
+		KeycloakUserInfo kcinfo = getKeycloakUserInfo(userId);
+		if (kcinfo == null) {
+			return Response.status(Status.UNAUTHORIZED).build();
+		}
+
+		ModelService mdlsrv = getService(ModelService.class);
+		Model model = mdlsrv.findModel(modelId);
+		if (model == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+
+		MavenBuilderService maven = getService(MavenBuilderService.class);
+		Response res = maven.getModelBuildStatus(kcinfo.username, model, runtime);
+		
+		if (!ApiUtils.hasStatus(res, Status.OK))
+			return res;
+		
+		MavenBuildHandle handle = res.readEntity(MavenBuildHandle.class);
+		if (handle.getBuildStatus() == BuildStatus.NotFound) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		res = maven.getModelProjectSources(kcinfo.username, model, runtime);
+		
+		if (!ApiUtils.hasStatus(res, Status.OK))
+			return res;
+		
+		String contentDisposition = res.getHeaderString("Content-Disposition");
+		InputStream inputStream = res.readEntity(InputStream.class);
+		res = Response.ok(inputStream)
+				.header("Content-Disposition", contentDisposition)
 				.build();
 		
 		return res;

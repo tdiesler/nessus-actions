@@ -197,6 +197,7 @@ font-style: italic;
   <h4><a href="#Default">Default</a></h4>
   <ul>
   <li><a href="#downloadBuildTarget"><code><span class="http-method">get</span> /build/{majorId}/{minorId}/download</code></a></li>
+  <li><a href="#downloadProjectSources"><code><span class="http-method">get</span> /build/{majorId}/{minorId}/sources</code></a></li>
   <li><a href="#getBuildStatus"><code><span class="http-method">get</span> /build/{majorId}/{minorId}/status</code></a></li>
   <li><a href="#scheduleMavenBuild"><code><span class="http-method">post</span> /build/schedule</code></a></li>
   </ul>
@@ -246,6 +247,50 @@ font-style: italic;
         <a href="#"></a>
   </div> <!-- method -->
   <hr/>
+  <div class="method"><a name="downloadProjectSources"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /build/{majorId}/{minorId}/sources</code></pre></div>
+    <div class="method-summary">Download the project sources (<span class="nickname">downloadProjectSources</span>)</div>
+    <div class="method-notes"></div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">majorId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div><div class="param">minorId (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash;  default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+
+
+
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/octet-stream</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    [OK] Found the requested project sources.
+        <a href="#"></a>
+    <h4 class="field-label">401</h4>
+    [Unauthorized] If the provided credentials were not valid.
+        <a href="#"></a>
+    <h4 class="field-label">404</h4>
+    [Not Found] The project source file was not found.
+        <a href="#"></a>
+  </div> <!-- method -->
+  <hr/>
   <div class="method"><a name="getBuildStatus"/>
     <div class="method-path">
     <a class="up" href="#__Methods">Up</a>
@@ -278,9 +323,10 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
-  "location" : "https://openapi-generator.tech",
+  "sources" : "https://openapi-generator.tech",
   "id" : "id",
-  "status" : "Scheduled"
+  "status" : "Scheduled",
+  "target" : "https://openapi-generator.tech"
 }</code></pre>
 
     <h3 class="field-label">Produces</h3>
@@ -339,9 +385,10 @@ font-style: italic;
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
     <pre class="example"><code>{
-  "location" : "https://openapi-generator.tech",
+  "sources" : "https://openapi-generator.tech",
   "id" : "id",
-  "status" : "Scheduled"
+  "status" : "Scheduled",
+  "target" : "https://openapi-generator.tech"
 }</code></pre>
 
     <h3 class="field-label">Produces</h3>
@@ -398,10 +445,11 @@ font-style: italic;
     <div class='model-description'></div>
     <div class="field-items">
       <div class="param">id </div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
-<div class="param">location </div><div class="param-desc"><span class="param-type"><a href="#URI">URI</a></span>  format: uri</div>
+<div class="param">sources (optional)</div><div class="param-desc"><span class="param-type"><a href="#URI">URI</a></span>  format: uri</div>
 <div class="param">status (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
         <div class="param-enum-header">Enum:</div>
         <div class="param-enum">Scheduled</div><div class="param-enum">Running</div><div class="param-enum">Success</div><div class="param-enum">Failure</div><div class="param-enum">NotFound</div>
+<div class="param">target (optional)</div><div class="param-desc"><span class="param-type"><a href="#URI">URI</a></span>  format: uri</div>
     </div>  <!-- field-items -->
   </div>
   <div class="model">

@@ -191,6 +191,7 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		
 		handle = res.readEntity(MavenBuildHandle.class);
 		buildStatus = handle.getBuildStatus();
+		Assert.assertEquals(BuildStatus.Scheduled, buildStatus);
 		
 		while (buildStatus == BuildStatus.Scheduled || buildStatus == BuildStatus.Running) {
 			
@@ -238,20 +239,50 @@ public class JaxrsModelTest extends AbstractJaxrsTest {
 		assertStatus(res, Status.OK);
 
 		String contentDisposition = res.getHeaderString("Content-Disposition");
+		logInfo("Content-Disposition: {}", contentDisposition);
 		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
 
-		int fnameIdx = contentDisposition.indexOf('=');
+		int fnameIdx = contentDisposition.indexOf('=') + 1;
 		String fileName = contentDisposition.substring(fnameIdx);
 		File targetFile = new File("target/" + fileName);
 		
-		InputStream ins = res.readEntity(InputStream.class);
 		try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+			InputStream ins = res.readEntity(InputStream.class);
 			StreamUtils.copyStream(ins, fos);
 		}
 		
 		logInfo("Downloaded: {}", targetFile);
-		
 		Assert.assertTrue(targetFile.isFile());
+		Assert.assertTrue(targetFile.getName().endsWith("crypto-ticker-1.0.0-runner.jar"));
+
+		// Download the Project sources
+		
+		// GET http://localhost:8200/jaxrs/api/user/{userId}/model/{modelId}/{runtime}/sources
+		//
+		
+		uri = jaxrsUri("/api/user/" + userId + "/model/" + modelId + "/standalone/sources");
+		res = withClient(uri, target -> target.request()
+				.header("Authorization", "Bearer " + accessToken)
+				.get());
+		
+		assertStatus(res, Status.OK);
+
+		contentDisposition = res.getHeaderString("Content-Disposition");
+		logInfo("Content-Disposition: {}", contentDisposition);
+		Assert.assertTrue(contentDisposition.startsWith("attachment;filename="));
+
+		fnameIdx = contentDisposition.indexOf('=') + 1;
+		fileName = contentDisposition.substring(fnameIdx);
+		File srcTargetFile = new File("target/" + fileName);
+		
+		try (FileOutputStream fos = new FileOutputStream(srcTargetFile)) {
+			InputStream ins = res.readEntity(InputStream.class);
+			StreamUtils.copyStream(ins, fos);
+		}
+		
+		logInfo("Downloaded: {}", srcTargetFile);
+		Assert.assertTrue(srcTargetFile.isFile());
+		Assert.assertTrue(srcTargetFile.getName().endsWith("standalone-maven-project.tgz"));
 
 		// Delete Model
 		

@@ -47,6 +47,30 @@ paths:
           description: "[Unauthorized] If the provided credentials were not valid."
         "404":
           description: "[Not Found] The target file was not found."
+  /build/{majorId}/{minorId}/sources:
+    get:
+      summary: Download the project sources
+      operationId: downloadProjectSources
+      parameters:
+      - name: majorId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: minorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "[OK] Found the requested project sources."
+          content:
+            application/octet-stream: {}
+        "401":
+          description: "[Unauthorized] If the provided credentials were not valid."
+        "404":
+          description: "[Not Found] The project source file was not found."
   /build/{majorId}/{minorId}/status:
     get:
       summary: Get the current build status
@@ -109,12 +133,11 @@ components:
     MavenBuildHandle:
       required:
       - id
-      - location
       type: object
       properties:
         id:
           type: string
-        location:
+        sources:
           type: string
           format: uri
         status:
@@ -125,6 +148,9 @@ components:
           - Success
           - Failure
           - NotFound
+        target:
+          type: string
+          format: uri
     MultipartFormDataInput:
       type: object
       properties:

@@ -78,7 +78,13 @@ body {
    color: grey;
 }
 
+.disabled {
+  font-size: 14px;
+  color: grey; 
+
+}
+
 .xsgrey {
-    font-size: x-small;
-	color: grey; 
+  font-size: x-small;
+  color: grey; 
 }

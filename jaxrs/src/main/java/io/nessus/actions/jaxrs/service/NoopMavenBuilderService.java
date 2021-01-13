@@ -27,4 +27,9 @@ public class NoopMavenBuilderService extends AbstractMavenBuilderService {
 	public Response getModelTargetDownload(String username, Model model, TargetRuntime runtime) {
 		return Response.status(Status.OK).build();
 	}
+
+	@Override
+	public Response getModelProjectSources(String username, Model model, TargetRuntime runtime) {
+		return Response.status(Status.OK).build();
+	}
 }

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-	    <groupId>io.nessus.actions</groupId>
-	    <artifactId>nessus-actions</artifactId>
+        <groupId>io.nessus.actions</groupId>
+        <artifactId>nessus-actions</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>nessus-actions-maven</artifactId>
     <packaging>jar</packaging>
 
@@ -25,13 +27,13 @@
 
     <!-- Dependencies -->
     <dependencies>
-        
+
         <dependency>
             <groupId>io.nessus.actions</groupId>
             <artifactId>nessus-actions-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
@@ -60,7 +62,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -68,7 +70,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -129,9 +131,7 @@
                             <goal>generate</goal>
                         </goals>
                         <phase>package</phase>
-                        <!-- 
-                          https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin 
-                        -->
+                        <!-- https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin -->
                         <configuration>
                             <output>${basedir}/src/main/resources/schema</output>
                             <inputSpec>${basedir}/src/main/resources/schema/swagger.yaml</inputSpec>
@@ -145,7 +145,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-               <executions>
+                <executions>
                     <execution>
                         <id>proj</id>
                         <goals>
@@ -176,7 +176,6 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <autoPull>always</autoPull>
                     <images>
                         <image>
                             <name>${docker.image.name}</name>
@@ -224,11 +223,10 @@
                         <phase>package</phase>
                         <configuration>
                             <skipPush>${skipPush}</skipPush>
-                            <skipTag>true</skipTag>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
-    </build>	 
+    </build>
 </project>

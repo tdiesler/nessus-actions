@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-	    <groupId>io.nessus.actions</groupId>
-	    <artifactId>nessus-actions</artifactId>
+        <groupId>io.nessus.actions</groupId>
+        <artifactId>nessus-actions</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    
+
     <artifactId>nessus-actions-jaxrs</artifactId>
     <packaging>jar</packaging>
 
@@ -23,15 +25,15 @@
         <useTLS>false</useTLS>
     </properties>
 
-	<!-- Dependencies -->
+    <!-- Dependencies -->
     <dependencies>
-        
+
         <dependency>
             <groupId>io.nessus.actions</groupId>
             <artifactId>nessus-actions-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
@@ -52,10 +54,10 @@
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-undertow</artifactId>
         </dependency>
-		<dependency>
-		    <groupId>org.jboss.resteasy</groupId>
-		    <artifactId>resteasy-jackson2-provider</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>
@@ -64,7 +66,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -72,8 +74,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-	 
-	<build>
+
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -103,53 +105,51 @@
                     </archive>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>io.openapitools.swagger</groupId>
-				<artifactId>swagger-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
+            <plugin>
+                <groupId>io.openapitools.swagger</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
                         <phase>package</phase>
-		                <configuration>
-		                    <resourcePackages>
-		                        <resourcePackage>io.nessus.actions.jaxrs</resourcePackage>
-		                    </resourcePackages>
-		                    <outputDirectory>${basedir}/src/main/resources/schema</outputDirectory>
-		                    <outputFilename>swagger</outputFilename>
-		                    <outputFormats>YAML</outputFormats>
-		                    <prettyPrint>true</prettyPrint>
-		                </configuration>
-					</execution>
-				</executions>
-			</plugin>
+                        <configuration>
+                            <resourcePackages>
+                                <resourcePackage>io.nessus.actions.jaxrs</resourcePackage>
+                            </resourcePackages>
+                            <outputDirectory>${basedir}/src/main/resources/schema</outputDirectory>
+                            <outputFilename>swagger</outputFilename>
+                            <outputFormats>YAML</outputFormats>
+                            <prettyPrint>true</prettyPrint>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>package</phase>
-						<!-- 
-						  https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin 
-						-->
-						<configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <!-- https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator-maven-plugin -->
+                        <configuration>
                             <output>${basedir}/src/main/resources/schema</output>
-							<inputSpec>${basedir}/src/main/resources/schema/swagger.yaml</inputSpec>
-							<generatorName>html</generatorName>
-							<configOptions>
-							</configOptions>
-						</configuration>
-					</execution>
-				</executions>
+                            <inputSpec>${basedir}/src/main/resources/schema/swagger.yaml</inputSpec>
+                            <generatorName>html</generatorName>
+                            <configOptions>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-               <executions>
+                <executions>
                     <execution>
                         <id>proj</id>
                         <goals>
@@ -180,14 +180,13 @@
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
-                    <autoPull>always</autoPull>
                     <images>
                         <image>
                             <name>nessusio/keycloak</name>
                             <run>
-								<ports>
-								    <port>8080:8080</port>
-								</ports>
+                                <ports>
+                                    <port>8080:8080</port>
+                                </ports>
                                 <env>
                                     <KEYCLOAK_USER>admin</KEYCLOAK_USER>
                                     <KEYCLOAK_PASSWORD>admin</KEYCLOAK_PASSWORD>
@@ -198,12 +197,12 @@
                                         <volume>${basedir}/../docs/k8s/deployment/keycloak:/tmp/keycloak</volume>
                                     </bind>
                                 </volumes>
-								<wait>
-									<http>
-										<url>http://localhost:8080/auth</url>
-									</http>
-									<time>120000</time>
-								</wait>
+                                <wait>
+                                    <http>
+                                        <url>http://localhost:8080/auth</url>
+                                    </http>
+                                    <time>120000</time>
+                                </wait>
                                 <skip>${skipKeycloak}</skip>
                             </run>
                         </image>
@@ -219,10 +218,10 @@
                                         <volume>${basedir}/target/workspace/maven:/var/nessus/workspace/maven</volume>
                                     </bind>
                                 </volumes>
-								<wait>
-									<log>Starting JaxrsServer</log>
-									<time>60000</time>
-								</wait>
+                                <wait>
+                                    <log>Starting JaxrsServer</log>
+                                    <time>60000</time>
+                                </wait>
                                 <skip>${skipMaven}</skip>
                             </run>
                         </image>
@@ -272,7 +271,6 @@
                         <phase>package</phase>
                         <configuration>
                             <skipPush>${skipPush}</skipPush>
-                            <skipTag>true</skipTag>
                         </configuration>
                     </execution>
                     <execution>
@@ -312,5 +310,5 @@
                 </executions>
             </plugin>
         </plugins>
-	</build>
+    </build>
 </project>

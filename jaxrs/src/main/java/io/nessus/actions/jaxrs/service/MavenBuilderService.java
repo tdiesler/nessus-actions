@@ -13,4 +13,6 @@ public interface MavenBuilderService extends Service {
 	Response getModelBuildStatus(String username, Model model, TargetRuntime runtime);
 
 	Response getModelTargetDownload(String username, Model model, TargetRuntime runtime);
+
+	Response getModelProjectSources(String username, Model model, TargetRuntime runtime);
 }

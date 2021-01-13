@@ -5,6 +5,8 @@ import java.net.URI;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.nessus.common.AssertArg;
+
 public class MavenBuildHandle {
 	
 	public enum BuildStatus {
@@ -12,16 +14,21 @@ public class MavenBuildHandle {
 	}
 	
 	private final String id;
-	private final URI location;
+	private final URI buildTarget;
+	private final URI buildSources;
 	private final BuildStatus status;
 	
 	@JsonCreator
 	public MavenBuildHandle(
 		@JsonProperty(value = "id", required = true) String id,
-		@JsonProperty(value = "location", required = true) URI location,
+		@JsonProperty(value = "sources") URI sources,
+		@JsonProperty(value = "target") URI target,
 		@JsonProperty(value = "status", required = true) BuildStatus status) {
+		AssertArg.notNull(id, "Null id");
+		AssertArg.notNull(status, "Null status");
 		this.id = id;
-		this.location = location;
+		this.buildSources = sources;
+		this.buildTarget = target;
 		this.status = status;
 	}
 	
@@ -29,8 +36,14 @@ public class MavenBuildHandle {
 		return id;
 	}
 
-	public URI getLocation() {
-		return location;
+	@JsonProperty(value = "sources")
+	public URI getBuildSources() {
+		return buildSources;
+	}
+
+	@JsonProperty(value = "target")
+	public URI getBuildTarget() {
+		return buildTarget;
 	}
 
 	@JsonProperty(value = "status")
@@ -40,6 +53,6 @@ public class MavenBuildHandle {
 
 	@Override
 	public String toString() {
-		return String.format("MavenBuildHandle[id=%s, loc=%s, status=%s]", id, location, status);
+		return String.format("MavenBuildHandle[id=%s, sources=%s, target=%s, status=%s]", id, buildSources, buildTarget, status);
 	}
 }

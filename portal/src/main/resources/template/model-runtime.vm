@@ -9,24 +9,26 @@
     #set( $buildStatus = $model.getModelState($runtime).buildStatus )
     #set( $enableBuild = $buildStatus != "Scheduled" && $buildStatus != "Running" )
     
-    <p class="xsgrey">BuildStatus: $buildStatus</p>
-    
-    <table>
-    <tr>
-    #if ( $enableBuild )
-        <td><a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=build">build</a></td>
-    #else
-        <td class="grey">build</td>
+    <p class="xsgrey">BuildStatus: $buildStatus
+    #if ( ! $enableBuild )
+        <a href="runtime?modelId=$model.modelId&runtime=$runtime" style="font-size: x-small">reload</a>
     #end
+    </p>
+    
+    #if ( $enableBuild )
+        <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=build">build</a>
+    #else
+        <span class="disabled">build</span>
+    #end
+
+    <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=sources">sources</a>
     
     #if ( $buildStatus == "Success" )
-        <td><a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">download</a></td>
+      <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">binary</a>
     #else
-        <td class="grey">download</td>
+        <span class="disabled">binary</span>
     #end
-    </tr>
-    </table>
-    
+        
     <p/>
     
     <a href="../models"><= Back</a>

@@ -58,8 +58,8 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 			Date startTime = new Date();
 			
 			uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
-			Response res = ClientBuilder.newClient().target(uri).request()
-				.post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
+			Response res = withClient(uri, target -> target.request()
+					.post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE)));
 			
 			res.bufferEntity();
 			
@@ -112,7 +112,7 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 		String projId = majorId + "/" + runtime;
 		
 		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
-		Response res = ClientBuilder.newClient().target(uri).request().get();
+		Response res = withClient(uri, target -> target.request().get());
 		
 		return res;
 	}
@@ -124,7 +124,19 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 		String projId = majorId + "/" + runtime;
 		
 		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/download");
-		Response res = ClientBuilder.newClient().target(uri).request().get();
+		Response res = withClient(uri, target -> target.request().get());
+		
+		return res;
+	}
+
+	@Override
+	public Response getModelProjectSources(String username, Model model, TargetRuntime runtime) {
+		
+		String majorId = model.getModelId();
+		String projId = majorId + "/" + runtime;
+		
+		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/sources");
+		Response res = withClient(uri, target -> target.request().get());
 		
 		return res;
 	}
