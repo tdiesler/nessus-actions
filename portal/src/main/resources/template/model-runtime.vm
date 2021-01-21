@@ -21,7 +21,11 @@
         <span class="disabled">build</span>
     #end
 
-    <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=sources">sources</a>
+    #if ( $buildStatus != "NotFound" )
+      <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=sources">sources</a>
+    #else
+        <span class="disabled">sources</span>
+    #end
     
     #if ( $buildStatus == "Success" )
       <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">binary</a>
