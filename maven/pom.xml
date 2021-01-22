@@ -22,7 +22,6 @@
         <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <docker.image.version>latest</docker.image.version>
-        <skipKeycloak>false</skipKeycloak>
     </properties>
 
     <!-- Dependencies -->
@@ -170,6 +169,7 @@
                         <key>useTLS</key>
                         <value>${useTLS}</value>
                     </systemPropertyVariables>
+                    <skipTests>${skipMaven}</skipTests>
                 </configuration>
             </plugin>
             <plugin>

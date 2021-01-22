@@ -55,6 +55,8 @@
         <version-openapi-maven-generator>4.3.1</version-openapi-maven-generator>
         <version-swagger-maven-plugin>2.1.5</version-swagger-maven-plugin>
 
+        <skipKeycloak>false</skipKeycloak>
+        <skipMaven>false</skipMaven>
         <skipPush>true</skipPush>
     </properties>
 

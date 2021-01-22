@@ -19,7 +19,6 @@
     <properties>
         <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
-        <skipKeycloak>false</skipKeycloak>
     </properties>
 
     <!-- Dependencies -->

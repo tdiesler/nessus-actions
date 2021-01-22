@@ -20,8 +20,6 @@
         <docker.image.name>nessusio/${project.artifactId}</docker.image.name>
         <docker.image.maintainer>Thomas Diesler tdiesler@redhat.com</docker.image.maintainer>
         <docker.image.version>latest</docker.image.version>
-        <skipKeycloak>false</skipKeycloak>
-        <skipMaven>false</skipMaven>
         <useTLS>false</useTLS>
     </properties>
 
