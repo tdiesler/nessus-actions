@@ -96,7 +96,8 @@ public class MavenBuildResource extends AbstractResource {
 		InputPart projZipPart = projZipParts.get(0);
 		
 		String projId;
-		Path workspace;
+		Path majorWorkspace;
+		Path minorWorkspace;
 		Path srcTargetPath;
 		
 		try {
@@ -105,12 +106,18 @@ public class MavenBuildResource extends AbstractResource {
 			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 			projId = br.readLine();
 			
-			workspace = getWorkspace(projId);
-			FileUtils.recursiveDelete(workspace);
-			workspace.toFile().mkdirs();
+			String[] toks = projId.split("/");
+			AssertState.isEqual(2, toks.length, "Expected two tokens seperated by '/' in: " + projId);
 			
-			String minorId = projId.substring(projId.lastIndexOf('/') + 1);
-			srcTargetPath = workspace.resolve(minorId + "-" + BUILD_SOURCES_SUFFIX);
+			String majorId = toks[0];
+			String minorId = toks[1];
+			
+			majorWorkspace = getProjectWorkspace(majorId);
+			minorWorkspace = getProjectWorkspace(projId);
+			FileUtils.recursiveDelete(minorWorkspace);
+			minorWorkspace.toFile().mkdirs();
+			
+			srcTargetPath = majorWorkspace.resolve(minorId + "-" + BUILD_SOURCES_SUFFIX);
 			logInfo("Storing project sources in: {}", srcTargetPath);
 			
 			try (InputStream srcInputStream = projZipPart.getBody(InputStream.class, null)) {
@@ -119,7 +126,7 @@ public class MavenBuildResource extends AbstractResource {
 				}
 			}
 			
-			logInfo("Expanding project project sources to: {}", workspace);
+			logInfo("Expanding project project sources to: {}", majorWorkspace);
 			
 			Map<ArchivePath, Node> content = ShrinkWrap.create(ZipImporter.class)
 					.importFrom(new FileInputStream(srcTargetPath.toFile()))
@@ -132,7 +139,7 @@ public class MavenBuildResource extends AbstractResource {
 					path = path.substring(1);
 				Asset asset = en.getValue().getAsset();
 				if (asset != null) {
-					Path assetPath = workspace.resolve(path);
+					Path assetPath = majorWorkspace.resolve(path);
 					assetPath.getParent().toFile().mkdirs();
 					try (OutputStream outs = new FileOutputStream(assetPath.toFile())) {
 						StreamUtils.copyStream(asset.openStream(), outs);
@@ -145,7 +152,7 @@ public class MavenBuildResource extends AbstractResource {
 			throw CheckedExceptionWrapper.create(ex);
 		}
 		
-		Path pomXml = workspace.resolve("pom.xml");
+		Path pomXml = minorWorkspace.resolve("pom.xml");
 		AssertState.notNull(pomXml, "Null pom.xml");
 		
 		MavenBuildHandle handle = new MavenBuildHandle(projId, srcTargetPath.toUri(), null, BuildStatus.Scheduled);
@@ -215,16 +222,15 @@ public class MavenBuildResource extends AbstractResource {
 	public Response downloadBuildTarget(@PathParam("majorId") String majorId, @PathParam("minorId") String minorId) {
 
 		String projId = majorId + "/" + minorId;
-		String runtime = projId.substring(projId.indexOf('/') + 1);
 		
 		List<String> supported = Arrays.asList("standalone");
-		AssertState.isTrue(supported.contains(runtime), "Supported runtimes are: " + supported);
+		AssertState.isTrue(supported.contains(minorId), "Supported runtimes are: " + supported);
 		
 		Response res = null;
 		
-		if (runtime.equals("standalone")) {
+		if (minorId.equals("standalone")) {
 			
-			File buildDir = getWorkspace(projId).resolve("target").toFile();
+			File buildDir = getProjectWorkspace(projId).resolve("target").toFile();
 			File targetFile = Arrays.asList(buildDir.listFiles()).stream()
 				.filter(f -> f.getName().endsWith(BUILD_TARGET_SUFFIX))
 				.findAny().orElse(null);
@@ -263,16 +269,15 @@ public class MavenBuildResource extends AbstractResource {
 	public Response downloadProjectSources(@PathParam("majorId") String majorId, @PathParam("minorId") String minorId) {
 
 		String projId = majorId + "/" + minorId;
-		String runtime = projId.substring(projId.indexOf('/') + 1);
 		
 		List<String> supported = Arrays.asList("standalone");
-		AssertState.isTrue(supported.contains(runtime), "Supported runtimes are: " + supported);
+		AssertState.isTrue(supported.contains(minorId), "Supported runtimes are: " + supported);
 		
 		Response res = null;
 		
-		if (runtime.equals("standalone")) {
+		if (minorId.equals("standalone")) {
 			
-			Path workspace = getWorkspace(projId);
+			Path workspace = getProjectWorkspace(majorId);
 			Path srcTargetPath = workspace.resolve(minorId + "-" + BUILD_SOURCES_SUFFIX);
 
 			File srcTargetFile = srcTargetPath.toFile();
@@ -299,7 +304,7 @@ public class MavenBuildResource extends AbstractResource {
 		URI targetUri = null;
 		URI sourceUri = null;
 		
-		Path workspace = getWorkspace(projId);
+		Path workspace = getProjectWorkspace(projId);
 		BuildStatus status = readBuildStatus(projId);
 		
 		if (status == BuildStatus.Success) {
@@ -321,7 +326,7 @@ public class MavenBuildResource extends AbstractResource {
 	}
 	
 	private BuildStatus readBuildStatus(String projId) {
-		File statusFile = getWorkspace(projId).resolve("build-status").toFile();
+		File statusFile = getProjectWorkspace(projId).resolve("build-status").toFile();
 		if (!statusFile.isFile()) return BuildStatus.NotFound;
 		try (FileReader rd = new FileReader(statusFile)) {
 			String line = new BufferedReader(rd).readLine();
@@ -332,7 +337,7 @@ public class MavenBuildResource extends AbstractResource {
 	}
 	
 	private void writeBuildStatus(String projId, BuildStatus status) {
-		File statusFile = getWorkspace(projId).resolve("build-status").toFile();
+		File statusFile = getProjectWorkspace(projId).resolve("build-status").toFile();
 		try (FileWriter wr = new FileWriter(statusFile)) {
 			logInfo("Status change: {} => {}", projId, status);
 			wr.write(status.toString());
@@ -341,8 +346,13 @@ public class MavenBuildResource extends AbstractResource {
 		}
 	}
 	
-	private Path getWorkspace(String projId) {
-		Path workspace = config.getWorkspace().resolve("maven/" + projId);
+	private Path getMavenWorkspace() {
+		Path workspace = config.getWorkspace().resolve("maven");
+		return workspace;
+	}
+
+	private Path getProjectWorkspace(String projId) {
+		Path workspace = getMavenWorkspace().resolve(projId);
 		return workspace;
 	}
 

@@ -32,16 +32,16 @@ public class MavenProjectBuilderTest {
 	@Test
 	public void buildMavenProject() throws Exception {
     	
-		URI uri = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
+		URI zipurl = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
 			.routeModelFromClasspath("/model/crypto-ticker.yaml")
 			.generate()
 			.assemble();
 		
-		String name = uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1);
+		String name = zipurl.getPath().substring(zipurl.getPath().lastIndexOf('/') + 1);
 		Assert.assertEquals("acme-ticker-1.0.0-project.tgz", name);
 		
 		GenericArchive archive = ShrinkWrap.create(ZipImporter.class, name)
-			.importFrom(new File(uri))
+			.importFrom(new File(zipurl))
 			.as(GenericArchive.class);
 	
 		Assert.assertNotNull(archive.get("src/main/java/io/nessus/actions/quarkus/ModelRoutes.java"));

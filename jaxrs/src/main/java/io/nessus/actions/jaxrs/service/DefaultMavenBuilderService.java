@@ -2,6 +2,7 @@ package io.nessus.actions.jaxrs.service;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.util.Date;
 
 import javax.ws.rs.client.Client;
@@ -41,12 +42,12 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 			
 			// Generate the maven project 
 			
-			URI uri = new MavenProjectBuilder(String.format("%s:%s:1.0.0", groupId, artifactId))
-					.routeModel(model.getRouteModel()).generate().assemble();
+			URL zipurl = new MavenProjectBuilder(String.format("%s:%s:1.0.0", groupId, artifactId))
+					.routeModel(model.getRouteModel()).generate().assemble(runtime.toString()).toURL();
 			
 			// Schedule the maven build 
 			
-			InputStream projZip = uri.toURL().openStream();
+			InputStream projZip = zipurl.openStream();
 			
 			String modelId = model.getModelId();
 			String projId = modelId + "/" + runtime;
@@ -57,7 +58,7 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 			
 			Date startTime = new Date();
 			
-			uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
+			URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
 			Response res = withClient(uri, target -> target.request()
 					.post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE)));
 			

@@ -28,9 +28,9 @@
     #end
     
     #if ( $buildStatus == "Success" )
-      <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">binary</a>
+      <a href="runtime/act?modelId=$model.modelId&runtime=$runtime&action=download">download</a>
     #else
-        <span class="disabled">binary</span>
+        <span class="disabled">download</span>
     #end
         
     <p/>

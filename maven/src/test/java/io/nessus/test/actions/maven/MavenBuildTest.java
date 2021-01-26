@@ -55,16 +55,16 @@ public class MavenBuildTest extends AbstractMavenTest {
 
 		// Generate the Maven project from the given route model
 		
-		URI uri = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
+		URI zipurl = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
 				.routeModelFromClasspath("/crypto-ticker.yaml").generate().assemble();
 
 		// Verify maven project content
 		
-		final String projName = uri.getPath().substring(uri.getPath().lastIndexOf('/') + 1);
+		final String projName = zipurl.getPath().substring(zipurl.getPath().lastIndexOf('/') + 1);
 		Assert.assertEquals("acme-ticker-1.0.0-project.tgz", projName);
 
 		GenericArchive archive = ShrinkWrap.create(ZipImporter.class, projName)
-				.importFrom(new File(uri))
+				.importFrom(new File(zipurl))
 				.as(GenericArchive.class);
 		
 		Assert.assertNotNull(archive.get("src/main/resources/camel-route-model.yaml"));
@@ -86,7 +86,7 @@ public class MavenBuildTest extends AbstractMavenTest {
 		formData.addFormData("projZip", projZip, MediaType.APPLICATION_OCTET_STREAM_TYPE);
 		GenericEntity<MultipartFormDataOutput> entity = new GenericEntity<MultipartFormDataOutput>(formData) { };
 		
-		uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
+		URI uri = ApiUtils.mavenUri(getConfig(), "/api/build/schedule");
 		Response res = client.target(uri).request()
 			.post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
 		

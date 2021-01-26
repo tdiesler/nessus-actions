@@ -46,7 +46,6 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem;
@@ -79,26 +78,6 @@ public class MavenProjectBuilder {
 		version(art.getVersion());
 		
 		targetBaseDir(Paths.get("target/generated-project"));
-	}
-	
-	public MavenProjectBuilder targetBaseDir(Path basedir) {
-		project.setFile(basedir.resolve("pom.xml").toFile());
-		return this;
-	}
-
-	public MavenProjectBuilder groupId(String groupId) {
-		project.setGroupId(groupId);
-		return this;
-	}
-	
-	public MavenProjectBuilder artifactId(String artifactId) {
-		project.setArtifactId(artifactId);
-		return this;
-	}
-	
-	public MavenProjectBuilder version(String version) {
-		project.setVersion(version);
-		return this;
 	}
 	
 	public MavenProjectBuilder dependency(String coords) {
@@ -234,7 +213,22 @@ public class MavenProjectBuilder {
 		return this;
 	}
 	
+	/**
+	 * Assembles the maven project into a zip archive.
+	 * 
+	 * @return URL to the resulting archive   
+	 */
 	public URI assemble() throws IOException {
+		return assemble(null);
+	}
+
+	/**
+	 * Assembles the maven project into a zip archive.
+	 * 
+	 * @param rootdir an optional root dir for the archive
+	 * @return URL to the resulting archive   
+	 */
+	public URI assemble(String rootdir) throws IOException {
 		
 		String artifactId = project.getArtifactId();
 		String version = project.getVersion();
@@ -248,9 +242,10 @@ public class MavenProjectBuilder {
 		Files.walkFileTree(basedir, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-				Asset asset = new FileAsset(path.toFile());
-				Path target = basedir.relativize(path);
-				archive.add(asset, target.toString());
+				String target = basedir.relativize(path).toString();
+				if (rootdir != null) target = rootdir + "/" + target;
+				FileAsset asset = new FileAsset(path.toFile());
+				archive.add(asset, target);
 		        return FileVisitResult.CONTINUE;
 			}
 		});
@@ -260,4 +255,25 @@ public class MavenProjectBuilder {
 		
 		return zipPath.toUri();
 	}
+
+	private MavenProjectBuilder targetBaseDir(Path basedir) {
+		project.setFile(basedir.resolve("pom.xml").toFile());
+		return this;
+	}
+
+	private MavenProjectBuilder groupId(String groupId) {
+		project.setGroupId(groupId);
+		return this;
+	}
+	
+	private MavenProjectBuilder artifactId(String artifactId) {
+		project.setArtifactId(artifactId);
+		return this;
+	}
+	
+	private MavenProjectBuilder version(String version) {
+		project.setVersion(version);
+		return this;
+	}
+	
 }
