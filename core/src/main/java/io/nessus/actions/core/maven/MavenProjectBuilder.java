@@ -37,6 +37,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
@@ -104,6 +105,18 @@ public class MavenProjectBuilder {
 	
 	public MavenProjectBuilder routeModel(RouteModel routeModel) {
 		this.routeModel = routeModel;
+		return this;
+	}
+	
+	public MavenProjectBuilder property(String key, String val) {
+		Properties targetProps = project.getProperties();
+		targetProps.setProperty(key, val);
+		return this;
+	}
+	
+	public MavenProjectBuilder properties(Properties props) {
+		Properties targetProps = project.getProperties();
+		props.forEach((k, v) -> targetProps.setProperty((String)k, (String)v));
 		return this;
 	}
 	

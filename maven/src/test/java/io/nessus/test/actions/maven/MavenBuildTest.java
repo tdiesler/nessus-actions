@@ -55,8 +55,12 @@ public class MavenBuildTest extends AbstractMavenTest {
 
 		// Generate the Maven project from the given route model
 		
+		String runtime = "standalone";
 		URI zipurl = new MavenProjectBuilder("org.acme.ticker:acme-ticker:1.0.0")
-				.routeModelFromClasspath("/crypto-ticker.yaml").generate().assemble();
+				.routeModelFromClasspath("/crypto-ticker.yaml")
+				.property("quarkus.container-image.build", "false")
+				.property("quarkus.container-image.push", "false")
+				.generate().assemble(runtime);
 
 		// Verify maven project content
 		
@@ -67,8 +71,8 @@ public class MavenBuildTest extends AbstractMavenTest {
 				.importFrom(new File(zipurl))
 				.as(GenericArchive.class);
 		
-		Assert.assertNotNull(archive.get("src/main/resources/camel-route-model.yaml"));
-		Assert.assertNotNull(archive.get("pom.xml"));
+		Assert.assertNotNull(archive.get("standalone/src/main/resources/camel-route-model.yaml"));
+		Assert.assertNotNull(archive.get("standalone/pom.xml"));
 
 		// Schedule Maven Build
 		
@@ -76,7 +80,7 @@ public class MavenBuildTest extends AbstractMavenTest {
 		// 
 		
 		String modelId = "1234-5678-0000-0000";
-		String projId = modelId + "/standalone";
+		String projId = modelId + "/" + runtime;
 		
 		InputStream projZip = archive.as(ZipExporter.class)
 				.exportAsInputStream();
@@ -105,6 +109,7 @@ public class MavenBuildTest extends AbstractMavenTest {
 		
 		uri = ApiUtils.mavenUri(getConfig(), "/api/build/" + projId + "/status");
 		
+		String lastLogMsg = null;
 		while (buildStatus != BuildStatus.Success && buildStatus != BuildStatus.Failure) {
 			
 			sleepSafe(500);
@@ -116,7 +121,11 @@ public class MavenBuildTest extends AbstractMavenTest {
 			handle = res.readEntity(MavenBuildHandle.class);
 			buildStatus = handle.getBuildStatus();
 			
-			logInfo("{} => {}", handle.getId(), buildStatus);
+			String logMsg = String.format("%s => %s", handle.getId(), buildStatus);
+			if (!logMsg.equals(lastLogMsg)) {
+				logInfo("{}", logMsg);
+				lastLogMsg = logMsg;
+			}
 		}
 		
 		Assert.assertEquals(BuildStatus.Success, buildStatus);

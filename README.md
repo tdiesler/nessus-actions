@@ -41,28 +41,31 @@ kubectl apply -f docs/k8s/deployment/keycloak-pvolume.yaml
 
 # Apply the last stable configuration
 kubectl apply -f docs/k8s/deployment/nessus.yaml
-
 kubectl get pv,pod,svc
 
-# NAME                    CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM          STORAGECLASS   REASON   AGE
-# persistentvolume/h2pv   1G         RWX            Retain           Bound    nessus/h2pvc                           56s
+NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM           STORAGECLASS   REASON   AGE
+persistentvolume/h2pv                                       1G         RWX            Retain           Available                                           26m
+persistentvolume/pvc-c3231a9e-de3b-4c98-97eb-79be92c0d360   1G         RWX            Delete           Bound       default/h2pvc   hostpath                77s
 
-# NAME           READY   STATUS    RESTARTS   AGE
-# pod/h2         1/1     Running   0          22s
-# pod/jaxrs      1/1     Running   0          22s
-# pod/keycloak   1/1     Running   0          22s
-# pod/maven      1/1     Running   0          22s
-# pod/portal     1/1     Running   0          21s
+NAME           READY   STATUS    RESTARTS   AGE
+pod/h2         1/1     Running   0          18s
+pod/jaxrs      1/1     Running   0          17s
+pod/keycloak   1/1     Running   0          17s
+pod/maven      1/1     Running   0          17s
+pod/portal     1/1     Running   0          17s
+pod/registry   1/1     Running   0          17s
 
-# NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
-# service/h2-http          NodePort    10.106.103.191   <none>        9092:30092/TCP   22s
-# service/jaxrs-http       ClusterIP   10.100.66.39     <none>        8200/TCP         22s
-# service/jaxrs-https      NodePort    10.98.93.171     <none>        8443:30243/TCP   22s
-# service/keycloak-http    ClusterIP   10.110.206.228   <none>        8000/TCP         22s
-# service/keycloak-https   NodePort    10.101.221.48    <none>        8443:30043/TCP   22s
-# service/maven-http       ClusterIP   10.108.225.229   <none>        8100/TCP         22s
-# service/maven-https      NodePort    10.100.108.156   <none>        8443:30143/TCP   22s
-# service/portal-https     NodePort    10.106.232.255   <none>        8443:30343/TCP   21s
+NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/h2-http          NodePort    10.108.250.201   <none>        9092:30092/TCP   17s
+service/jaxrs-http       ClusterIP   10.96.209.48     <none>        8200/TCP         17s
+service/jaxrs-https      NodePort    10.108.202.5     <none>        8443:30243/TCP   17s
+service/keycloak-http    ClusterIP   10.110.107.88    <none>        8000/TCP         17s
+service/keycloak-https   NodePort    10.99.76.54      <none>        8443:30043/TCP   17s
+service/kubernetes       ClusterIP   10.96.0.1        <none>        443/TCP          4m20s
+service/maven-http       ClusterIP   10.105.137.63    <none>        8100/TCP         17s
+service/maven-https      NodePort    10.106.176.209   <none>        8443:30143/TCP   17s
+service/portal-https     NodePort    10.100.242.251   <none>        8443:30343/TCP   17s
+service/registry-http    ClusterIP   10.111.176.243   <none>        5000/TCP         17s
 ```
 
 ### Access to the Portal
@@ -232,6 +235,16 @@ and connect to it
 
 ```
 http://localhost:8300/portal
+```
+
+## Testing
+
+The tesuite requires a running containers for H2, Keycloak, Maven, Registry. Then do ...
+
+```
+mvn clean install -DskipKeycloak -DskipMaven
+
+docker rm -f h2 keycloak maven registry
 ```
 
 Enjoy!

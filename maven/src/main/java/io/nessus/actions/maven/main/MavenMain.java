@@ -99,12 +99,10 @@ public class MavenMain extends AbstractMain<NessusConfig, MavenOptions> {
 	}
 	
 	private boolean isTLSEnabled() {
+		if (!config.isUseTLS()) return false;
 		String tlsUrl = config.getMavenTLSUrl();
 		String tlsCert = config.getTLSCrt();
 		String tlsKey = config.getTLSKey();
-		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
-			return false;
-		}
 		if (!Paths.get(tlsCert).toFile().isFile()) {
 			logError("Cannot find TLS Cert: {}", tlsCert);
 			return false;

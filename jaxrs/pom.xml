@@ -224,6 +224,15 @@
                             </run>
                         </image>
                         <image>
+                            <name>registry:2</name>
+                            <run>
+                                <ports>
+                                    <port>5000:5000</port>
+                                </ports>
+                                <skip>${skipMaven}</skip>
+                            </run>
+                        </image>
+                        <image>
                             <name>${docker.image.name}</name>
                             <build>
                                 <maintainer>${docker.image.maintainer}</maintainer>
@@ -285,6 +294,9 @@
                                 <image>
                                     <name>nessusio/nessus-actions-maven</name>
                                 </image>
+                                <image>
+                                    <name>registry:2</name>
+                                </image>
                             </images>
                         </configuration>
                     </execution>
@@ -296,6 +308,9 @@
                         <phase>post-integration-test</phase>
                         <configuration>
                             <images>
+                                <image>
+                                    <name>registry:2</name>
+                                </image>
                                 <image>
                                     <name>nessusio/keycloak</name>
                                 </image>

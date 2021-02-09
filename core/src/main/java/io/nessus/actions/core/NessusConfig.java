@@ -64,6 +64,8 @@ public class NessusConfig extends BasicConfig {
 		mapping.put("portalTLSUrl", "PORTAL_TLS_URL");
 		mapping.put("portalTLSCrt", "PORTAL_TLS_CRT");
 		mapping.put("portalTLSKey", "PORTAL_TLS_KEY");
+		mapping.put("registryUrl", "REGISTRY_URL");
+		mapping.put("registryTLSUrl", "REGISTRY_TLS_URL");
 
 		super.prepare(mapping);
 	}
@@ -82,6 +84,14 @@ public class NessusConfig extends BasicConfig {
 
 	public String getMavenTLSUrl() {
 		return getParameter("mavenTLSUrl", String.class);
+	}
+
+	public String getRegistryUrl() {
+		return getParameter("registryUrl", String.class);
+	}
+
+	public String getRegistryTLSUrl() {
+		return getParameter("registryTLSUrl", String.class);
 	}
 
 	public String getKeycloakUrl() {

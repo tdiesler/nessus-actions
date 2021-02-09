@@ -123,12 +123,10 @@ public class JaxrsMain extends AbstractMain<NessusConfig, JaxrsOptions> {
 	}
 	
 	private boolean isTLSEnabled() {
+		if (!config.isUseTLS()) return false;
 		String tlsUrl = config.getJaxrsTLSUrl();
 		String tlsCert = config.getTLSCrt();
 		String tlsKey = config.getTLSKey();
-		if (tlsUrl == null || tlsCert == null || tlsKey == null) {
-			return false;
-		}
 		if (!Paths.get(tlsCert).toFile().isFile()) {
 			logError("Cannot find TLS Cert: {}", tlsCert);
 			return false;

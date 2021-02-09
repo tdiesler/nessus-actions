@@ -83,6 +83,7 @@ spec:
   containers:
   - name: keycloak
     image: nessusio/keycloak
+    imagePullPolicy: IfNotPresent
     env:
     - name: DB_VENDOR
       value: h2
@@ -144,7 +145,7 @@ spec:
     nodePort: 30043
   type: NodePort    
 
-# Maven Pod #######################################################################################################
+# Maven Pod ###########################################################################################################
 ---
 apiVersion: v1
 kind: Pod
@@ -157,6 +158,7 @@ spec:
   containers:
   - name: maven
     image: nessusio/nessus-actions-maven
+    imagePullPolicy: IfNotPresent
     ports:
     - containerPort: 8100
     - containerPort: 8443
@@ -195,6 +197,38 @@ spec:
     nodePort: 30143
   type: NodePort    
 
+# Registry Pod ########################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registry
+  labels:
+    app: nessus
+    pod: registry
+spec:
+  containers:
+  - name: registry
+    image: registry:2
+    ports:
+    - containerPort: 5000
+
+# Registry HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: registry
+  ports:
+  - name: http
+    port: 5000
+
 # Jaxrs API Pod #######################################################################################################
 ---
 apiVersion: v1
@@ -208,6 +242,7 @@ spec:
   containers:
   - name: jaxrs
     image: nessusio/nessus-actions-jaxrs
+    imagePullPolicy: IfNotPresent
     env:
     - name: JDBC_URL
       value: jdbc:h2:tcp://$(H2_HTTP_SERVICE_HOST):$(H2_HTTP_SERVICE_PORT)/fuse;schema=nessus
@@ -219,6 +254,8 @@ spec:
       value: http://$(KEYCLOAK_HTTP_SERVICE_HOST):$(KEYCLOAK_HTTP_SERVICE_PORT)/auth
     - name: MAVEN_URL
       value: http://$(MAVEN_HTTP_SERVICE_HOST):$(MAVEN_HTTP_SERVICE_PORT)/maven
+    - name: REGISTRY_URL
+      value: http://$(REGISTRY_HTTP_SERVICE_HOST):$(REGISTRY_HTTP_SERVICE_PORT)
     ports:
     - containerPort: 8200
     - containerPort: 8443
@@ -264,7 +301,7 @@ spec:
     nodePort: 30243
   type: NodePort    
 
-# Portal Pod #######################################################################################################
+# Portal Pod ##########################################################################################################
 ---
 apiVersion: v1
 kind: Pod
@@ -277,6 +314,7 @@ spec:
   containers:
   - name: portal
     image: nessusio/nessus-actions-portal
+    imagePullPolicy: IfNotPresent
     env:
     - name: JAXRS_URL
       value: http://$(JAXRS_HTTP_SERVICE_HOST):$(JAXRS_HTTP_SERVICE_PORT)/jaxrs

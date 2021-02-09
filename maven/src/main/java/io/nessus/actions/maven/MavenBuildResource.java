@@ -153,7 +153,7 @@ public class MavenBuildResource extends AbstractResource {
 		}
 		
 		Path pomXml = minorWorkspace.resolve("pom.xml");
-		AssertState.notNull(pomXml, "Null pom.xml");
+		AssertState.isTrue(pomXml.toFile().isFile(), "Cannot find: " + pomXml);
 		
 		MavenBuildHandle handle = new MavenBuildHandle(projId, srcTargetPath.toUri(), null, BuildStatus.Scheduled);
 		writeBuildStatus(projId, BuildStatus.Scheduled);

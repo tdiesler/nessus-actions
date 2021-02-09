@@ -40,10 +40,18 @@ public class DefaultMavenBuilderService extends AbstractMavenBuilderService {
 		
 		try {
 			
-			// Generate the maven project 
+			// Generate the maven project
+			
+	        URL regurl = new URL(config.getRegistryUrl());
+			String regHostPort = regurl.getHost() + ":" + regurl.getPort();
 			
 			URL zipurl = new MavenProjectBuilder(String.format("%s:%s:1.0.0", groupId, artifactId))
-					.routeModel(model.getRouteModel()).generate().assemble(runtime.toString()).toURL();
+					.routeModel(model.getRouteModel())
+					.property("quarkus.container-image.registry", regHostPort)
+					.property("quarkus.container-image.insecure", "true")
+					.property("quarkus.container-image.build", "true")
+					.property("quarkus.container-image.push", "true")
+					.generate().assemble(runtime.toString()).toURL();
 			
 			// Schedule the maven build 
 			
