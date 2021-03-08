@@ -11,12 +11,15 @@ ssh core@vps
 
 sudo yum update -y
 
-# Install Time Service
-sudo yum install -y ntp ntpdate
-sudo systemctl enable ntpd
-sudo systemctl start ntpd
+# Check System Time Sync
+timedatectl
 
-# Install tho Monitor Agent
+# Install Time Service
+# sudo yum install -y ntp ntpdate
+# sudo systemctl enable ntpd
+# sudo systemctl start ntpd
+
+# Install the Monitor Agent
 # https://cloud.google.com/monitoring/agent/installation
 curl -sSO https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh
 sudo bash add-monitoring-agent-repo.sh

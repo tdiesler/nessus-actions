@@ -1,0 +1,230 @@
+#
+# NAMESPACE=nessus
+# kubectl create namespace $NAMESPACE
+#
+
+# H2 ##################################################################################################################
+
+# H2 Persistent Volume Claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: h2pvc
+  labels:
+    app: nessus
+    pvc: h2pvc
+spec:
+  accessModes: [ ReadWriteMany ]
+  resources:
+    requests:
+      storage: 1G
+
+# H2 Database Pod
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: h2
+  labels:
+    app: nessus
+    pod: h2
+spec:
+  containers:
+  - name: h2
+    image: nessusio/nessus-h2:1.2.3
+    env:
+      - name: JDBC_SERVER_URL
+        value: jdbc:h2:tcp:localhost:9092/fuse
+      - name: JDBC_URL
+        value: jdbc:h2:file:/var/h2db/fuse;init=create schema if not exists nessus\;create schema if not exists keycloak
+      - name: JDBC_USER
+        value: keycloak
+      - name: JDBC_PASSWORD
+        value: password
+    ports:
+    - containerPort: 9092
+    volumeMounts:
+    - name: h2vol
+      mountPath: /var/h2db
+  volumes:
+  - name: h2vol
+    persistentVolumeClaim:
+      claimName: h2pvc
+
+# H2 HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: h2-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: h2
+  ports:
+  - name: http
+    port: 9092
+    nodePort: 30092
+  type: NodePort    
+
+# Keycloak Pod ########################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: keycloak
+  labels:
+    app: nessus
+    pod: keycloak
+spec:
+  containers:
+  - name: keycloak
+    image: nessusio/keycloak
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: DB_VENDOR
+      value: h2
+    - name: DB_ADDR
+      value: $(H2_HTTP_SERVICE_HOST)
+    - name: DB_DATABASE
+      value: fuse
+    - name: DB_SCHEMA
+      value: keycloak
+    - name: KEYCLOAK_USER
+      value: admin
+    - name: KEYCLOAK_PASSWORD
+      value: admin
+    - name: KEYCLOAK_IMPORT
+      value: https://raw.githubusercontent.com/tdiesler/nessus-actions/master/docs/k8s/deployment/keycloak/myrealm.json
+    ports:
+    - containerPort: 8080
+    - containerPort: 8443
+    volumeMounts:
+    - name: tls
+      mountPath: /etc/x509/https
+  volumes:
+  - name: tls
+    secret: 
+      secretName: keycloak
+ 
+# Keycloak HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: keycloak
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8080
+
+# Keycloak HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-https
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: keycloak
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 30043
+  type: NodePort    
+
+# Maven Pod ###########################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: maven
+  labels:
+    app: nessus
+    pod: maven
+spec:
+  containers:
+  - name: maven
+    image: nessusio/nessus-actions-maven
+    imagePullPolicy: IfNotPresent
+    ports:
+    - containerPort: 8100
+    - containerPort: 8443
+
+# Maven HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maven-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: maven
+  ports:
+  - name: http
+    port: 8100
+
+# Maven HTTPS Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maven-https
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: maven
+  ports:
+  - name: https
+    port: 8443
+    nodePort: 30143
+  type: NodePort    
+
+# Registry Pod ########################################################################################################
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: registry
+  labels:
+    app: nessus
+    pod: registry
+spec:
+  containers:
+  - name: registry
+    image: registry:2
+    ports:
+    - containerPort: 5000
+
+# Registry HTTP Service 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry-http
+  labels:
+    app: nessus
+spec:
+  selector:
+    app: nessus
+    pod: registry
+  ports:
+  - name: http
+    port: 5000

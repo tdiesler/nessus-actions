@@ -28,12 +28,10 @@ on how to setup Kubernetes on CentOS are [here](https://github.com/tdiesler/ness
 NAMESPACE=nessus
 kubectl create namespace $NAMESPACE
 
-CURRENT_CONTEXT=docker-desktop
-kubectl config set contexts.$CURRENT_CONTEXT.namespace $NAMESPACE
-kubectl config view
+kubectl config set-context --current --namespace=$NAMESPACE
  
 # Delete this app
-kubectl delete pod,svc,pvc --all
+kubectl delete pod,svc --all
 
 # Create Secrets & Persistent Volumes
 kubectl apply -f docs/k8s/deployment/keycloak-secret.yaml
