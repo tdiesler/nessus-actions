@@ -52,7 +52,7 @@
         <version-maven-release-plugin>2.5</version-maven-release-plugin>
         <version-maven-resources-plugin>3.1.0</version-maven-resources-plugin>
         <version-maven-surefire-plugin>2.22.2</version-maven-surefire-plugin>
-        <version-openapi-maven-generator>4.3.1</version-openapi-maven-generator>
+        <version-openapi-maven-generator>5.1.0</version-openapi-maven-generator>
         <version-swagger-maven-plugin>2.1.5</version-swagger-maven-plugin>
 
         <skipKeycloak>false</skipKeycloak>
